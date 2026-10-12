@@ -493,13 +493,13 @@ const arityBoxes = (arity: string, poly: Poly, config: Config): Box[] => {
     which attaches it to its edge, so a line crossed beneath its halo
     weighs less than a drift away from that arrow  */
 const renderEdgeArity = (edge: Edge, candidates: Box[], claim: (candidates: Box[], dodge?: boolean,
-    own?: Box) => Box, styler: Styler): string[] => {
+    own?: Box) => Box, styler: Styler, alert: boolean): string[] => {
     if (edge.arity === undefined)
         return []
     const box = claim(candidates, false, candidates[0])
     return [ `<text x="${(box[0] + box[2]) / 2}" y="${box[3] - 3}" ` +
-        `class="${styler.text("color-edge-arity", "size-font-arity", { middle: true, halo: true })}">` +
-        `${escapeXML(edge.arity)}</text>` ]
+        `class="${styler.text(alert ? "color-edge-violation" : "color-edge-arity", "size-font-arity",
+            { middle: true, halo: true })}">${escapeXML(edge.arity)}</text>` ]
 }
 
 /*  the preferred positions of the name labels of the bundled edges: on
@@ -649,7 +649,7 @@ const portLabels = (edge: Edge, poly: Poly, into: boolean, config: Config): Box[
     position through the "claim" of the label placer), or, for a
     bundled edge, preferably at one of its given stub positions  */
 const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Box[], dodge?: boolean) => Box,
-    styler: Styler, config: Config, preferred: Box[] = []): string[] => {
+    styler: Styler, config: Config, alert: boolean, preferred: Box[] = []): string[] => {
     if (edge.name === undefined)
         return []
     const w = textWidth(edge.name, config["size-font-edge"])
@@ -696,17 +696,17 @@ const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Box[], dodge
     }
     candidates.sort((a, b) => near(a) - near(b))
     candidates.unshift(...preferred)
-    return nameText(edge, claim(candidates), styler)
+    return nameText(edge, claim(candidates), styler, alert)
 }
 
 /*  generate the SVG fragment for the name label of a single edge at its
     claimed position, centered on it, or else aligned to its start or end
     (as the estimated text width may deviate from the rendered one, and
     a label anchored in front of an arrow head shall stay flush with it)  */
-const nameText = (edge: Edge, box: Box, styler: Styler,
+const nameText = (edge: Edge, box: Box, styler: Styler, alert: boolean,
     align: "middle" | "start" | "end" = "middle"): string[] =>
     [ `<text x="${align === "middle" ? (box[0] + box[2]) / 2 : align === "start" ? box[0] : box[2]}" ` +
-        `y="${box[3] - 3}" class="${styler.text("color-edge-name",
+        `y="${box[3] - 3}" class="${styler.text(alert ? "color-edge-violation" : "color-edge-name",
             "size-font-edge", { middle: align === "middle", end: align === "end", halo: true })}">` +
         `${escapeXML(edge.name ?? "")}</text>` ]
 
@@ -817,7 +817,8 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
 
     /*  an edge violating a rule of its diagram type (e.g. pointing
         upwards in a layered diagram) is drawn dashed in the violation
-        color, with an arrow head of that color  */
+        color, with an arrow head and labels of that color, so its labels
+        are attributed to it even among neighboring edges  */
     const violates   = layout.violates ?? (() => false)
     const alerted    = edges.some((edge) => violates(edge))
     const classAlert = alerted ? classOf(`fill: none; stroke: ${color("color-edge-violation")}; stroke-width: 3; ` +
@@ -905,7 +906,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         const anchor = arrivalLabels(edge, polys[i], config).find((box) => seize(box, i))
         if (anchor === undefined)
             return false
-        svgLabels.push(...nameText(edge, anchor, styler,
+        svgLabels.push(...nameText(edge, anchor, styler, violates(edge),
             anchor[2] <= polys[i][polys[i].length - 1][0] ? "end" : "start"))
         return true
     })
@@ -915,7 +916,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         const name = (preferred?: Box[], mates?: number[]) =>
             svgLabels.push(...renderEdgeName(edge, polys[i],
                 (c, dodge) => claim(c, i, dodge, undefined, mates !== undefined ? new Set(mates) : undefined),
-                styler, config, preferred))
+                styler, config, violates(edge), preferred))
         if (!grouped.has(i))
             name(stubAt.get(i))
         if (into.has(i))
@@ -927,7 +928,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         const candidates = arities[i]
         if (candidates !== undefined)
             svgLabels.push(...renderEdgeArity(edge, candidates,
-                (c, dodge, own) => claim(c, i, dodge, own), styler))
+                (c, dodge, own) => claim(c, i, dodge, own), styler, violates(edge)))
     })
 
     /*  generate the SVG fragments for the node boxes  */

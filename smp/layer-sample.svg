@@ -6,7 +6,7 @@
 .gradia-6c7500cd { fill: var(--gradia-color-edge-line, #999999) }
 .gradia-e148af34 { fill: none; stroke: var(--gradia-color-edge-violation, #cc3333); stroke-width: 3; stroke-dasharray: 10 6 }
 .gradia-fbec5a65 { fill: var(--gradia-color-edge-violation, #cc3333) }
-.gradia-17299245 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-edge, 16px); text-anchor: middle; fill: var(--gradia-color-edge-name, #333333); stroke: var(--gradia-color-edge-halo, #ffffff); stroke-width: 4.5; paint-order: stroke; stroke-linejoin: round }
+.gradia-e5f7c28a { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-edge, 16px); text-anchor: middle; fill: var(--gradia-color-edge-violation, #cc3333); stroke: var(--gradia-color-edge-halo, #ffffff); stroke-width: 4.5; paint-order: stroke; stroke-linejoin: round }
 .gradia-c318c042 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-node-regular-border, #c0d0e0); stroke-width: 4 }
 .gradia-f36ab1ca { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-node, 30px); font-weight: 600; text-anchor: middle; fill: var(--gradia-color-node-regular-name, #336699) }
 .gradia-5fbd5370 { fill: var(--gradia-color-group-box, #f4f8fc); stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 3 }
@@ -48,5 +48,5 @@
 <text x="190" y="550.8" class="gradia-f36ab1ca">Order Repository</text>
 <rect x="460" y="500" width="300" height="80" rx="6" class="gradia-c318c042"/>
 <text x="610" y="550.8" class="gradia-f36ab1ca">Event Bus</text>
-<text x="343.72" y="469" class="gradia-17299245">callback</text>
+<text x="343.72" y="469" class="gradia-e5f7c28a">callback</text>
 </svg>
