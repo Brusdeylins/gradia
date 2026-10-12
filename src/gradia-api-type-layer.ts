@@ -16,8 +16,9 @@ import { render as renderGraph }    from "./gradia-api-type-graph.js"
 
 /*  the gap between two neighboring layer bands, and the raster step
     the unified node box sizes are rounded up to  */
-const BAND_GAP = 8
-const RASTER   = 20
+const BAND_GAP    = 8
+const BAND_MARGIN = 20
+const RASTER      = 20
 
 /*  the special "layer" annotation (the name of the layer of a node)  */
 const layerOf = (node: Node): string | undefined =>
@@ -62,7 +63,11 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         regular raster, the columns line up across the layers, and the
         names of a layer share one baseline (the text keeping its own
         content height, so it stays vertically centered)  */
-    const free   = await renderGraph(ordered, config, level)
+    /*  the gutters between the layers have to hold the margins of the
+        two bands beside them plus the gap between the bands  */
+    const cfg    = { ...config, "graph-gutter-height-min":
+        Math.max(config["graph-gutter-height-min"], BAND_MARGIN * 2 + BAND_GAP) }
+    const free   = await renderGraph(ordered, cfg, level)
     const step   = (n: number) => Math.ceil(n / RASTER) * RASTER
     const width  = step(free.nodes.reduce((w, node) => Math.max(w, free.boxW.get(node.id)!), 0))
     const height = new Map<number | undefined, number>()
@@ -72,11 +77,24 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     }
     const fixedSize = new Map(free.nodes.map((node) =>
         [ node.id, { w: width, h: height.get(indexOf(node.id))! } ]))
-    const layout = await renderGraph(ordered, config, { ...level, fixedSize })
+
+    /*  unify the gutters between the layers onto the raster-rounded
+        height of the highest one, so the bands are evenly spaced  */
+    const extent = (layout: Layout, i: number, edge: "top" | "bottom") =>
+        layout.nodes.filter((node) => indexOf(node.id) === i).reduce((y, node) => edge === "top" ?
+            Math.min(y, layout.cy(node.id) - layout.boxH.get(node.id)! / 2) :
+            Math.max(y, layout.cy(node.id) + layout.boxH.get(node.id)! / 2), edge === "top" ? Infinity : -Infinity)
+    let gutter = cfg["graph-gutter-height-min"]
+    for (let i = 0; i < layers.length - 1; i++) {
+        const gap = extent(free, i + 1, "top") - extent(free, i, "bottom")
+        if (Number.isFinite(gap))
+            gutter = Math.max(gutter, gap)
+    }
+    const layout = await renderGraph(ordered, { ...cfg, "graph-gutter-height-min": step(gutter) },
+        { ...level, fixedSize })
     layout.contentH = free.contentH
 
-    /*  determine the vertical extent of every layer from its node boxes
-        and split the gutters between neighboring layers in the middle  */
+    /*  determine the vertical extent of every layer from its node boxes  */
     const pad    = config["group-box-padding"]
     const top    = layers.map(() => Infinity)
     const bottom = layers.map(() => -Infinity)
@@ -89,9 +107,10 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         bottom[i] = Math.max(bottom[i], layout.cy(node.id) + h)
     }
 
-    /*  draw every layer as a band spanning the whole diagram, with the
-        layer name left of its nodes in the bold font of the group tags,
-        below the edges and the nodes  */
+    /*  draw every layer as a band spanning the whole diagram, its nodes
+        vertically centered by the same margin above and below them, with
+        the layer name left of its nodes in the bold font of the group
+        tags, below the edges and the nodes  */
     const bounds = boundsOf(layout)
     const labelW = layers.reduce((w, name) => Math.max(w, textWidth(name, FS_GROUP)), 0)
     const left   = bounds.minX - pad - labelW - pad
@@ -100,8 +119,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     layers.forEach((name, i) => {
         if (!Number.isFinite(top[i]))
             return
-        const y1 = i === 0                 ? top[i] - pad    : (bottom[i - 1] + top[i]) / 2 + BAND_GAP / 2
-        const y2 = i === layers.length - 1 ? bottom[i] + pad : (bottom[i] + top[i + 1]) / 2 - BAND_GAP / 2
+        const y1 = top[i]    - BAND_MARGIN
+        const y2 = bottom[i] + BAND_MARGIN
         shapes.push({ kind: "rect", x: left, y: y1, w: right - left, h: y2 - y1, rx: 12,
             fill: "color-group-box", stroke: "color-group-border", width: 3 })
         shapes.push(textShape(left + pad, (y1 + y2) / 2 + FS_GROUP * 0.36, name,
