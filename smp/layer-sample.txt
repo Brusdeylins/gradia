@@ -1,0 +1,17 @@
+#type layer
+
+web:     "Web Client"       [ layer: Presentation ]
+admin:   "Admin Console"    [ layer: Presentation ]
+orders:  "Order Service"    [ layer: Application ]
+billing: "Billing Service"  [ layer: Application ]
+model:   "Domain Model"     [ layer: Domain ]
+store:   "Order Repository" [ layer: Infrastructure ]
+bus:     "Event Bus"        [ layer: Infrastructure ]
+
+web     --> orders
+admin   --> billing
+orders  --> model
+billing --> model
+orders  --> store
+billing --> bus
+store   --(callback)--> orders

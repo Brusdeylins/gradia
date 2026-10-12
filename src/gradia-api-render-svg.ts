@@ -777,6 +777,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     /*  derive the collision-free identifiers of this SVG document  */
     const prefix  = idPrefix(seed)
     const idArrow = `${prefix}-arrow`
+    const idAlert = `${prefix}-alert`
 
     /*  resolve the configured font into the rendered font family stack  */
     const { family, embed, weight } = resolveFont(config)
@@ -813,6 +814,15 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     }
     const classEdge  = classOf(`fill: none; stroke: ${color("color-edge-line")}; stroke-width: 3`)
     const classArrow = classOf(`fill: ${color("color-edge-line")}`)
+
+    /*  an edge violating a rule of its diagram type (e.g. pointing
+        upwards in a layered diagram) is drawn dashed in the violation
+        color, with an arrow head of that color  */
+    const violates   = layout.violates ?? (() => false)
+    const alerted    = edges.some((edge) => violates(edge))
+    const classAlert = alerted ? classOf(`fill: none; stroke: ${color("color-edge-violation")}; stroke-width: 3; ` +
+        "stroke-dasharray: 10 6") : ""
+    const classAlertArrow = alerted ? classOf(`fill: ${color("color-edge-violation")}`) : ""
 
     /*  detect the edge crossings requiring rendered hops  */
     const hops = computeHops(polys)
@@ -862,8 +872,8 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     const svgEdges = piecesOf(polys, layout.bundled).flatMap((pieces, i) => pieces.map((piece) =>
         `<path d="${pathOf(polys[i], hops[i], config["size-edge-corner-radius"], config["size-edge-hop-radius"],
             junction, layout.crowded === true, piece)}" ` +
-        `class="${classEdge}"` +
-        (repeat[i] || !piece.end ? "/>" : ` marker-end="url(#${idArrow})"/>`)))
+        `class="${violates(edges[i]) ? classAlert : classEdge}"` +
+        (repeat[i] || !piece.end ? "/>" : ` marker-end="url(#${violates(edges[i]) ? idAlert : idArrow})"/>`)))
     const svgJunctions = junctions.map(([ x, y ]) =>
         `<circle cx="${x}" cy="${y}" r="${JUNCTION_R}" class="${classArrow}"/>`)
 
@@ -961,6 +971,13 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
             "orient=\"auto-start-reverse\">",
         `<path d="M 0 1 L 9 5 L 0 9 z" class="${classArrow}"/>`,
         "</marker>",
+        ...(alerted ? [
+            `<marker id="${idAlert}" viewBox="0 0 10 10" refX="9" refY="5" ` +
+                "markerWidth=\"21\" markerHeight=\"21\" markerUnits=\"userSpaceOnUse\" " +
+                "orient=\"auto-start-reverse\">",
+            `<path d="M 0 1 L 9 5 L 0 9 z" class="${classAlertArrow}"/>`,
+            "</marker>"
+        ] : []),
         "</defs>",
         ...svgGroups,
         ...svgContainers,

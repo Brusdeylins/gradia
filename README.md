@@ -14,7 +14,7 @@ About
 -----
 
 **Gradia** is a small API and CLI for rendering directed graphs,
-described in a concise textual input language, as SVG diagrams. Four
+described in a concise textual input language, as SVG diagrams. Five
 diagram types are supported which fit the scenario of visualizing object
 graphs and the structures around them:
 
@@ -26,6 +26,8 @@ graphs and the structures around them:
 - `layout`: the cell layout of a binary structure (e.g. a message frame,
   a file header, or a memory slot), drawing every node as a field of
   cells below a ruler and labeling it below the cells.
+- `layer`: a layered architecture, stacking its layers as bands and
+  marking the edges pointing upwards against the layering.
 
 Examples
 --------
@@ -56,6 +58,10 @@ Here are examples of the diagram renderings:
 
   ![layout-bytes](smp/layout-bytes.svg)
 
+- [layer-sample](smp/layer-sample.txt) (layered architecture):
+
+  ![layer-sample](smp/layer-sample.svg)
+
 Playground
 ----------
 
@@ -74,7 +80,7 @@ Usage
 -----
 
 ```sh
-$ gradia [-t graph|hub|grid|layout] [-f <format>] [-c <name>=<value>] -o <file>.svg <graph>.txt
+$ gradia [-t graph|hub|grid|layout|layer] [-f <format>] [-c <name>=<value>] -o <file>.svg <graph>.txt
 ```
 
 The diagram type is selected with the `-t` command-line option or, when
@@ -91,7 +97,7 @@ MCP Service
 -----------
 
 ```sh
-$ gradia --mcp [-t graph|hub|grid|layout] [-f <format>] [-c <name>=<value>]
+$ gradia --mcp [-t graph|hub|grid|layout|layer] [-f <format>] [-c <name>=<value>]
 ```
 
 With the `-m`/`--mcp` option, **Gradia** instead runs as a [Model Context
@@ -158,7 +164,7 @@ separated by `|`.
 <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                    | "#type" <whitespace> { <whitespace> } <type>
 <option>         ::= <letter> { <letter> | <digit> | "-" }
-<type>           ::= "graph" | "hub" | "grid" | "layout"
+<type>           ::= "graph" | "hub" | "grid" | "layout" | "layer"
 <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
 <newline>        ::= "\n"
 <whitespace>     ::= " " | "\t" | "\r"
@@ -318,6 +324,17 @@ structures as group boxes, while all other attributes are ignored. The
 offset of every row is shown right beside it, in hexadecimal bytes
 (or in bits, where a row does not start on a byte boundary).
 
+The diagram type `layer` lays out a layered architecture and rejects
+the input with an error as soon as the graph contains a container. The
+attribute `layer: <name>` assigns a node to a layer, the layers stack
+top-down in the order of their first appearance as bands spanning the
+whole diagram (colored by the `color-group-*` options, the layer name
+left of its nodes), and the nodes of a layer fill its band
+left-to-right (wrapped beyond `graph-columns-max` nodes), while the nodes
+without a layer trail outside of any band. An edge pointing from a lower
+layer to a higher one, i.e. against the layering, is drawn dashed in the
+`color-edge-violation` color, as it marks a violation of the layering.
+
 As the groups of a grouped graph, and the members of every container,
 are laid out individually with the selected (or, for a container, the
 annotated) diagram type, these constraints apply to every single group
@@ -329,7 +346,7 @@ group and every `hub` container needs its own primary node.
 
 ### Directives
 
-A `#type` directive sets the diagram type (`graph`, `hub`, `grid`, or `layout`),
+A `#type` directive sets the diagram type (`graph`, `hub`, `grid`, `layout`, or `layer`),
 which otherwise is settable through the `-t`/`--type` command-line
 option (which takes precedence). The last occurrence wins and an invalid
 type is silently ignored. Without both, the type defaults to `graph`.
@@ -364,13 +381,13 @@ color-edge-line            #999999      hub-channel-width-min      240
 color-edge-name            #333333      hub-node-gap               20
 color-edge-arity           #333333      hub-node-degree-max        3
 color-edge-halo            #ffffff      hub-node-count-max         0
-size-font-node             30           grid-columns-max           4
-size-font-type             16           grid-columns-min           3
-size-font-prop             22           grid-gap-horizontal        40
-size-font-edge             16           grid-gap-vertical          20
-size-font-arity            16           grid-node-width-equal      true
-size-canvas-margin         40           grid-node-height-equal     true
-                                        layout-row-cells           8
+color-edge-violation       #cc3333      grid-columns-max           4
+size-font-node             30           grid-columns-min           3
+size-font-type             16           grid-gap-horizontal        40
+size-font-prop             22           grid-gap-vertical          20
+size-font-edge             16           grid-node-width-equal      true
+size-font-arity            16           grid-node-height-equal     true
+size-canvas-margin         40           layout-row-cells           8
                                         layout-cell-bits           8
                                         layout-cell-size           44
 ```

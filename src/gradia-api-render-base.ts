@@ -205,6 +205,7 @@ export interface Layout {
     groups?:     GroupBox[]
     containers?: ContainerBox[]
     shapes?:     Shape[]
+    violates?:   (edge: Edge) => boolean
     bundled?:    boolean[]
     junctions?:  Poly
     crowded?:    boolean

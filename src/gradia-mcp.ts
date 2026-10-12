@@ -44,6 +44,9 @@ component relationships, data flows, dependency graphs, and similar structures.
 - "layout": the cell layout of a binary structure (e.g. a message frame, a file
   header, or a memory slot): every node is a field drawn as a run of cells
   below a ruler and labeled below the cells.
+- "layer": a layered architecture: the layers (the "layer: <name>" attribute of
+  the nodes) stack top-down as bands, and an edge pointing upwards against the
+  layering is marked as a violation.
 
 ### Diagram Type Constraints
 
@@ -91,6 +94,17 @@ structures as group boxes, while all other attributes are ignored. The
 offset of every row is shown right beside it, in hexadecimal bytes
 (or in bits, where a row does not start on a byte boundary).
 
+The diagram type "layer" lays out a layered architecture and rejects
+the input with an error as soon as the graph contains a container. The
+attribute "layer: <name>" assigns a node to a layer, the layers stack
+top-down in the order of their first appearance as bands spanning the
+whole diagram (colored by the "color-group-*" options, the layer name
+left of its nodes), and the nodes of a layer fill its band
+left-to-right (wrapped beyond "graph-columns-max" nodes), while the nodes
+without a layer trail outside of any band. An edge pointing from a lower
+layer to a higher one, i.e. against the layering, is drawn dashed in the
+"color-edge-violation" color, as it marks a violation of the layering.
+
 The "graph" type imposes no such constraints and hence is the safe choice
 whenever the topology is not known to fit "hub" or "grid" (and is no binary
 structure for "layout").
@@ -127,7 +141,7 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
     <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                        | "#type" <whitespace> { <whitespace> } <type>
     <option>         ::= <letter> { <letter> | <digit> | "-" }
-    <type>           ::= "graph" | "hub" | "grid" | "layout"
+    <type>           ::= "graph" | "hub" | "grid" | "layout" | "layer"
     <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
     <newline>        ::= "\\n"
     <whitespace>     ::= " " | "\\t" | "\\r"

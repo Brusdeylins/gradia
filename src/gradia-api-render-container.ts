@@ -314,6 +314,7 @@ export const renderContained = async (
             containers: [ ...boxes, ...innerBoxes ],
             shapes:     parts.flatMap((part) => (part.layout.shapes ?? []).map((shape) =>
                 shiftShape(shape, part.dx, part.dy))),
+            violates:   (edge) => parts.some((part) => part.layout.violates?.(edge) === true),
             bundled,
             junctions:  parts.flatMap((part, k) => shift(part.layout.junctions ?? [], k)),
             crowded:    parts.some((part) => part.layout.crowded === true)

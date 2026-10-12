@@ -121,6 +121,7 @@ export const composeGroups = (parts: GroupPart[], layouts: Layout[], config: Con
             ({ ...c, x: c.x + dxs[i], y: c.y + dys[i] }))),
         shapes:     layouts.flatMap((layout, i) => (layout.shapes ?? []).map((shape) =>
             shiftShape(shape, dxs[i], dys[i]))),
+        violates:   (edge) => layouts.some((layout) => layout.violates?.(edge) === true),
         bundled:    layouts.flatMap((layout) => layout.edges.map((_, i) => layout.bundled?.[i] ?? false)),
         junctions:  layouts.flatMap((layout, i) => (layout.junctions ?? []).map(([ px, py ]): [ number, number ] =>
             [ px + dxs[i], py + dys[i] ])),
