@@ -6,7 +6,7 @@
 
 /*  internal dependencies  */
 import { Node, Edge }             from "./gradia-api-model.js"
-import { Config, ConfigEmbedded } from "./gradia-api-config.js"
+import { Config, ConfigEmbedded, ConfigFontSize } from "./gradia-api-config.js"
 
 /*  rendering font size constant of the group tags (the font sizes of
     the node and edge texts and the further geometry are configurable,
@@ -114,6 +114,76 @@ export interface ContainerBox {
     h:    number
 }
 
+/*  a free-standing drawing primitive of a diagram type whose content is
+    not only made of node boxes and edges (e.g. the cells, braces, and
+    rulers of a "layout" diagram), styled exclusively through the very
+    same configuration options as the node boxes and edges, so it
+    blends seamlessly into the visual language of all other diagrams
+    (a "path" starts at its origin and continues with relative commands
+    only, so it can be shifted, and a "path" and a "text" carry the area
+    they cover, as their extent is opaque or depends on the font size)  */
+export interface ShapeRect {
+    kind:    "rect"
+    x:       number
+    y:       number
+    w:       number
+    h:       number
+    rx?:     number
+    fill:    ConfigEmbedded
+    stroke:  ConfigEmbedded
+    width:   number
+    dash?:   string
+}
+export interface ShapePath {
+    kind:    "path"
+    x:       number
+    y:       number
+    d:       string
+    box:     Area
+    stroke:  ConfigEmbedded
+    width:   number
+    dash?:   string
+}
+export interface ShapeText {
+    kind:    "text"
+    x:       number
+    y:       number
+    text:    string
+    box:     Area
+    fill:    ConfigEmbedded
+    size:    ConfigFontSize
+    anchor:  "start" | "middle" | "end"
+    bold?:   boolean
+    url?:    string
+}
+export type Shape = ShapeRect | ShapePath | ShapeText
+
+/*  a rectangular area, given by its top-left and bottom-right corners  */
+export type Area = [ number, number, number, number ]
+
+/*  create a text shape, estimating the area it covers (from the
+    baseline up by one font size and down by a descender)  */
+export const textShape = (x: number, y: number, text: string, fill: ConfigEmbedded,
+    size: ConfigFontSize, config: Config, anchor: "start" | "middle" | "end" = "start",
+    bold = false, url?: string): Shape => {
+    const px   = config[size]
+    const w    = textWidth(text, px)
+    const left = anchor === "middle" ? x - w / 2 : anchor === "end" ? x - w : x
+    return { kind: "text", x, y, text, fill, size, anchor, bold, url,
+        box: [ left, y - px, left + w, y + px * 0.25 ] }
+}
+
+/*  determine the area a shape covers  */
+export const shapeBox = (shape: Shape): Area =>
+    shape.kind === "rect" ? [ shape.x, shape.y, shape.x + shape.w, shape.y + shape.h ] : shape.box
+
+/*  shift a shape by an offset (e.g. into its group box)  */
+export const shiftShape = (shape: Shape, dx: number, dy: number): Shape =>
+    shape.kind === "rect" ?
+        { ...shape, x: shape.x + dx, y: shape.y + dy } :
+        { ...shape, x: shape.x + dx, y: shape.y + dy,
+            box: [ shape.box[0] + dx, shape.box[1] + dy, shape.box[2] + dx, shape.box[3] + dy ] }
+
 /*  the laid out graph handed over for SVG generation (the optional
     "bundled" flags run parallel to the edges and the polylines and
     mark the edges sharing a track with others, as flags compose by
@@ -134,8 +204,8 @@ export interface Layout {
     styleOf?:    (node: Node) => NodeStyle
     groups?:     GroupBox[]
     containers?: ContainerBox[]
+    shapes?:     Shape[]
     bundled?:    boolean[]
     junctions?:  Poly
     crowded?:    boolean
 }
-

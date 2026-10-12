@@ -16,6 +16,7 @@ import { renderSVG }                               from "./gradia-api-render-svg
 import { render as renderGraph }                   from "./gradia-api-type-graph.js"
 import { render as renderHub }                     from "./gradia-api-type-hub.js"
 import { render as renderGrid }                    from "./gradia-api-type-grid.js"
+import { render as renderLayout }                  from "./gradia-api-type-layout.js"
 
 /*  re-export the graph model and configuration companion types  */
 export type { Attr, Node, Edge, Graph }            from "./gradia-api-model.js"
@@ -24,9 +25,10 @@ export type { Config }                             from "./gradia-api-config.js"
 /*  the supported diagram types, their renderers, and whether they let
     the edges crossing a container boundary continue to the inner nodes  */
 const renderers = {
-    graph: { render: renderGraph, gated: true  },
-    hub:   { render: renderHub,   gated: false },
-    grid:  { render: renderGrid,  gated: false }
+    graph:  { render: renderGraph,  gated: true  },
+    hub:    { render: renderHub,    gated: false },
+    grid:   { render: renderGrid,   gated: false },
+    layout: { render: renderLayout, gated: false }
 } satisfies Record<string, DiagramTypeSpec>
 export type DiagramType = keyof typeof renderers
 export const diagramTypes = Object.keys(renderers) as DiagramType[]

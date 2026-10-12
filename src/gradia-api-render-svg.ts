@@ -14,8 +14,8 @@ import UUID                                                 from "pure-uuid"
 import { Node, Edge }                                       from "./gradia-api-model.js"
 import { Config, ConfigEmbedded, ConfigFontSize, resolveFont, cssValueOf, cssSizeOf }
     from "./gradia-api-config.js"
-import { Poly, NodeStyle, Layout, GroupBox, ContainerBox,
-    FS_GROUP, ARITY_OFF, ARITY_PAD, ARITY_GAP, ARROW_AIR, arityHeight, textWidth, escapeXML }
+import { Poly, NodeStyle, Layout, GroupBox, ContainerBox, Shape,
+    FS_GROUP, ARITY_OFF, ARITY_PAD, ARITY_GAP, ARROW_AIR, arityHeight, textWidth, escapeXML, shapeBox }
     from "./gradia-api-render-base.js"
 import { linesOfNode, urlOf, typeOf, defaultStyleOf, containerHead,
     MIN_H, NAME_H, ATTR_H, ATTR_P, TYPE_H, TYPE_D, HEAD_H }
@@ -100,6 +100,7 @@ interface Styler {
     text: (fill: ConfigEmbedded, size: ConfigFontSize | number,
         options?: { bold?: boolean, middle?: boolean, end?: boolean, halo?: boolean }) => string
     box:  (fill: ConfigEmbedded, stroke: ConfigEmbedded, width: number) => string
+    line: (stroke: ConfigEmbedded, width: number) => string
 }
 
 /*  a rectangular area, given by its top-left and bottom-right corners  */
@@ -742,6 +743,22 @@ const renderContainer = (c: ContainerBox, styler: Styler, config: Config): strin
     return [ `<a href="${escapeXML(url)}" xlink:href="${escapeXML(url)}">`, ...parts, "</a>" ]
 }
 
+/*  generate the SVG fragment for a single free-standing shape  */
+const renderShape = (shape: Shape, styler: Styler): string => {
+    const dash = shape.kind !== "text" && shape.dash !== undefined ?
+        ` stroke-dasharray="${escapeXML(shape.dash)}"` : ""
+    if (shape.kind === "rect")
+        return `<rect x="${shape.x}" y="${shape.y}" width="${shape.w}" height="${shape.h}" ` +
+            `rx="${shape.rx ?? 0}" class="${styler.box(shape.fill, shape.stroke, shape.width)}"${dash}/>`
+    else if (shape.kind === "path")
+        return `<path d="M ${shape.x} ${shape.y} ${shape.d}" class="${styler.line(shape.stroke, shape.width)}"${dash}/>`
+    const text = `<text x="${shape.x}" y="${shape.y}" class="${styler.text(shape.fill, shape.size,
+        { bold: shape.bold, middle: shape.anchor === "middle", end: shape.anchor === "end" })}">` +
+        `${escapeXML(shape.text)}</text>`
+    return shape.url === undefined ? text :
+        `<a href="${escapeXML(shape.url)}" xlink:href="${escapeXML(shape.url)}">${text}</a>`
+}
+
 /*  render a laid out graph into an SVG document (the seed determines the
     identifier prefix of the document, see "idPrefix" above)  */
 export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Config>,
@@ -790,7 +807,9 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
             (options.halo ? `; stroke: ${color("color-edge-halo")}; stroke-width: 4.5; ` +
                 "paint-order: stroke; stroke-linejoin: round" : "")),
         box: (fill, stroke, width) => classOf(
-            `fill: ${color(fill)}; stroke: ${color(stroke)}; stroke-width: ${width}`)
+            `fill: ${color(fill)}; stroke: ${color(stroke)}; stroke-width: ${width}`),
+        line: (stroke, width) => classOf(
+            `fill: none; stroke: ${color(stroke)}; stroke-width: ${width}; stroke-linecap: round; stroke-linejoin: round`)
     }
     const classEdge  = classOf(`fill: none; stroke: ${color("color-edge-line")}; stroke-width: 3`)
     const classArrow = classOf(`fill: ${color("color-edge-line")}`)
@@ -910,12 +929,18 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     const svgGroups     = groups.flatMap((group) => renderGroup(group, styler))
     const svgContainers = containers.flatMap((c) => renderContainer(c, styler, config))
 
+    /*  generate the SVG fragments for the free-standing shapes (drawn
+        above the boxes and below the edges and nodes, in their order)  */
+    const shapes    = layout.shapes ?? []
+    const svgShapes = shapes.map((shape) => renderShape(shape, styler))
+
     /*  determine the overall bounding box of all rendered elements  */
     const groupBoxes: Box[] = groups.map((group) =>
         [ group.x, group.y, group.x + group.w, group.y + group.h ])
     const containerBoxes: Box[] = containers.map((c) =>
         [ c.x, c.y, c.x + c.w, c.y + c.h ])
-    const vb = viewBoxOf(layout, [ ...occupied, ...groupBoxes, ...containerBoxes ], config["size-canvas-margin"])
+    const vb = viewBoxOf(layout, [ ...occupied, ...groupBoxes, ...containerBoxes, ...shapes.map(shapeBox) ],
+        config["size-canvas-margin"])
 
     /*  assemble the final SVG document (with one CSS rule per line)  */
     return [
@@ -939,6 +964,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         "</defs>",
         ...svgGroups,
         ...svgContainers,
+        ...svgShapes,
         ...svgEdges,
         ...svgJunctions,
         ...svgNodes,

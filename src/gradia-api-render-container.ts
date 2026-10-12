@@ -7,7 +7,7 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }                       from "./gradia-api-model.js"
 import { Config }                                  from "./gradia-api-config.js"
-import { Poly, FS_GROUP, textWidth, Layout, ContainerBox }
+import { Poly, FS_GROUP, textWidth, Layout, ContainerBox, shapeBox, shiftShape }
     from "./gradia-api-render-base.js"
 import { parentOf, containerTypeOf, containerHead, typeOf, defaultStyleOf }
     from "./gradia-api-render-node.js"
@@ -130,6 +130,13 @@ export const boundsOf = (layout: Layout, extra: Poly[] = []): Bounds => {
             maxX = Math.max(maxX, px)
             maxY = Math.max(maxY, py)
         }
+    }
+    for (const shape of layout.shapes ?? []) {
+        const [ x1, y1, x2, y2 ] = shapeBox(shape)
+        minX = Math.min(minX, x1)
+        minY = Math.min(minY, y1)
+        maxX = Math.max(maxX, x2)
+        maxY = Math.max(maxY, y2)
     }
     for (const c of layout.containers ?? []) {
         minX = Math.min(minX, c.x)
@@ -305,6 +312,8 @@ export const renderContained = async (
             polys,
             styleOf:    (node) => (parts[partOf.get(node.id)!].layout.styleOf ?? defaultStyleOf)(node),
             containers: [ ...boxes, ...innerBoxes ],
+            shapes:     parts.flatMap((part) => (part.layout.shapes ?? []).map((shape) =>
+                shiftShape(shape, part.dx, part.dy))),
             bundled,
             junctions:  parts.flatMap((part, k) => shift(part.layout.junctions ?? [], k)),
             crowded:    parts.some((part) => part.layout.crowded === true)

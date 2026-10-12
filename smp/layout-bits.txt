@@ -1,0 +1,9 @@
+#type layout
+#config layout-cell-bits 1
+#config layout-row-cells 8
+
+start:   "Start Marker"   [ offset: 0,  size: 8, value: "01011001" ]
+client:  "Client ID"      [ offset: 8,  size: 3 ]
+ack:     "Ack"            [ offset: 11, size: 1 ]
+parity:  "Parity Bit"     [ offset: 12, size: 1 ]
+command: "Command"        [ offset: 13, size: 3 ]
