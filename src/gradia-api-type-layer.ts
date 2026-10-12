@@ -14,8 +14,10 @@ import { parentOf, containerTypeOf }
     from "./gradia-api-render-node.js"
 import { render as renderGraph }    from "./gradia-api-type-graph.js"
 
-/*  the gap between two neighboring layer bands  */
+/*  the gap between two neighboring layer bands, and the raster step
+    the unified node box sizes are rounded up to  */
 const BAND_GAP = 8
+const RASTER   = 20
 
 /*  the special "layer" annotation (the name of the layer of a node)  */
 const layerOf = (node: Node): string | undefined =>
@@ -52,7 +54,26 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         } ])),
         edges: graph.edges
     }
-    const layout = await renderGraph(ordered, config, level)
+
+    /*  lay out the graph twice: first freely, to learn the box sizes the
+        texts and the edge ports demand, and then with every box fixed to
+        the raster-rounded width of the widest box of the diagram and the
+        height of the highest box of its layer, so the boxes form a
+        regular raster, the columns line up across the layers, and the
+        names of a layer share one baseline (the text keeping its own
+        content height, so it stays vertically centered)  */
+    const free   = await renderGraph(ordered, config, level)
+    const step   = (n: number) => Math.ceil(n / RASTER) * RASTER
+    const width  = step(free.nodes.reduce((w, node) => Math.max(w, free.boxW.get(node.id)!), 0))
+    const height = new Map<number | undefined, number>()
+    for (const node of free.nodes) {
+        const i = indexOf(node.id)
+        height.set(i, Math.max(height.get(i) ?? 0, step(free.boxH.get(node.id)!)))
+    }
+    const fixedSize = new Map(free.nodes.map((node) =>
+        [ node.id, { w: width, h: height.get(indexOf(node.id))! } ]))
+    const layout = await renderGraph(ordered, config, { ...level, fixedSize })
+    layout.contentH = free.contentH
 
     /*  determine the vertical extent of every layer from its node boxes
         and split the gutters between neighboring layers in the middle  */
