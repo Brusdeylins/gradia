@@ -1,0 +1,16 @@
+#type graph
+
+user:    "Attendee"         [ shape: person ]
+device:  "Kiosk Terminal"   [ shape: device ]
+cdn:     "Edge CDN"         [ shape: cloud ]
+proxy:   "Proxy Pool"       [ shape: stack ]
+broker:  "Message Broker"   [ shape: queue ]
+db:      "Event Database"   [ shape: database ]
+service: "Service"
+
+user    --> cdn
+device  --> proxy
+cdn     --> proxy
+proxy   --> service
+service --> broker
+service --> db

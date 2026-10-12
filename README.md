@@ -72,6 +72,10 @@ Here are examples of the diagram renderings:
 
   ![trace-sample](smp/trace-sample.svg)
 
+- [shape-sample](smp/shape-sample.txt) (node shapes):
+
+  ![shape-sample](smp/shape-sample.svg)
+
 Playground
 ----------
 
@@ -224,7 +228,7 @@ separated by `|`.
 - The `<edge-name>` is rendered as the label of the edge and the
   `<edge-arity>` as its cardinality label.
 
-- Seven attribute keys are reserved and consumed by the renderer instead
+- Eight attribute keys are reserved and consumed by the renderer instead
   of being displayed as a regular `<key>: <val>` line:
 
     - `url: <url>` renders the node box as a hyperlink. Only relative URLs
@@ -278,6 +282,14 @@ separated by `|`.
   around them through the gutter below, passing the border at the
   height of that gutter), while an edge crossing the boundary of a
   container laid out as `hub` or `grid` ends at the box border instead.
+
+- The attribute `shape: <shape>` draws the node box with another
+  outline, keeping its colors, its text, and its size: `box` (the
+  default), `database` (a cylinder), `queue` (a lying cylinder), `cloud`
+  (a cloud), `stack` (the box stacked onto two copies of itself, for
+  several instances), `person` (a box with a person badge on its top
+  border), or `device` (a box with a device badge), where an unknown
+  shape is ignored.
 
 - All remaining attributes are displayed as `<key>: <val>` lines inside
   the node box.

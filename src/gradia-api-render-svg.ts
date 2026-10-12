@@ -17,7 +17,7 @@ import { Config, ConfigEmbedded, ConfigFontSize, resolveFont, cssValueOf, cssSiz
 import { Poly, NodeStyle, Layout, GroupBox, ContainerBox, Shape,
     FS_GROUP, ARITY_OFF, ARITY_PAD, ARITY_GAP, ARROW_AIR, arityHeight, textWidth, escapeXML, shapeBox }
     from "./gradia-api-render-base.js"
-import { linesOfNode, urlOf, typeOf, defaultStyleOf, containerHead,
+import { linesOfNode, urlOf, typeOf, defaultStyleOf, containerHead, shapeOf, type NodeShape,
     MIN_H, NAME_H, ATTR_H, ATTR_P, TYPE_H, TYPE_D, HEAD_H }
     from "./gradia-api-render-node.js"
 import { computeHops, piecesOf, pathOf, pointAt }
@@ -381,6 +381,48 @@ const labelPlacer = (
     return { claim, seize, reserve, occupied }
 }
 
+/*  generate the SVG fragments of the outline of a node box of a shape,
+    all of them fitting the very box of the regular shape (except the
+    copies of a "stack" behind it and the badge of a "person" or
+    "device" on its top border), so the layout of the diagram types and
+    the edge ports stay the same  */
+const renderOutline = (shape: NodeShape, x: number, y: number, w: number, h: number,
+    cls: string, dash: string): string[] => {
+    if (shape === "database") {
+        const ry = Math.min(14, h / 6)
+        return [ `<path d="M ${x} ${y + ry} a ${w / 2} ${ry} 0 0 1 ${w} 0 v ${h - 2 * ry} ` +
+                `a ${w / 2} ${ry} 0 0 1 ${-w} 0 z" class="${cls}"${dash}/>`,
+        `<path d="M ${x} ${y + ry} a ${w / 2} ${ry} 0 0 0 ${w} 0" class="${cls}"${dash}/>` ]
+    }
+    else if (shape === "queue") {
+        const rx = Math.min(16, w / 8)
+        return [ `<path d="M ${x + rx} ${y} h ${w - 2 * rx} a ${rx} ${h / 2} 0 0 1 0 ${h} ` +
+                `h ${2 * rx - w} a ${rx} ${h / 2} 0 0 1 0 ${-h} z" class="${cls}"${dash}/>`,
+        `<path d="M ${x + w - rx} ${y} a ${rx} ${h / 2} 0 0 0 0 ${h}" class="${cls}"${dash}/>` ]
+    }
+    else if (shape === "cloud") {
+        const p = (fx: number, fy: number) => `${x + fx * w} ${y + fy * h}`
+        const r = (f: number) => `${f * w} ${f * h * 1.6}`
+        return [ `<path d="M ${p(0.14, 1)} L ${p(0.86, 1)} A ${r(0.13)} 0 0 0 ${p(0.95, 0.42)} ` +
+            `A ${r(0.2)} 0 0 0 ${p(0.62, 0.06)} A ${r(0.19)} 0 0 0 ${p(0.3, 0.1)} ` +
+            `A ${r(0.13)} 0 0 0 ${p(0.06, 0.5)} A ${r(0.1)} 0 0 0 ${p(0.14, 1)} z" class="${cls}"${dash}/>` ]
+    }
+    else if (shape === "stack")
+        return [ 12, 6, 0 ].map((d) =>
+            `<rect x="${x + d}" y="${y - d}" width="${w}" height="${h}" rx="6" class="${cls}"${dash}/>`)
+    const box = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" class="${cls}"${dash}/>`
+    if (shape === "person" || shape === "device") {
+        const [ bx, by, r ] = [ x + w / 2, y, 13 ]
+        const glyph = shape === "person" ?
+            `M ${bx} ${by - 7} m -3.5 0 a 3.5 3.5 0 1 0 7 0 a 3.5 3.5 0 1 0 -7 0 ` +
+                `M ${bx - 7} ${by + 8} q 0 -8 7 -8 q 7 0 7 8` :
+            `M ${bx - 7} ${by - 7} h 14 v 10 h -14 z M ${bx - 4} ${by + 7} h 8 M ${bx} ${by + 3} v 4`
+        return [ box, `<circle cx="${bx}" cy="${by}" r="${r}" class="${cls}"/>`,
+            `<path d="${glyph}" fill="none" class="${cls}" stroke-width="2"/>` ]
+    }
+    return [ box ]
+}
+
 /*  generate the SVG fragments for a single node box (a node with a
     "url" attribute becomes a hyperlink covering the whole box)  */
 const renderNode = (node: Node, layout: Layout, style: NodeStyle, styler: Styler,
@@ -393,9 +435,8 @@ const renderNode = (node: Node, layout: Layout, style: NodeStyle, styler: Styler
     const lines = linesOfNode(node, config)
     const url   = urlOf(node)
     const parts: string[] = []
-    parts.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" ` +
-        `class="${styler.box(style.fill, style.stroke, 4)}"` +
-        `${style.dash !== undefined ? ` stroke-dasharray="${escapeXML(style.dash)}"` : ""}/>`)
+    parts.push(...renderOutline(shapeOf(node), x, y, w, h, styler.box(style.fill, style.stroke, 4),
+        style.dash !== undefined ? ` stroke-dasharray="${escapeXML(style.dash)}"` : ""))
 
     /*  vertically center the textual content block within the box, with
         the optional type lines shifting the name and attributes down and

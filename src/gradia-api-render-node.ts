@@ -57,7 +57,20 @@ export const orderOf = (node: Node): number | undefined => {
 
 /*  the special attributes consumed by the renderers instead of being
     rendered as node box text lines  */
-const ATTRS_SPECIAL = new Set([ "url", "type", "primary", "group", "parent", "container", "order" ])
+const ATTRS_SPECIAL = new Set([ "url", "type", "primary", "group", "parent", "container", "order", "shape" ])
+
+/*  the special "shape" annotation (the outline of the node box, which
+    keeps the colors and the text layout of a regular box): "box" (the
+    default), "database" (a cylinder), "queue" (a lying cylinder),
+    "cloud" (a cloud), "stack" (a box stacked onto copies of itself, for
+    several instances), "person" (a box with a person badge), or
+    "device" (a box with a device badge), an unknown value being ignored  */
+export const nodeShapes = [ "box", "database", "queue", "cloud", "stack", "person", "device" ] as const
+export type NodeShape = typeof nodeShapes[number]
+export const shapeOf = (node: Node): NodeShape => {
+    const val = node.attrs.findLast((attr) => attr.key === "shape")?.val
+    return nodeShapes.find((shape) => shape === val) ?? "box"
+}
 
 /*  split the attributes rendered as text lines from the special ones  */
 export const attrsOfNode = (node: Node): Attr[] =>
