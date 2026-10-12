@@ -6,7 +6,6 @@
 .gradia-6c7500cd { fill: var(--gradia-color-edge-line, #999999) }
 .gradia-613ab0f0 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-node-regular-border, #c0d0e0); stroke-width: 2 }
 .gradia-8f91fa3b { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-prop, 22px); font-weight: 600; fill: var(--gradia-color-node-regular-name, #336699) }
-.gradia-bf100c36 { fill: none; stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
 .gradia-5f52a16d { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); font-weight: 600; fill: var(--gradia-color-container-name, #666666) }
 .gradia-25a733d0 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); font-weight: 600; text-anchor: end; fill: var(--gradia-color-container-name, #666666) }
 .gradia-41dfb3e3 { fill: var(--gradia-color-node-ghost-box, #f0f0f0); stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 1 }
@@ -18,7 +17,7 @@
 .gradia-3858115f { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); fill: var(--gradia-color-edge-name, #333333) }
 .gradia-67ddb258 { fill: none; stroke: var(--gradia-color-mark-violation, #cc3333); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
 </style>
-<marker id="gradia-73435810fdc3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+<marker id="gradia-3c05eb20f104-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
 <path d="M 0 1 L 9 5 L 0 9 z" class="gradia-6c7500cd"/>
 </marker>
 </defs>
@@ -46,7 +45,6 @@
 <text x="52" y="479.92" class="gradia-8f91fa3b">Order Repository</text>
 <rect x="40" y="494" width="226" height="44" rx="6" class="gradia-613ab0f0"/>
 <text x="52" y="523.92" class="gradia-8f91fa3b">Billing Service</text>
-<path d="M 40 40 l 226 226" class="gradia-bf100c36"/>
 <text x="52" y="254" class="gradia-5f52a16d">Component</text>
 <text x="254" y="68" class="gradia-25a733d0">Component</text>
 <rect x="274" y="274" width="44" height="44" rx="0" class="gradia-41dfb3e3"/>
@@ -96,7 +94,7 @@
 <path d="M 362 362 h 132 v 132 h -132 z" class="gradia-8f5f281a" stroke-dasharray="10 6"/>
 <rect x="40" y="562" width="22" height="22" rx="0" class="gradia-63bd54c1"/>
 <text x="51" y="578.76" class="gradia-2b6fce7b">1</text>
-<text x="92" y="578.76" class="gradia-3858115f">references from row to column</text>
+<text x="92" y="578.76" class="gradia-3858115f">references from Component to Component</text>
 <rect x="40" y="592" width="22" height="22" rx="0" class="gradia-63bd54c1"/>
 <text x="51" y="608.76" class="gradia-c900d481">1</text>
 <path d="M 37 589 h 28 v 28 h -28 z" class="gradia-67ddb258" stroke-dasharray="6 4"/>

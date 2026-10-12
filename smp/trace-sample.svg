@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="20 20 582 619" width="582" height="619">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="20 20 582 649" width="582" height="649">
 <defs>
 <style>
 .gradia-3167da4d { fill: none; stroke: var(--gradia-color-edge-line, #999999); stroke-width: 3 }
 .gradia-6c7500cd { fill: var(--gradia-color-edge-line, #999999) }
 .gradia-613ab0f0 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-node-regular-border, #c0d0e0); stroke-width: 2 }
 .gradia-8f91fa3b { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-prop, 22px); font-weight: 600; fill: var(--gradia-color-node-regular-name, #336699) }
-.gradia-bf100c36 { fill: none; stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
 .gradia-5f52a16d { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); font-weight: 600; fill: var(--gradia-color-container-name, #666666) }
 .gradia-25a733d0 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); font-weight: 600; text-anchor: end; fill: var(--gradia-color-container-name, #666666) }
-.gradia-38bfd9c1 { fill: none; stroke: var(--gradia-color-mark-warning, #e08a00); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
 .gradia-67ddb258 { fill: none; stroke: var(--gradia-color-mark-violation, #cc3333); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
+.gradia-38bfd9c1 { fill: none; stroke: var(--gradia-color-mark-warning, #e08a00); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
 .gradia-63bd54c1 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 1 }
 .gradia-2b6fce7b { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); font-weight: 600; text-anchor: middle; fill: var(--gradia-color-node-regular-name, #336699) }
 .gradia-30482995 { fill: var(--gradia-color-group-box, #f4f8fc); stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 1 }
 .gradia-3858115f { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); fill: var(--gradia-color-edge-name, #333333) }
 </style>
-<marker id="gradia-b6c07098dcb0-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+<marker id="gradia-d15a8e8d47bf-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
 <path d="M 0 1 L 9 5 L 0 9 z" class="gradia-6c7500cd"/>
 </marker>
 </defs>
@@ -42,10 +41,9 @@
 <text x="52" y="454.92" class="gradia-8f91fa3b">Order Placed and Paid</text>
 <rect x="40" y="469" width="314" height="44" rx="6" class="gradia-613ab0f0"/>
 <text x="52" y="498.92" class="gradia-8f91fa3b">Obsolete Smoke Test</text>
-<path d="M 40 40 l 314 201" class="gradia-bf100c36"/>
 <text x="52" y="229" class="gradia-5f52a16d">Test Case</text>
 <text x="342" y="68" class="gradia-25a733d0">Feature</text>
-<path d="M 500 40 h 32 a 6 6 0 0 1 6 6 v 189 a 6 6 0 0 1 -6 6 h -32 a 6 6 0 0 1 -6 -6 v -189 a 6 6 0 0 1 6 -6 z" class="gradia-38bfd9c1" stroke-dasharray="6 4"/>
+<path d="M 500 40 h 32 a 6 6 0 0 1 6 6 v 189 a 6 6 0 0 1 -6 6 h -32 a 6 6 0 0 1 -6 -6 v -189 a 6 6 0 0 1 6 -6 z" class="gradia-67ddb258" stroke-dasharray="6 4"/>
 <path d="M 544 40 h 32 a 6 6 0 0 1 6 6 v 189 a 6 6 0 0 1 -6 6 h -32 a 6 6 0 0 1 -6 -6 v -189 a 6 6 0 0 1 6 -6 z" class="gradia-38bfd9c1" stroke-dasharray="6 4"/>
 <path d="M 46 469 h 302 a 6 6 0 0 1 6 6 v 32 a 6 6 0 0 1 -6 6 h -302 a 6 6 0 0 1 -6 -6 v -32 a 6 6 0 0 1 6 -6 z" class="gradia-67ddb258" stroke-dasharray="6 4"/>
 <rect x="362" y="249" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
@@ -86,11 +84,14 @@
 <rect x="538" y="469" width="44" height="44" rx="0" class="gradia-30482995"/>
 <rect x="40" y="537" width="22" height="22" rx="0" class="gradia-63bd54c1"/>
 <text x="51" y="553.76" class="gradia-2b6fce7b">1</text>
-<text x="92" y="553.76" class="gradia-3858115f">references from row to column</text>
+<text x="92" y="553.76" class="gradia-3858115f">references from Test Case to Feature</text>
 <rect x="40" y="567" width="40" height="22" rx="6" class="gradia-613ab0f0"/>
 <path d="M 40 567 h 40 v 22 h -40 z" class="gradia-67ddb258" stroke-dasharray="6 4"/>
-<text x="92" y="583.76" class="gradia-3858115f">row without any entry</text>
+<text x="92" y="583.76" class="gradia-3858115f">Test Case without any Feature</text>
 <rect x="40" y="597" width="40" height="22" rx="6" class="gradia-613ab0f0"/>
-<path d="M 40 597 h 40 v 22 h -40 z" class="gradia-38bfd9c1" stroke-dasharray="6 4"/>
-<text x="92" y="613.76" class="gradia-3858115f">column without any entry</text>
+<path d="M 40 597 h 40 v 22 h -40 z" class="gradia-67ddb258" stroke-dasharray="6 4"/>
+<text x="92" y="613.76" class="gradia-3858115f">Feature without any Test Case</text>
+<rect x="40" y="627" width="40" height="22" rx="6" class="gradia-613ab0f0"/>
+<path d="M 40 627 h 40 v 22 h -40 z" class="gradia-38bfd9c1" stroke-dasharray="6 4"/>
+<text x="92" y="643.76" class="gradia-3858115f">Feature without a direct Test Case, covered indirectly</text>
 </svg>

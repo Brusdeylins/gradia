@@ -72,6 +72,11 @@ const cyclesOf = (ids: string[], edges: { source: string, target: string }[]): M
 const isColumn = (node: Node): boolean =>
     node.attrs.findLast((attr) => attr.key === "axis")?.val === "column"
 
+/*  the special "trace" annotation (a node of the value "indirect" being
+    related to the other side of a traceability matrix indirectly only)  */
+const isIndirect = (node: Node): boolean =>
+    node.attrs.findLast((attr) => attr.key === "trace")?.val === "indirect"
+
 /*  lay out a graph model as a matrix, either as a dependency structure
     matrix (DSM), if no node carries the attribute "axis: column", or
     else as a traceability matrix. In a DSM the nodes (in declaration
@@ -86,12 +91,13 @@ const isColumn = (node: Node): boolean =>
     layering. In a traceability matrix the "axis: column" nodes are the
     columns and all other nodes the rows, a cell counts the edges between
     its row and its column in either direction (as a trace is recorded on
-    either side), and a row without any entry (an uncovered one) is
-    marked as a gap in the violation color, a column without any entry
-    (one covering nothing directly) in the warning color. The row and column headers carry the
+    either side), and a row or column without any entry is marked as a
+    gap in the violation color, or, if it carries the attribute
+    "trace: indirect" (as it is related to the other side indirectly),
+    in the warning color. The row and column headers carry the
     node labels in boxes of the node box colors, lying and upright, and
     the type shared by all rows or all columns becomes their title in
-    the corner, which a diagonal splits like the head of a table  */
+    the corner above the row and left of the column headers  */
 export const render = async (graph: Graph, config: Config, level: LevelContext = {}): Promise<Layout> => {
     /*  ensure the graph carries no containers, as the rows are flat  */
     const all = Array.from(graph.nodes.values())
@@ -184,26 +190,24 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             textShape(x + HEAD_PAD, base(y, fsName), node.name,
                 `color-node-${style}-name`, "size-font-prop", config, "start", true, urlOf(node)))
     }
-    const gapCols = traced ? cols.filter((_, c) => !usedCols.has(c)).length : 0
-    const gapRows = traced ? rows.filter((_, r) => !usedRows.has(r)).length : 0
-    cols.forEach((node, c) => header(node, x0 + c * cell, margin, cell, colH,
-        traced && !usedCols.has(c) ? "color-mark-warning" : undefined))
-    rows.forEach((node, r) => header(node, margin, y0 + r * cell, rowW, cell,
-        traced && !usedRows.has(r) ? "color-mark-violation" : undefined))
+    /*  a row or column of a traceability matrix without any entry is a
+        gap, unless it is related to the other side indirectly  */
+    const markOf = (node: Node, used: boolean) =>
+        !traced || used ? undefined : isIndirect(node) ? "color-mark-warning" as const : "color-mark-violation" as const
+    const colMarks = cols.map((node, c) => markOf(node, usedCols.has(c)))
+    const rowMarks = rows.map((node, r) => markOf(node, usedRows.has(r)))
+    cols.forEach((node, c) => header(node, x0 + c * cell, margin, cell, colH, colMarks[c]))
+    rows.forEach((node, r) => header(node, margin, y0 + r * cell, rowW, cell, rowMarks[r]))
 
-    /*  the corner above the row and left of the column headers, split
-        by a diagonal into the title of the rows (below it) and the title
-        of the columns (above it), like the head of a table  */
-    if (rowTitle !== undefined || colTitle !== undefined) {
-        shapes.push({ kind: "path", x: margin, y: margin, d: `l ${rowW} ${colH}`,
-            box: [ margin, margin, margin + rowW, margin + colH ], stroke: "color-group-border", width: 2 })
-        if (rowTitle !== undefined)
-            shapes.push(textShape(margin + HEAD_PAD, margin + colH - HEAD_PAD, rowTitle,
-                "color-container-name", "size-font-type", config, "start", true))
-        if (colTitle !== undefined)
-            shapes.push(textShape(margin + rowW - HEAD_PAD, margin + HEAD_PAD + fsNum, colTitle,
-                "color-container-name", "size-font-type", config, "end", true))
-    }
+    /*  the titles in the corner above the row and left of the column
+        headers: the one of the rows above the row headers, the one of
+        the columns beside the column headers  */
+    if (rowTitle !== undefined)
+        shapes.push(textShape(margin + HEAD_PAD, margin + colH - HEAD_PAD, rowTitle,
+            "color-container-name", "size-font-type", config, "start", true))
+    if (colTitle !== undefined)
+        shapes.push(textShape(margin + rowW - HEAD_PAD, margin + HEAD_PAD + fsNum, colTitle,
+            "color-container-name", "size-font-type", config, "end", true))
 
     /*  the gap outlines lie above all headers, as the neighboring header
         boxes would otherwise cover parts of them  */
@@ -242,14 +246,20 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
 
     /*  explain the visible marks in a legend below the matrix  */
     const legend: LegendEntry[] = []
+    const [ rowName, colName ] = [ rowTitle ?? "row", colTitle ?? "column" ]
     if (counts.size > 0)
-        legend.push({ swatch: "cell",  color: "color-node-regular-name", text: config["legend-count"] })
+        legend.push({ swatch: "cell",  color: "color-node-regular-name",
+            text: config["legend-count"].replace(/\{row\}/g, rowName).replace(/\{column\}/g, colName) })
     if (blocks.size > 0)
         legend.push({ swatch: "block", color: "color-mark-violation",    text: config["legend-cycle"] })
-    if (gapRows > 0)
-        legend.push({ swatch: "box",   color: "color-mark-violation",    text: config["legend-gap-row"] })
-    if (gapCols > 0)
-        legend.push({ swatch: "box",   color: "color-mark-warning",      text: config["legend-gap-column"] })
+    const phrase = (template: string, item: string, other: string) =>
+        template.replace(/\{item\}/g, item).replace(/\{other\}/g, other)
+    for (const [ color, key ] of [ [ "color-mark-violation", "legend-gap" ], [ "color-mark-warning", "legend-indirect" ] ] as const) {
+        if (rowMarks.includes(color))
+            legend.push({ swatch: "box", color, text: phrase(config[key], rowName, colName) })
+        if (colMarks.includes(color))
+            legend.push({ swatch: "box", color, text: phrase(config[key], colName, rowName) })
+    }
     shapes.push(...legendShapes(legend, margin, y0 + rows.length * cell + HEAD_GAP * 3, config))
 
     /*  hand over the shapes for SVG rendering (no node boxes and edges)  */

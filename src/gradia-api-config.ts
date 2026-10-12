@@ -75,11 +75,11 @@ export const configDefaults = {
     "grid-node-width-equal":     true,  /*  grid: force equal width of node boxes  */
     "grid-node-height-equal":    true,  /*  grid: force equal height of node boxes */
     "legend":                    true,  /*  legend of the marks below a diagram    */
-    "legend-count":              "references from row to column",
+    "legend-count":              "references from {row} to {column}",
     "legend-cycle":              "cyclic dependency",
     "legend-upward":             "dependency against the layering",
-    "legend-gap-row":            "row without any entry",
-    "legend-gap-column":         "column without any entry",
+    "legend-gap":                "{item} without any {other}",
+    "legend-indirect":           "{item} without a direct {other}, covered indirectly",
     "layout-row-cells":          8,     /*  layout: cells per row                  */
     "layout-cell-bits":          8,     /*  layout: bits per cell (1 or 8)         */
     "layout-cell-size":          44,    /*  layout: width and height of a cell     */

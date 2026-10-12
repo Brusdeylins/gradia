@@ -4,7 +4,7 @@ login:   "Log In"              [ axis: column, type: Feature ]
 order:   "Place Order"         [ axis: column, type: Feature ]
 pay:     "Pay by Card"         [ axis: column, type: Feature ]
 refund:  "Refund Payment"      [ axis: column, type: Feature ]
-export:  "Export Orders"       [ axis: column, type: Feature ]
+export:  "Export Orders"       [ axis: column, type: Feature, trace: indirect ]
 
 t1: "Valid Login Accepted" [ type: "Test Case" ]
 t2: "Wrong Password Rejected" [ type: "Test Case" ]

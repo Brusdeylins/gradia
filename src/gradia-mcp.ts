@@ -125,20 +125,23 @@ traceability matrix instead: the "axis: column" nodes are its columns and all
 other nodes its rows, a cell counts the edges between its row and its
 column in either direction (as a trace may be recorded on either side,
 e.g. a test case referencing the requirement it verifies), there is no
-diagonal and no cycle, and a row without any entry (an uncovered one)
-is marked as a gap by a header outlined dashed in the
-"color-mark-violation" color, a column without any entry (one covering
-nothing directly) in the "color-mark-warning" color, as it is noticeable
-rather than wrong.
+diagonal and no cycle, and a row or column without any entry is marked
+as a gap by a header outlined dashed in the "color-mark-violation" color,
+or, if the node carries the attribute "trace: indirect" (as it relates to
+the other side indirectly only, e.g. a test case verifying a rule which
+constrains a requirement), in the "color-mark-warning" color.
 
 In both forms the type shared by all rows, and the one shared by all
 columns (their "type" attributes), become their titles in the corner
-above the row headers, which a diagonal splits like the head of a table.
+above the row headers and left of the column headers.
 
 The diagram types marking violations or gaps ("layer" and "matrix") explain the
 marks actually shown in a legend below the diagram (plus, for a
 "matrix", the meaning of its cell numbers), which the "legend" option
-disables and the "legend-*" options reword (e.g. to localize them).
+disables and the "legend-*" options reword (e.g. to localize them),
+where "{row}" and "{column}" stand for the row and column titles of a
+matrix, and "{item}" and "{other}" for the title of the marked side and
+the one of the other side (falling back to "row" and "column").
 
 The "graph" type imposes no such constraints and hence is the safe choice
 whenever the topology is not known to fit "hub" or "grid" (and is no binary
