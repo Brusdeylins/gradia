@@ -516,7 +516,10 @@ const computeGrid = (
         rowHeight[row.get(node.id)!] = Math.max(rowHeight[row.get(node.id)!], boxH.get(node.id)!)
     }
 
-    /*  size the channels and gutters by their actual edge usage, grown
+    /*  size the channels and gutters by their actual edge usage (a used
+        channel keeping at least "graph-channel-padding" between its
+        outermost tracks and the node boxes beside it, so the arrow heads
+        and the corners in front of them do not collide), grown
         to hold the edge labels landing inside (a channel by its widest
         label demand, a gutter by one line per label) and the self-loop
         detours rising into a gutter from the row below, and floored by
@@ -534,7 +537,8 @@ const computeGrid = (
     }
     const chanCap = Array.from({ length: ncols }, (_, c) => {
         const cnt = chanCnt.get(c) ?? 0
-        return chanOf(c, cnt === 0 ? CHAN_W0 : CHAN_W1 + (cnt - 1) * config["size-edge-track-gap"])
+        return chanOf(c, cnt === 0 ? CHAN_W0 : Math.max(CHAN_W1, 2 * config["graph-channel-padding"]) +
+            (cnt - 1) * config["size-edge-track-gap"])
     })
     const gutCap  = Array.from({ length: nrows }, (_, g) => {
         const cnt = gutCnt.get(g) ?? 0

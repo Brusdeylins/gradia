@@ -371,6 +371,7 @@ color-node-ghost-border    #a0a0a0      container-box-padding      30
 color-node-self-name       #444444      graph-columns-max          4
 color-node-self-box        #e0e0e0      graph-channel-width-max    140
 color-node-self-border     #707070      graph-channel-width-min    24
+                                        graph-channel-padding      14
 color-group-name           #6699cc      graph-gutter-height-max    90
 color-group-box            #f4f8fc      graph-gutter-height-min    20
 color-group-border         #c0d0e0      graph-node-separation      30
@@ -444,7 +445,10 @@ along its run. The `-min` options raise the result, so that even an
 unlabeled diagram can be spaced out, while the `-max` options cap it, so
 that neither many parallel edges nor a long label can push the nodes
 apart without bound (except for the crowded channels and gutters, see
-below).
+below). The `graph-channel-padding` option keeps the outermost edge
+tracks of a used channel at least that far from the node boxes beside
+it, so the arrow heads, and the corners and hops in front of them, get
+enough room.
 
 The `size-edge-track-gap` option controls the distance of the parallel
 edge tracks within a channel or gutter. A channel or gutter whose tracks
