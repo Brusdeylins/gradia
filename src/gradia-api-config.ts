@@ -76,6 +76,7 @@ export const configDefaults = {
     "grid-node-height-equal":    true,  /*  grid: force equal height of node boxes */
     "legend":                    true,  /*  legend of the marks below a diagram    */
     "legend-count":              "references from {row} to {column}",
+    "legend-trace":              "references between {row} and {column}",
     "legend-cycle":              "cyclic dependency",
     "legend-upward":             "dependency against the layering",
     "legend-gap":                "{item} without any {other}",

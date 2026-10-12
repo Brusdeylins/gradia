@@ -15,7 +15,7 @@
 .gradia-30482995 { fill: var(--gradia-color-group-box, #f4f8fc); stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 1 }
 .gradia-3858115f { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); fill: var(--gradia-color-edge-name, #333333) }
 </style>
-<marker id="gradia-d15a8e8d47bf-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+<marker id="gradia-ec7886a2a668-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
 <path d="M 0 1 L 9 5 L 0 9 z" class="gradia-6c7500cd"/>
 </marker>
 </defs>
@@ -84,7 +84,7 @@
 <rect x="538" y="469" width="44" height="44" rx="0" class="gradia-30482995"/>
 <rect x="40" y="537" width="22" height="22" rx="0" class="gradia-63bd54c1"/>
 <text x="51" y="553.76" class="gradia-2b6fce7b">1</text>
-<text x="92" y="553.76" class="gradia-3858115f">references from Test Case to Feature</text>
+<text x="92" y="553.76" class="gradia-3858115f">references between Test Case and Feature</text>
 <rect x="40" y="567" width="40" height="22" rx="6" class="gradia-613ab0f0"/>
 <path d="M 40 567 h 40 v 22 h -40 z" class="gradia-67ddb258" stroke-dasharray="6 4"/>
 <text x="92" y="583.76" class="gradia-3858115f">Test Case without any Feature</text>

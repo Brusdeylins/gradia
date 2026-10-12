@@ -249,7 +249,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const [ rowName, colName ] = [ rowTitle ?? "row", colTitle ?? "column" ]
     if (counts.size > 0)
         legend.push({ swatch: "cell",  color: "color-node-regular-name",
-            text: config["legend-count"].replace(/\{row\}/g, rowName).replace(/\{column\}/g, colName) })
+            text: config[traced ? "legend-trace" : "legend-count"]
+                .replace(/\{row\}/g, rowName).replace(/\{column\}/g, colName) })
     if (blocks.size > 0)
         legend.push({ swatch: "block", color: "color-mark-violation",    text: config["legend-cycle"] })
     const phrase = (template: string, item: string, other: string) =>

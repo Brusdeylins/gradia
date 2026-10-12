@@ -430,10 +430,11 @@ color-mark-violation       #cc3333      hub-node-count-max         0
 color-mark-warning         #e08a00      grid-columns-max           4
 size-font-node             30           legend                     true
 size-font-type             16           legend-count               "references from {row} to {column}"
-size-font-prop             22           legend-cycle               "cyclic dependency"
-size-font-edge             16           legend-upward              "dependency against the layering"
-size-font-arity            16           legend-gap                 "{item} without any {other}"
-size-canvas-margin         40           legend-indirect            "{item} without a direct {other}, covered indirectly"
+size-font-prop             22           legend-trace               "references between {row} and {column}"
+size-font-edge             16           legend-cycle               "cyclic dependency"
+size-font-arity            16           legend-upward              "dependency against the layering"
+size-canvas-margin         40           legend-gap                 "{item} without any {other}"
+                                        legend-indirect            "{item} without a direct {other}, covered indirectly"
                                         grid-columns-min           3
                                         grid-gap-horizontal        40
                                         grid-gap-vertical          20
