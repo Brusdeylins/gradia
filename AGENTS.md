@@ -3,14 +3,15 @@
 **gradia** is the opinionated tooling of *Dr. Ralf S. Engelschall*
 for *Object Graph Diagram Rendering*: a small CLI for rendering
 directed graphs, described in a concise textual input language, as SVG
-diagrams. Five diagram types are supported: `graph` (a grid-snapped
+diagrams. Six diagram types are supported: `graph` (a grid-snapped
 layered layout of the whole graph, based on the Dagre algorithm of
 `@antv/layout`), `hub` (a hub graph, placing one primary hub node
 between its input and output nodes), `grid` (a compact grid of
 tiles for an edge-less graph), `layout` (the cell layout of a
 binary structure, its nodes being fields with an `offset` and a `size`),
-and `layer` (a layered architecture, its layers stacked as bands and
-the edges against the layering marked as violations).
+`layer` (a layered architecture, its layers stacked as bands and
+the edges against the layering marked as violations), and `matrix` (a
+dependency structure matrix, its cycles outlined as blocks).
 
 ## Repository Layout
 
@@ -56,6 +57,10 @@ the edges against the layering marked as violations).
         explicitly ordered `graph`, one row per layer, plus the layer
         bands as shapes and the violating edges marked through the
         `violates` predicate of the `Layout`)
+    -   `src/gradia-api-type-matrix.ts`: the `matrix` diagram type (the
+        headers and cells of a dependency structure matrix, drawn as
+        shapes only, the cycles found as the strongly connected
+        components of the graph)
 -   `etc/`: the tool configurations (`eslint.mjs`, `tsconfig.json`,
     `stx.conf`, `vite.ts`)
 -   `smp/`: the sample graph descriptions (`*.txt`), their rendered
@@ -86,7 +91,7 @@ No test target is defined.
 ## CLI Command
 
 ```
-gradia [-t graph|hub|grid|layout|layer] [-f <format>] [-c <name>=<value>] [-o <file>.svg] <graph>.txt
+gradia [-t graph|hub|grid|layout|layer|matrix] [-f <format>] [-c <name>=<value>] [-o <file>.svg] <graph>.txt
 ```
 
 The output format is `svg:standalone` (a standalone SVG/XML document,
@@ -120,7 +125,7 @@ diagram yields a byte-identical SVG.
 
 The rendering options (`font-family`, `font-embed`, the `color-*`
 family, and the numeric geometry families `size-*`, `group-*`,
-`graph-*`, `hub-*`, `grid-*`, and `layout-*`) are set through the repeatable
+`graph-*`, `hub-*`, `grid-*`, `layout-*`, and `matrix-*`) are set through the repeatable
 `--config <name>=<value>` command-line option, or through `#config
 <option> <value>` directives inside the input, except `font-embed` and
 WOFF2 file paths, which are command-line-only, as the input is treated

@@ -1,0 +1,17 @@
+#type matrix
+
+web:     "Web Client"
+gateway: "API Gateway"
+orders:  "Order Service"
+billing: "Billing Service"
+model:   "Domain Model"
+store:   "Order Repository"
+
+web     --> gateway
+gateway --> orders
+gateway --> billing
+orders  --> model
+orders  -->[3] store
+billing --> model
+store   --> model
+model   --> orders

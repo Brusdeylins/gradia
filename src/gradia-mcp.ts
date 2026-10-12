@@ -47,6 +47,9 @@ component relationships, data flows, dependency graphs, and similar structures.
 - "layer": a layered architecture: the layers (the "layer: <name>" attribute of
   the nodes) stack top-down as bands, and an edge pointing upwards against the
   layering is marked as a violation.
+- "matrix": a dependency structure matrix: the nodes are rows and columns, a
+  cell counts the edges from its row to its column, and the cycles are outlined
+  as blocks on the diagonal.
 
 ### Diagram Type Constraints
 
@@ -105,6 +108,18 @@ without a layer trail outside of any band. An edge pointing from a lower
 layer to a higher one, i.e. against the layering, is drawn dashed in the
 "color-edge-violation" color, as it marks a violation of the layering.
 
+The diagram type "matrix" draws a dependency structure matrix (DSM) and
+rejects the input with an error as soon as the graph contains a
+container. The nodes are both its rows and its columns (in declaration
+order, or in the order of their "order" attributes), a row header
+carrying the node label (in the node box colors, linked through "url")
+and its number, a column header its number only. The cell of row X and
+column Y carries the number of edges from X to Y (their summed numeric
+arities), the diagonal is shaded, and every cycle, i.e. every set of
+nodes reaching each other through their edges, is moved into
+consecutive rows and outlined as a dashed block on the diagonal, with
+the numbers of its edges in the "color-edge-violation" color.
+
 The "graph" type imposes no such constraints and hence is the safe choice
 whenever the topology is not known to fit "hub" or "grid" (and is no binary
 structure for "layout").
@@ -141,7 +156,7 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
     <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                        | "#type" <whitespace> { <whitespace> } <type>
     <option>         ::= <letter> { <letter> | <digit> | "-" }
-    <type>           ::= "graph" | "hub" | "grid" | "layout" | "layer"
+    <type>           ::= "graph" | "hub" | "grid" | "layout" | "layer" | "matrix"
     <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
     <newline>        ::= "\\n"
     <whitespace>     ::= " " | "\\t" | "\\r"

@@ -14,7 +14,7 @@ About
 -----
 
 **Gradia** is a small API and CLI for rendering directed graphs,
-described in a concise textual input language, as SVG diagrams. Five
+described in a concise textual input language, as SVG diagrams. Six
 diagram types are supported which fit the scenario of visualizing object
 graphs and the structures around them:
 
@@ -28,6 +28,8 @@ graphs and the structures around them:
   cells below a ruler and labeling it below the cells.
 - `layer`: a layered architecture, stacking its layers as bands and
   marking the edges pointing upwards against the layering.
+- `matrix`: a dependency structure matrix, counting the edges between
+  every pair of nodes and outlining the cycles.
 
 Examples
 --------
@@ -62,6 +64,10 @@ Here are examples of the diagram renderings:
 
   ![layer-sample](smp/layer-sample.svg)
 
+- [matrix-sample](smp/matrix-sample.txt) (dependency structure matrix):
+
+  ![matrix-sample](smp/matrix-sample.svg)
+
 Playground
 ----------
 
@@ -80,7 +86,7 @@ Usage
 -----
 
 ```sh
-$ gradia [-t graph|hub|grid|layout|layer] [-f <format>] [-c <name>=<value>] -o <file>.svg <graph>.txt
+$ gradia [-t graph|hub|grid|layout|layer|matrix] [-f <format>] [-c <name>=<value>] -o <file>.svg <graph>.txt
 ```
 
 The diagram type is selected with the `-t` command-line option or, when
@@ -97,7 +103,7 @@ MCP Service
 -----------
 
 ```sh
-$ gradia --mcp [-t graph|hub|grid|layout|layer] [-f <format>] [-c <name>=<value>]
+$ gradia --mcp [-t graph|hub|grid|layout|layer|matrix] [-f <format>] [-c <name>=<value>]
 ```
 
 With the `-m`/`--mcp` option, **Gradia** instead runs as a [Model Context
@@ -164,7 +170,7 @@ separated by `|`.
 <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                    | "#type" <whitespace> { <whitespace> } <type>
 <option>         ::= <letter> { <letter> | <digit> | "-" }
-<type>           ::= "graph" | "hub" | "grid" | "layout" | "layer"
+<type>           ::= "graph" | "hub" | "grid" | "layout" | "layer" | "matrix"
 <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
 <newline>        ::= "\n"
 <whitespace>     ::= " " | "\t" | "\r"
@@ -335,6 +341,18 @@ without a layer trail outside of any band. An edge pointing from a lower
 layer to a higher one, i.e. against the layering, is drawn dashed in the
 `color-edge-violation` color, as it marks a violation of the layering.
 
+The diagram type `matrix` draws a dependency structure matrix (DSM) and
+rejects the input with an error as soon as the graph contains a
+container. The nodes are both its rows and its columns (in declaration
+order, or in the order of their `order` attributes), a row header
+carrying the node label (in the node box colors, linked through `url`)
+and its number, a column header its number only. The cell of row X and
+column Y carries the number of edges from X to Y (their summed numeric
+arities), the diagonal is shaded, and every cycle, i.e. every set of
+nodes reaching each other through their edges, is moved into
+consecutive rows and outlined as a dashed block on the diagonal, with
+the numbers of its edges in the `color-edge-violation` color.
+
 As the groups of a grouped graph, and the members of every container,
 are laid out individually with the selected (or, for a container, the
 annotated) diagram type, these constraints apply to every single group
@@ -346,7 +364,7 @@ group and every `hub` container needs its own primary node.
 
 ### Directives
 
-A `#type` directive sets the diagram type (`graph`, `hub`, `grid`, `layout`, or `layer`),
+A `#type` directive sets the diagram type (`graph`, `hub`, `grid`, `layout`, `layer`, or `matrix`),
 which otherwise is settable through the `-t`/`--type` command-line
 option (which takes precedence). The last occurrence wins and an invalid
 type is silently ignored. Without both, the type defaults to `graph`.
@@ -391,10 +409,11 @@ size-font-arity            16           grid-node-height-equal     true
 size-canvas-margin         40           layout-row-cells           8
                                         layout-cell-bits           8
                                         layout-cell-size           44
+                                        matrix-cell-size           44
 ```
 
 The `size-*`, `group-*`, `container-*`, `graph-*`, `hub-*`, `grid-*`,
-and `layout-*` options control the rendering geometry (text font sizes, canvas
+`layout-*`, and `matrix-*` options control the rendering geometry (text font sizes, canvas
 margin, node box sizing, edge routing, group and container box spacing,
 and the per-diagram-type layout) and take non-negative numbers, except
 the booleans `grid-node-width-equal` and `grid-node-height-equal`.
