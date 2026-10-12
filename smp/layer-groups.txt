@@ -1,0 +1,22 @@
+#type layer
+#config layer-numbered true
+
+app:      "App UI"           [ layer: Client ]
+cdn:      "Cloudflare"       [ layer: Cloud, shape: cloud ]
+lb:       "Load Balancer"    [ layer: Router, layer-group: Server/Broker ]
+haproxy:  "HAProxy"          [ layer: Proxy, layer-group: Server/Broker, shape: stack ]
+junction: "Junction"         [ layer: Proxy, layer-group: Server/Broker ]
+mqtt:     "Mosquitto"        [ layer: Relay, layer-group: Server/Broker, shape: stack ]
+core:     "App Core"         [ layer: Service, layer-group: Server, shape: stack ]
+pg:       "PostgreSQL"       [ layer: Database, layer-group: Server, shape: database ]
+fs:       "File Store"       [ layer: Database, layer-group: Server, shape: database ]
+
+app      --(HTTPS)--> cdn
+cdn      --(HTTPS)--> lb
+app      --(WSS)--> lb
+lb       --> haproxy
+haproxy  --> junction
+haproxy  --> mqtt
+mqtt     --> core
+core     --> pg
+core     --> fs

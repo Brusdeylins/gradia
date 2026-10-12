@@ -107,6 +107,11 @@ left-to-right (wrapped beyond "graph-columns-max" nodes), while the nodes
 without a layer trail outside of any band. An edge pointing from a lower
 layer to a higher one, i.e. against the layering, is drawn dashed in the
 "color-mark-violation" color, as it marks a violation of the layering.
+The attribute "layer-group: <path>" assigns the layer of a node to nested
+groups ("/"-separated, outermost first, e.g. "Server/Broker"), which are
+drawn as columns left of the bands, spanning the bands of their layers,
+with their names running upwards (the layers of a group are kept
+together), and the option "layer-numbered" numbers the layers top-down.
 
 The diagram type "matrix" draws a dependency structure matrix (DSM) and
 rejects the input with an error as soon as the graph contains a

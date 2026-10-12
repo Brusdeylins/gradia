@@ -64,6 +64,10 @@ Here are examples of the diagram renderings:
 
   ![layer-sample](smp/layer-sample.svg)
 
+- [layer-groups](smp/layer-groups.txt) (layer groups, numbers, and node shapes):
+
+  ![layer-groups](smp/layer-groups.svg)
+
 - [matrix-sample](smp/matrix-sample.txt) (dependency structure matrix):
 
   ![matrix-sample](smp/matrix-sample.svg)
@@ -356,6 +360,11 @@ left-to-right (wrapped beyond `graph-columns-max` nodes), while the nodes
 without a layer trail outside of any band. An edge pointing from a lower
 layer to a higher one, i.e. against the layering, is drawn dashed in the
 `color-mark-violation` color, as it marks a violation of the layering.
+The attribute `layer-group: <path>` assigns the layer of a node to nested
+groups ("/"-separated, outermost first, e.g. "Server/Broker"), which are
+drawn as columns left of the bands, spanning the bands of their layers,
+with their names running upwards (the layers of a group are kept
+together), and the option `layer-numbered` numbers the layers top-down.
 
 The diagram type `matrix` draws a dependency structure matrix (DSM) and
 rejects the input with an error as soon as the graph contains a
@@ -440,12 +449,13 @@ color-edge-arity           #333333      hub-node-degree-max        3
 color-edge-halo            #ffffff      hub-node-count-max         0
 color-mark-violation       #cc3333      grid-columns-max           4
 color-mark-warning         #e08a00      legend                     true
-size-font-node             30           legend-count               "references from {row} to {column}"
-size-font-type             16           legend-trace               "references between {row} and {column}"
-size-font-prop             22           legend-cycle               "cyclic dependency"
-size-font-edge             16           legend-upward              "dependency against the layering"
-size-font-arity            16           legend-gap                 "{item} without any {other}"
-size-canvas-margin         40           legend-indirect            "{item} without a direct {other}, covered indirectly"
+size-font-node             30           layer-numbered             false
+size-font-type             16           legend-count               "references from {row} to {column}"
+size-font-prop             22           legend-trace               "references between {row} and {column}"
+size-font-edge             16           legend-cycle               "cyclic dependency"
+size-font-arity            16           legend-upward              "dependency against the layering"
+size-canvas-margin         40           legend-gap                 "{item} without any {other}"
+                                        legend-indirect            "{item} without a direct {other}, covered indirectly"
                                         grid-columns-min           3
                                         grid-gap-horizontal        40
                                         grid-gap-vertical          20
