@@ -752,7 +752,8 @@ const renderShape = (shape: Shape, styler: Styler): string => {
             `rx="${shape.rx ?? 0}" class="${styler.box(shape.fill, shape.stroke, shape.width)}"${dash}/>`
     else if (shape.kind === "path")
         return `<path d="M ${shape.x} ${shape.y} ${shape.d}" class="${styler.line(shape.stroke, shape.width)}"${dash}/>`
-    const text = `<text x="${shape.x}" y="${shape.y}" class="${styler.text(shape.fill, shape.size,
+    const turn = shape.upright === true ? ` transform="rotate(-90 ${shape.x} ${shape.y})"` : ""
+    const text = `<text x="${shape.x}" y="${shape.y}"${turn} class="${styler.text(shape.fill, shape.size,
         { bold: shape.bold, middle: shape.anchor === "middle", end: shape.anchor === "end" })}">` +
         `${escapeXML(shape.text)}</text>`
     return shape.url === undefined ? text :

@@ -155,6 +155,7 @@ export interface ShapeText {
     anchor:  "start" | "middle" | "end"
     bold?:   boolean
     url?:    string
+    upright?: boolean
 }
 export type Shape = ShapeRect | ShapePath | ShapeText
 
@@ -162,15 +163,19 @@ export type Shape = ShapeRect | ShapePath | ShapeText
 export type Area = [ number, number, number, number ]
 
 /*  create a text shape, estimating the area it covers (from the
-    baseline up by one font size and down by a descender)  */
+    baseline up by one font size and down by a descender), optionally
+    "upright", i.e. turned by 90 degrees counter-clockwise, so it runs
+    upwards from its anchor point (e.g. a column header)  */
 export const textShape = (x: number, y: number, text: string, fill: ConfigEmbedded,
     size: ConfigFontSize | number, config: Config, anchor: "start" | "middle" | "end" = "start",
-    bold = false, url?: string): Shape => {
+    bold = false, url?: string, upright = false): Shape => {
     const px   = typeof size === "number" ? size : config[size]
     const w    = textWidth(text, px)
-    const left = anchor === "middle" ? x - w / 2 : anchor === "end" ? x - w : x
-    return { kind: "text", x, y, text, fill, size, anchor, bold, url,
-        box: [ left, y - px, left + w, y + px * 0.25 ] }
+    const from = anchor === "middle" ? w / 2 : anchor === "end" ? w : 0
+    const box: Area = upright ?
+        [ x - px, y + from - w, x + px * 0.25, y + from ] :
+        [ x - from, y - px, x - from + w, y + px * 0.25 ]
+    return { kind: "text", x, y, text, fill, size, anchor, bold, url, upright, box }
 }
 
 /*  determine the area a shape covers  */
