@@ -1,11 +1,11 @@
 #type matrix
 
-web:     "Web Client"
-gateway: "API Gateway"
-orders:  "Order Service"
-billing: "Billing Service"
-model:   "Domain Model"
-store:   "Order Repository"
+web:     "Web Client" [ type: Component ]
+gateway: "API Gateway" [ type: Component ]
+orders:  "Order Service" [ type: Component ]
+billing: "Billing Service" [ type: Component ]
+model:   "Domain Model" [ type: Component ]
+store:   "Order Repository" [ type: Component ]
 
 web     --> gateway
 gateway --> orders

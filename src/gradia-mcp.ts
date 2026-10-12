@@ -106,7 +106,7 @@ left of its nodes), and the nodes of a layer fill its band
 left-to-right (wrapped beyond "graph-columns-max" nodes), while the nodes
 without a layer trail outside of any band. An edge pointing from a lower
 layer to a higher one, i.e. against the layering, is drawn dashed in the
-"color-edge-violation" color, as it marks a violation of the layering.
+"color-mark-violation" color, as it marks a violation of the layering.
 
 The diagram type "matrix" draws a dependency structure matrix (DSM) and
 rejects the input with an error as soon as the graph contains a
@@ -118,15 +118,27 @@ its columns: the cell of row X and column Y carries the number of edges
 from X to Y (their summed numeric arities), i.e. how often X depends on Y, the diagonal is shaded, and every cycle, i.e. every set of
 nodes reaching each other through their edges, is moved into
 consecutive rows and outlined as a dashed block on the diagonal, with
-the numbers of its edges in the "color-edge-violation" color.
+the numbers of its edges in the "color-mark-violation" color.
 
 As soon as a node carries the attribute "axis: column", the "matrix" is a
 traceability matrix instead: the "axis: column" nodes are its columns and all
 other nodes its rows, a cell counts the edges between its row and its
 column in either direction (as a trace may be recorded on either side,
 e.g. a test case referencing the requirement it verifies), there is no
-diagonal and no cycle, and a row or column without any entry is marked
-as a gap by a header outlined dashed in the "color-edge-violation" color.
+diagonal and no cycle, and a row without any entry (an uncovered one)
+is marked as a gap by a header outlined dashed in the
+"color-mark-violation" color, a column without any entry (one covering
+nothing directly) in the "color-mark-warning" color, as it is noticeable
+rather than wrong.
+
+In both forms the type shared by all rows, and the one shared by all
+columns (their "type" attributes), become their titles in the corner
+above the row headers, which a diagonal splits like the head of a table.
+
+The diagram types marking violations or gaps ("layer" and "matrix") explain the
+marks actually shown in a legend below the diagram (plus, for a
+"matrix", the meaning of its cell numbers), which the "legend" option
+disables and the "legend-*" options reword (e.g. to localize them).
 
 The "graph" type imposes no such constraints and hence is the safe choice
 whenever the topology is not known to fit "hub" or "grid" (and is no binary

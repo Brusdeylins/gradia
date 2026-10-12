@@ -343,7 +343,7 @@ left of its nodes), and the nodes of a layer fill its band
 left-to-right (wrapped beyond `graph-columns-max` nodes), while the nodes
 without a layer trail outside of any band. An edge pointing from a lower
 layer to a higher one, i.e. against the layering, is drawn dashed in the
-`color-edge-violation` color, as it marks a violation of the layering.
+`color-mark-violation` color, as it marks a violation of the layering.
 
 The diagram type `matrix` draws a dependency structure matrix (DSM) and
 rejects the input with an error as soon as the graph contains a
@@ -355,15 +355,27 @@ its columns: the cell of row X and column Y carries the number of edges
 from X to Y (their summed numeric arities), i.e. how often X depends on Y, the diagonal is shaded, and every cycle, i.e. every set of
 nodes reaching each other through their edges, is moved into
 consecutive rows and outlined as a dashed block on the diagonal, with
-the numbers of its edges in the `color-edge-violation` color.
+the numbers of its edges in the `color-mark-violation` color.
 
 As soon as a node carries the attribute `axis: column`, the `matrix` is a
 traceability matrix instead: the `axis: column` nodes are its columns and all
 other nodes its rows, a cell counts the edges between its row and its
 column in either direction (as a trace may be recorded on either side,
 e.g. a test case referencing the requirement it verifies), there is no
-diagonal and no cycle, and a row or column without any entry is marked
-as a gap by a header outlined dashed in the `color-edge-violation` color.
+diagonal and no cycle, and a row without any entry (an uncovered one)
+is marked as a gap by a header outlined dashed in the
+`color-mark-violation` color, a column without any entry (one covering
+nothing directly) in the `color-mark-warning` color, as it is noticeable
+rather than wrong.
+
+In both forms the type shared by all rows, and the one shared by all
+columns (their `type` attributes), become their titles in the corner
+above the row headers, which a diagonal splits like the head of a table.
+
+The diagram types marking violations or gaps (`layer` and `matrix`) explain the
+marks actually shown in a legend below the diagram (plus, for a
+`matrix`, the meaning of its cell numbers), which the `legend` option
+disables and the `legend-*` options reword (e.g. to localize them).
 
 As the groups of a grouped graph, and the members of every container,
 are laid out individually with the selected (or, for a container, the
@@ -401,24 +413,30 @@ color-node-ghost-border    #a0a0a0      container-box-padding      30
 color-node-self-name       #444444      graph-columns-max          4
 color-node-self-box        #e0e0e0      graph-channel-width-max    140
 color-node-self-border     #707070      graph-channel-width-min    24
-                                        graph-channel-padding      14
-color-group-name           #6699cc      graph-gutter-height-max    90
-color-group-box            #f4f8fc      graph-gutter-height-min    20
-color-group-border         #c0d0e0      graph-node-separation      30
-color-container-name       #666666      graph-rank-separation      60
-color-container-box        #f6f6f6      graph-node-degree-max      3
-color-container-border     #a0a0a0      hub-channel-width-max      340
-color-edge-line            #999999      hub-channel-width-min      240
-color-edge-name            #333333      hub-node-gap               20
-color-edge-arity           #333333      hub-node-degree-max        3
-color-edge-halo            #ffffff      hub-node-count-max         0
-color-edge-violation       #cc3333      grid-columns-max           4
-size-font-node             30           grid-columns-min           3
-size-font-type             16           grid-gap-horizontal        40
-size-font-prop             22           grid-gap-vertical          20
-size-font-edge             16           grid-node-width-equal      true
-size-font-arity            16           grid-node-height-equal     true
-size-canvas-margin         40           layout-row-cells           8
+color-group-name           #6699cc      graph-channel-padding      14
+color-group-box            #f4f8fc      graph-gutter-height-max    90
+color-group-border         #c0d0e0      graph-gutter-height-min    20
+color-container-name       #666666      graph-node-separation      30
+color-container-box        #f6f6f6      graph-rank-separation      60
+color-container-border     #a0a0a0      graph-node-degree-max      3
+color-edge-line            #999999      hub-channel-width-max      340
+color-edge-name            #333333      hub-channel-width-min      240
+color-edge-arity           #333333      hub-node-gap               20
+color-edge-halo            #ffffff      hub-node-degree-max        3
+color-mark-violation       #cc3333      hub-node-count-max         0
+color-mark-warning         #e08a00      grid-columns-max           4
+size-font-node             30           legend                     true
+size-font-type             16           legend-count               "references from row to column"
+size-font-prop             22           legend-cycle               "cyclic dependency"
+size-font-edge             16           legend-upward              "dependency against the layering"
+size-font-arity            16           legend-gap-row             "row without any entry"
+size-canvas-margin         40           legend-gap-column          "column without any entry"
+                                        grid-columns-min           3
+                                        grid-gap-horizontal        40
+                                        grid-gap-vertical          20
+                                        grid-node-width-equal      true
+                                        grid-node-height-equal     true
+                                        layout-row-cells           8
                                         layout-cell-bits           8
                                         layout-cell-size           44
                                         matrix-cell-size           44

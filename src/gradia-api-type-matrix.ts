@@ -7,10 +7,10 @@
 /*  internal dependencies  */
 import { Node, Graph }              from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
-import { Layout, Shape, textShape, textWidth }
+import { Layout, Shape, LegendEntry, textShape, textWidth, legendShapes }
     from "./gradia-api-render-base.js"
 import { LevelContext }             from "./gradia-api-render-container.js"
-import { isPrimary, urlOf, orderOf, parentOf, containerTypeOf }
+import { isPrimary, urlOf, orderOf, parentOf, containerTypeOf, typeOf }
     from "./gradia-api-render-node.js"
 
 /*  the geometry of the row headers  */
@@ -86,9 +86,12 @@ const isColumn = (node: Node): boolean =>
     layering. In a traceability matrix the "axis: column" nodes are the
     columns and all other nodes the rows, a cell counts the edges between
     its row and its column in either direction (as a trace is recorded on
-    either side), and a row or column without any entry is marked as a
-    gap in the violation color. The row and column headers carry the
-    node labels in boxes of the node box colors, lying and upright  */
+    either side), and a row without any entry (an uncovered one) is
+    marked as a gap in the violation color, a column without any entry
+    (one covering nothing directly) in the warning color. The row and column headers carry the
+    node labels in boxes of the node box colors, lying and upright, and
+    the type shared by all rows or all columns becomes their title in
+    the corner, which a diagonal splits like the head of a table  */
 export const render = async (graph: Graph, config: Config, level: LevelContext = {}): Promise<Layout> => {
     /*  ensure the graph carries no containers, as the rows are flat  */
     const all = Array.from(graph.nodes.values())
@@ -142,8 +145,18 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const fsNum  = config["size-font-type"]
     const headOf = (list: Node[]) =>
         Math.ceil(list.reduce((w, node) => Math.max(w, textWidth(node.name, fsName) * BOLD), 0) + HEAD_PAD * 2)
-    const rowW   = headOf(rows)
-    const colH   = headOf(cols)
+    /*  the titles of the rows and the columns: the type shared by all of
+        their nodes, if any  */
+    const titleOf = (list: Node[]): string | undefined => {
+        const types = new Set(list.map((node) => typeOf(node)))
+        const [ type ] = Array.from(types)
+        return types.size === 1 && type !== undefined && type !== "" ? type : undefined
+    }
+    const rowTitle = titleOf(rows)
+    const colTitle = titleOf(cols)
+    const titleW   = Math.max(textWidth(rowTitle ?? "", fsNum), textWidth(colTitle ?? "", fsNum)) * BOLD
+    const rowW   = Math.max(headOf(rows), Math.ceil(titleW + HEAD_PAD * 2))
+    const colH   = Math.max(headOf(cols), Math.ceil(fsNum * 4))
     const x0     = margin + rowW + HEAD_GAP
     const y0     = margin + colH + HEAD_GAP
     const base   = (y: number, size: number) => y + cell / 2 + size * 0.36
@@ -155,23 +168,42 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         the cells  */
     const shapes: Shape[] = []
     const gaps:   Shape[] = []
-    const header = (node: Node, x: number, y: number, w: number, h: number, gap: boolean) => {
+    const header = (node: Node, x: number, y: number, w: number, h: number,
+        gap: "color-mark-violation" | "color-mark-warning" | undefined) => {
         const style = isPrimary(node) ? "primary" : "regular"
         shapes.push({ kind: "rect", x, y, w, h, rx: 6, fill: `color-node-${style}-box`,
             stroke: `color-node-${style}-border`, width: 2 })
-        if (gap)
+        if (gap !== undefined)
             gaps.push({ kind: "path", x: x + 6, y,
                 d: `h ${w - 12} a 6 6 0 0 1 6 6 v ${h - 12} a 6 6 0 0 1 -6 6 ` +
                     `h ${12 - w} a 6 6 0 0 1 -6 -6 v ${12 - h} a 6 6 0 0 1 6 -6 z`,
-                box: [ x, y, x + w, y + h ], stroke: "color-edge-violation", width: 2, dash: "6 4" })
+                box: [ x, y, x + w, y + h ], stroke: gap, width: 2, dash: "6 4" })
         shapes.push(w < h ?
             textShape(x + cell / 2 + fsName * 0.36, y + h - HEAD_PAD, node.name,
                 `color-node-${style}-name`, "size-font-prop", config, "start", true, urlOf(node), true) :
             textShape(x + HEAD_PAD, base(y, fsName), node.name,
                 `color-node-${style}-name`, "size-font-prop", config, "start", true, urlOf(node)))
     }
-    cols.forEach((node, c) => header(node, x0 + c * cell, margin, cell, colH, traced && !usedCols.has(c)))
-    rows.forEach((node, r) => header(node, margin, y0 + r * cell, rowW, cell, traced && !usedRows.has(r)))
+    const gapCols = traced ? cols.filter((_, c) => !usedCols.has(c)).length : 0
+    const gapRows = traced ? rows.filter((_, r) => !usedRows.has(r)).length : 0
+    cols.forEach((node, c) => header(node, x0 + c * cell, margin, cell, colH,
+        traced && !usedCols.has(c) ? "color-mark-warning" : undefined))
+    rows.forEach((node, r) => header(node, margin, y0 + r * cell, rowW, cell,
+        traced && !usedRows.has(r) ? "color-mark-violation" : undefined))
+
+    /*  the corner above the row and left of the column headers, split
+        by a diagonal into the title of the rows (below it) and the title
+        of the columns (above it), like the head of a table  */
+    if (rowTitle !== undefined || colTitle !== undefined) {
+        shapes.push({ kind: "path", x: margin, y: margin, d: `l ${rowW} ${colH}`,
+            box: [ margin, margin, margin + rowW, margin + colH ], stroke: "color-group-border", width: 2 })
+        if (rowTitle !== undefined)
+            shapes.push(textShape(margin + HEAD_PAD, margin + colH - HEAD_PAD, rowTitle,
+                "color-container-name", "size-font-type", config, "start", true))
+        if (colTitle !== undefined)
+            shapes.push(textShape(margin + rowW - HEAD_PAD, margin + HEAD_PAD + fsNum, colTitle,
+                "color-container-name", "size-font-type", config, "end", true))
+    }
 
     /*  the gap outlines lie above all headers, as the neighboring header
         boxes would otherwise cover parts of them  */
@@ -188,7 +220,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
                 stroke: "color-group-border", width: 1 })
             if (count !== undefined)
                 shapes.push(textShape(x + cell / 2, base(y, fsNum), String(count),
-                    feedback ? "color-edge-violation" : "color-node-regular-name", "size-font-type",
+                    feedback ? "color-mark-violation" : "color-node-regular-name", "size-font-type",
                     config, "middle", true))
         }
     }
@@ -205,8 +237,20 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         const [ x, y ] = [ x0 + members[0] * cell, y0 + members[0] * cell ]
         const size     = members.length * cell
         shapes.push({ kind: "path", x, y, d: `h ${size} v ${size} h ${-size} z`,
-            box: [ x, y, x + size, y + size ], stroke: "color-edge-violation", width: 3, dash: "10 6" })
+            box: [ x, y, x + size, y + size ], stroke: "color-mark-violation", width: 3, dash: "10 6" })
     }
+
+    /*  explain the visible marks in a legend below the matrix  */
+    const legend: LegendEntry[] = []
+    if (counts.size > 0)
+        legend.push({ swatch: "cell",  color: "color-node-regular-name", text: config["legend-count"] })
+    if (blocks.size > 0)
+        legend.push({ swatch: "block", color: "color-mark-violation",    text: config["legend-cycle"] })
+    if (gapRows > 0)
+        legend.push({ swatch: "box",   color: "color-mark-violation",    text: config["legend-gap-row"] })
+    if (gapCols > 0)
+        legend.push({ swatch: "box",   color: "color-mark-warning",      text: config["legend-gap-column"] })
+    shapes.push(...legendShapes(legend, margin, y0 + rows.length * cell + HEAD_GAP * 3, config))
 
     /*  hand over the shapes for SVG rendering (no node boxes and edges)  */
     return { nodes: [], edges: [], cx: () => 0, cy: () => 0,

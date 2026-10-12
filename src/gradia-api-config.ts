@@ -35,7 +35,8 @@ export const configDefaults = {
     "color-edge-name":           "#333333",
     "color-edge-arity":          "#333333",
     "color-edge-halo":           "#ffffff",
-    "color-edge-violation":      "#cc3333",
+    "color-mark-violation":      "#cc3333",
+    "color-mark-warning":        "#e08a00",
     "size-font-node":            30,    /*  font size of node names                */
     "size-font-type":            16,    /*  font size of node types                */
     "size-font-prop":            22,    /*  font size of node properties           */
@@ -73,6 +74,12 @@ export const configDefaults = {
     "grid-gap-vertical":         20,    /*  grid: vertical gap between tiles       */
     "grid-node-width-equal":     true,  /*  grid: force equal width of node boxes  */
     "grid-node-height-equal":    true,  /*  grid: force equal height of node boxes */
+    "legend":                    true,  /*  legend of the marks below a diagram    */
+    "legend-count":              "references from row to column",
+    "legend-cycle":              "cyclic dependency",
+    "legend-upward":             "dependency against the layering",
+    "legend-gap-row":            "row without any entry",
+    "legend-gap-column":         "column without any entry",
     "layout-row-cells":          8,     /*  layout: cells per row                  */
     "layout-cell-bits":          8,     /*  layout: bits per cell (1 or 8)         */
     "layout-cell-size":          44,    /*  layout: width and height of a cell     */
@@ -83,7 +90,8 @@ export type Config = typeof configDefaults
 /*  the configuration options which are directly embedded into the
     generated SVG (and hence can alternatively be provided at display
     time through "--gradia-<option>" CSS custom properties)  */
-export type ConfigEmbedded = { [K in keyof Config]: Config[K] extends string ? K : never }[keyof Config]
+export type ConfigEmbedded = { [K in keyof Config]: K extends `legend-${string}` ? never :
+    Config[K] extends string ? K : never }[keyof Config]
 
 /*  the font size options, which are embedded into the generated SVG,
     too, but which drive the layout as well and hence are embedded as

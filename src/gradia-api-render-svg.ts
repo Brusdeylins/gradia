@@ -498,7 +498,7 @@ const renderEdgeArity = (edge: Edge, candidates: Box[], claim: (candidates: Box[
         return []
     const box = claim(candidates, false, candidates[0])
     return [ `<text x="${(box[0] + box[2]) / 2}" y="${box[3] - 3}" ` +
-        `class="${styler.text(alert ? "color-edge-violation" : "color-edge-arity", "size-font-arity",
+        `class="${styler.text(alert ? "color-mark-violation" : "color-edge-arity", "size-font-arity",
             { middle: true, halo: true })}">${escapeXML(edge.arity)}</text>` ]
 }
 
@@ -706,7 +706,7 @@ const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Box[], dodge
 const nameText = (edge: Edge, box: Box, styler: Styler, alert: boolean,
     align: "middle" | "start" | "end" = "middle"): string[] =>
     [ `<text x="${align === "middle" ? (box[0] + box[2]) / 2 : align === "start" ? box[0] : box[2]}" ` +
-        `y="${box[3] - 3}" class="${styler.text(alert ? "color-edge-violation" : "color-edge-name",
+        `y="${box[3] - 3}" class="${styler.text(alert ? "color-mark-violation" : "color-edge-name",
             "size-font-edge", { middle: align === "middle", end: align === "end", halo: true })}">` +
         `${escapeXML(edge.name ?? "")}</text>` ]
 
@@ -822,9 +822,9 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         are attributed to it even among neighboring edges  */
     const violates   = layout.violates ?? (() => false)
     const alerted    = edges.some((edge) => violates(edge))
-    const classAlert = alerted ? classOf(`fill: none; stroke: ${color("color-edge-violation")}; stroke-width: 3; ` +
+    const classAlert = alerted ? classOf(`fill: none; stroke: ${color("color-mark-violation")}; stroke-width: 3; ` +
         "stroke-dasharray: 10 6") : ""
-    const classAlertArrow = alerted ? classOf(`fill: ${color("color-edge-violation")}`) : ""
+    const classAlertArrow = alerted ? classOf(`fill: ${color("color-mark-violation")}`) : ""
 
     /*  detect the edge crossings requiring rendered hops  */
     const hops = computeHops(polys)

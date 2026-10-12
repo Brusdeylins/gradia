@@ -7,7 +7,7 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }        from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
-import { Layout, Shape, FS_GROUP, textShape, textWidth }
+import { Layout, Shape, FS_GROUP, textShape, textWidth, legendShapes }
     from "./gradia-api-render-base.js"
 import { LevelContext, boundsOf }   from "./gradia-api-render-container.js"
 import { parentOf, containerTypeOf }
@@ -132,6 +132,13 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const violates = (edge: Edge): boolean => {
         const [ s, t ] = [ indexOf(edge.source), indexOf(edge.target) ]
         return s !== undefined && t !== undefined && s > t
+    }
+
+    /*  explain a visible violation in a legend below the bands  */
+    if (graph.edges.some((edge) => violates(edge))) {
+        const below = bottom.reduce((y, b) => Number.isFinite(b) ? Math.max(y, b) : y, bounds.maxY)
+        shapes.push(...legendShapes([ { swatch: "line", color: "color-mark-violation",
+            text: config["legend-upward"] } ], left, below + BAND_MARGIN + 24, config))
     }
     return { ...layout, shapes: [ ...(layout.shapes ?? []), ...shapes ], violates }
 }

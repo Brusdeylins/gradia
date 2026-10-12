@@ -1,17 +1,17 @@
 #type matrix
 
-login:   "Log In"              [ axis: column ]
-order:   "Place Order"         [ axis: column ]
-pay:     "Pay by Card"         [ axis: column ]
-refund:  "Refund Payment"      [ axis: column ]
-export:  "Export Orders"       [ axis: column ]
+login:   "Log In"              [ axis: column, type: Feature ]
+order:   "Place Order"         [ axis: column, type: Feature ]
+pay:     "Pay by Card"         [ axis: column, type: Feature ]
+refund:  "Refund Payment"      [ axis: column, type: Feature ]
+export:  "Export Orders"       [ axis: column, type: Feature ]
 
-t1: "Valid Login Accepted"
-t2: "Wrong Password Rejected"
-t3: "Order With Empty Cart"
-t4: "Card Declined"
-t5: "Order Placed and Paid"
-t6: "Obsolete Smoke Test"
+t1: "Valid Login Accepted" [ type: "Test Case" ]
+t2: "Wrong Password Rejected" [ type: "Test Case" ]
+t3: "Order With Empty Cart" [ type: "Test Case" ]
+t4: "Card Declined" [ type: "Test Case" ]
+t5: "Order Placed and Paid" [ type: "Test Case" ]
+t6: "Obsolete Smoke Test" [ type: "Test Case" ]
 
 t1 --> login
 t2 --> login
