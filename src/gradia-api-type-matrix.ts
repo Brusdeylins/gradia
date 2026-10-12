@@ -154,11 +154,16 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         traceability matrix outlined dashed in the violation color), and
         the cells  */
     const shapes: Shape[] = []
+    const gaps:   Shape[] = []
     const header = (node: Node, x: number, y: number, w: number, h: number, gap: boolean) => {
         const style = isPrimary(node) ? "primary" : "regular"
         shapes.push({ kind: "rect", x, y, w, h, rx: 6, fill: `color-node-${style}-box`,
-            stroke: gap ? "color-edge-violation" : `color-node-${style}-border`, width: 2,
-            dash: gap ? "6 4" : undefined })
+            stroke: `color-node-${style}-border`, width: 2 })
+        if (gap)
+            gaps.push({ kind: "path", x: x + 6, y,
+                d: `h ${w - 12} a 6 6 0 0 1 6 6 v ${h - 12} a 6 6 0 0 1 -6 6 ` +
+                    `h ${12 - w} a 6 6 0 0 1 -6 -6 v ${12 - h} a 6 6 0 0 1 6 -6 z`,
+                box: [ x, y, x + w, y + h ], stroke: "color-edge-violation", width: 2, dash: "6 4" })
         shapes.push(w < h ?
             textShape(x + cell / 2 + fsName * 0.36, y + h - HEAD_PAD, node.name,
                 `color-node-${style}-name`, "size-font-prop", config, "start", true, urlOf(node), true) :
@@ -167,6 +172,10 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     }
     cols.forEach((node, c) => header(node, x0 + c * cell, margin, cell, colH, traced && !usedCols.has(c)))
     rows.forEach((node, r) => header(node, margin, y0 + r * cell, rowW, cell, traced && !usedRows.has(r)))
+
+    /*  the gap outlines lie above all headers, as the neighboring header
+        boxes would otherwise cover parts of them  */
+    shapes.push(...gaps)
     for (let r = 0; r < rows.length; r++) {
         for (let c = 0; c < cols.length; c++) {
             const [ x, y ] = [ x0 + c * cell, y0 + r * cell ]
