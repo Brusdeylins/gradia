@@ -41,6 +41,9 @@ component relationships, data flows, dependency graphs, and similar structures.
   described below.
 - "grid": a compact grid of tiles for an edge-less graph. The nodes are placed
   in declaration order onto a roughly square, row-major grid.
+- "layout": the cell layout of a binary structure (e.g. a message frame, a file
+  header, or a memory slot): every node is a field drawn as a run of cells
+  below a ruler and labeled below the cells.
 
 ### Diagram Type Constraints
 
@@ -66,8 +69,31 @@ This second placement is rendered as a dashed "self" box, colored by the
 The "grid" type rejects the input with an error as soon as the graph contains
 at least one edge.
 
+The diagram type "layout" rejects the input with an error as soon as the
+graph contains at least one edge or one container. Every node is a field
+of the binary structure and has to carry the attributes "offset" and
+"size" (non-negative and positive integers, decimal or "0x" hexadecimal),
+both counted in cells of "layout-cell-bits" bits each, where a "size" of
+"*" denotes a variable size, drawn up to the end of its row and marked
+as continuing by a trailing "..." of its label. The fields are drawn in
+rows of "layout-row-cells" cells below a ruler of the cell numbers, a
+field exceeding its row continues in the next one, overlapping fields
+are rejected, and the cells between the fields are drawn as dashed gaps.
+Every field is labeled below its cells through a brace (or, for a single
+cell, a tick), where the labels of narrow neighboring fields stagger
+downwards, connected by a leader line. The optional attribute "value"
+shows a fixed value inside the cells: one character per cell, if it has
+exactly as many characters as the field has cells (e.g. the bits of a
+marker), else once across the merged cells of the field (e.g. a magic
+number). The attributes "url" (on the label) and "primary" (the primary
+cell colors) are honored, and the "group" attribute stacks several
+structures as group boxes, while all other attributes are ignored. The
+offset of every row is shown right beside it, in hexadecimal bytes
+(or in bits, where a row does not start on a byte boundary).
+
 The "graph" type imposes no such constraints and hence is the safe choice
-whenever the topology is not known to fit "hub" or "grid".
+whenever the topology is not known to fit "hub" or "grid" (and is no binary
+structure for "layout").
 
 ## Input Language
 
@@ -101,7 +127,7 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
     <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                        | "#type" <whitespace> { <whitespace> } <type>
     <option>         ::= <letter> { <letter> | <digit> | "-" }
-    <type>           ::= "graph" | "hub" | "grid"
+    <type>           ::= "graph" | "hub" | "grid" | "layout"
     <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
     <newline>        ::= "\\n"
     <whitespace>     ::= " " | "\\t" | "\\r"
@@ -214,8 +240,8 @@ over them. The recognized options, with their types and built-in defaults, are:
 
 ${configOptions}
 
-The "size-*", "group-*", "container-*", "graph-*", "hub-*", and "grid-*" options
-control the rendering geometry (canvas margin, node box sizing, edge routing,
+The "size-*", "group-*", "container-*", "graph-*", "hub-*", "grid-*", and
+"layout-*" options control the rendering geometry (canvas margin, node box sizing, edge routing,
 group and container box spacing, and the per-diagram-type layout) and take
 non-negative numbers, except the booleans "grid-node-width-equal" and
 "grid-node-height-equal", which force all node boxes of a "grid" diagram to
@@ -237,6 +263,11 @@ so that a few nodes still share a single row instead of being stacked, while
 "grid-columns-max" (default 4) caps it, so that larger diagrams grow in height
 only. The column count never exceeds the node count and the maximum always
 wins over the minimum.
+
+The "layout-row-cells", "layout-cell-bits", and "layout-cell-size" options
+control a "layout" diagram: the number of cells per row, the number of bits a
+cell stands for (usually 1 for bit fields or 8 for byte fields), and the width
+and height of a cell.
 
 The "font-family" and "color-*" options are embedded into the generated SVG:
 when such an option is not explicitly configured, the SVG instead references

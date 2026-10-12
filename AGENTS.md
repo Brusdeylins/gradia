@@ -3,11 +3,12 @@
 **gradia** is the opinionated tooling of *Dr. Ralf S. Engelschall*
 for *Object Graph Diagram Rendering*: a small CLI for rendering
 directed graphs, described in a concise textual input language, as SVG
-diagrams. Three diagram types are supported: `graph` (a grid-snapped
+diagrams. Four diagram types are supported: `graph` (a grid-snapped
 layered layout of the whole graph, based on the Dagre algorithm of
 `@antv/layout`), `hub` (a hub graph, placing one primary hub node
-between its input and output nodes), and `grid` (a compact grid of
-tiles for an edge-less graph).
+between its input and output nodes), `grid` (a compact grid of
+tiles for an edge-less graph), and `layout` (the cell layout of a
+binary structure, its nodes being fields with an `offset` and a `size`).
 
 ## Repository Layout
 
@@ -25,7 +26,10 @@ tiles for an edge-less graph).
     -   `src/gradia-api-config.ts`: the rendering options (defaults,
         in-input directive parsing, font resolution)
     -   `src/gradia-api-render-base.ts`: shared rendering geometry/font
-        constants, text width measurement, and text word-wrapping
+        constants, text width measurement, text word-wrapping, and the
+        free-standing `Shape` primitives (`rect`, `path`, `text`) a
+        diagram type draws beside or instead of node boxes and edges,
+        styled through the same configuration options
     -   `src/gradia-api-render-node.ts`: node box text line breaking,
         measurement, and styling helpers
     -   `src/gradia-api-render-edge.ts`: edge routing (port/track
@@ -43,6 +47,9 @@ tiles for an edge-less graph).
         layout via the Dagre algorithm of `@antv/layout`)
     -   `src/gradia-api-type-hub.ts`: the `hub` diagram type (hub graph layout)
     -   `src/gradia-api-type-grid.ts`: the `grid` diagram type (compact grid layout)
+    -   `src/gradia-api-type-layout.ts`: the `layout` diagram type (the
+        cells, ruler, braces, and labels of a binary structure, drawn as
+        shapes only)
 -   `etc/`: the tool configurations (`eslint.mjs`, `tsconfig.json`,
     `stx.conf`, `vite.ts`)
 -   `smp/`: the sample graph descriptions (`*.txt`), their rendered
@@ -73,7 +80,7 @@ No test target is defined.
 ## CLI Command
 
 ```
-gradia [-t graph|hub|grid] [-f <format>] [-c <name>=<value>] [-o <file>.svg] <graph>.txt
+gradia [-t graph|hub|grid|layout] [-f <format>] [-c <name>=<value>] [-o <file>.svg] <graph>.txt
 ```
 
 The output format is `svg:standalone` (a standalone SVG/XML document,
@@ -107,7 +114,7 @@ diagram yields a byte-identical SVG.
 
 The rendering options (`font-family`, `font-embed`, the `color-*`
 family, and the numeric geometry families `size-*`, `group-*`,
-`graph-*`, `hub-*`, and `grid-*`) are set through the repeatable
+`graph-*`, `hub-*`, `grid-*`, and `layout-*`) are set through the repeatable
 `--config <name>=<value>` command-line option, or through `#config
 <option> <value>` directives inside the input, except `font-embed` and
 WOFF2 file paths, which are command-line-only, as the input is treated

@@ -28,6 +28,7 @@ interface Field {
     node:   Node
     offset: number
     size:   number
+    open:   boolean
     value?: string
 }
 
@@ -39,6 +40,10 @@ interface Segment {
     to:    number   /*  cell after the last one         */
     first: boolean  /*  whether it starts the field     */
 }
+
+/*  the label of a field (a variable-sized one marked as continuing)  */
+const labelOf = (field: Field): string =>
+    field.open ? `${field.node.name} ...` : field.node.name
 
 /*  parse a cell count attribute (a decimal or hexadecimal integer)  */
 const cellsOf = (node: Node, key: string, min: number): number | undefined => {
@@ -55,7 +60,9 @@ const cellsOf = (node: Node, key: string, min: number): number | undefined => {
 
 /*  lay out an edge-less graph model as the cell layout of a binary
     structure: every node is a field with an "offset" and a "size"
-    (both counted in cells of "layout-cell-bits" bits each), which is
+    (both counted in cells of "layout-cell-bits" bits each, a size of
+    "*" denoting a variable size, drawn up to the end of its row and
+    marked as continuing by its label), which is
     drawn as a run of cells within rows of "layout-row-cells" cells
     (a field exceeding its row continues in the next one), labeled
     below the row through a brace (or, for a single cell, a tick) and
@@ -86,13 +93,16 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     /*  determine the fields in the order of their offsets and reject
         overlapping ones, as a cell can belong to one field only  */
     const fields: Field[] = nodes.map((node) => {
+        /*  a size of "*" denotes a variable size, drawn as an open run
+            up to the end of the row of the field  */
         const offset = cellsOf(node, "offset", 0)
-        const size   = cellsOf(node, "size", 1)
+        const open   = node.attrs.findLast((attr) => attr.key === "size")?.val.trim() === "*"
+        const size   = open && offset !== undefined ? cols - offset % cols : cellsOf(node, "size", 1)
         if (offset === undefined || size === undefined)
             throw new Error(`node "${node.id}" lacks the "offset" or "size" attribute ` +
                 "required by diagram type \"layout\"")
         const value = node.attrs.findLast((attr) => attr.key === "value")?.val
-        return { node, offset, size, value }
+        return { node, offset, size, open, value }
     }).sort((a, b) => a.offset - b.offset)
     for (let i = 1; i < fields.length; i++)
         if (fields[i].offset < fields[i - 1].offset + fields[i - 1].size)
@@ -122,7 +132,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     for (let row = 0; row < rows; row++) {
         const ends: number[] = []
         for (const seg of segments.filter((s) => s.row === row).sort((a, b) => midOf(a) - midOf(b))) {
-            const w    = textWidth(seg.field.node.name, fsText)
+            const w    = textWidth(labelOf(seg.field), fsText)
             const left = midOf(seg) - w / 2
             let tier   = ends.findIndex((end) => left >= end + LABEL_SEP)
             if (tier < 0)
@@ -179,7 +189,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         const top   = rowTop[row]
         const [ xa, xb ] = [ xOf(seg.from), xOf(seg.to) ]
 
-        /*  the outline of the field segment, open towards a continuation  */
+        /*  the outline of the field segment  */
         shapes.push({ kind: "path", x: xa, y: top,
             d: `h ${xb - xa} v ${cell} h ${xa - xb} z`, box: [ xa, top, xb, top + cell ],
             stroke: `color-node-${style}-border`, width: 4 })
@@ -223,7 +233,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         if (tier > 0)
             shapes.push({ kind: "path", x: xm, y: tip, d: `v ${tier * tierH}`,
                 box: [ xm - 1, tip, xm + 1, tip + tier * tierH ], stroke: "color-edge-line", width: 2 })
-        shapes.push(textShape(xm, base, field.node.name, "color-edge-name", "size-font-prop", config,
+        shapes.push(textShape(xm, base, labelOf(field), "color-edge-name", "size-font-prop", config,
             "middle", false, urlOf(field.node)))
     }
 
