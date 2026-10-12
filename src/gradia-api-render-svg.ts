@@ -17,7 +17,7 @@ import { Config, ConfigEmbedded, ConfigFontSize, resolveFont, cssValueOf, cssSiz
 import { Poly, NodeStyle, Layout, GroupBox, ContainerBox, Shape,
     FS_GROUP, ARITY_OFF, ARITY_PAD, ARITY_GAP, ARROW_AIR, arityHeight, textWidth, escapeXML, shapeBox }
     from "./gradia-api-render-base.js"
-import { linesOfNode, urlOf, typeOf, defaultStyleOf, containerHead, shapeOf, type NodeShape,
+import { linesOfNode, urlOf, typeOf, defaultStyleOf, containerHead, shapeOf, QUEUE_RX, type NodeShape,
     MIN_H, NAME_H, ATTR_H, ATTR_P, TYPE_H, TYPE_D, HEAD_H }
     from "./gradia-api-render-node.js"
 import { computeHops, piecesOf, pathOf, pointAt }
@@ -383,33 +383,51 @@ const labelPlacer = (
 
 /*  generate the SVG fragments of the outline of a node box of a shape,
     all of them fitting the very box of the regular shape (except the
-    copies of a "stack" behind it and the badge of a "person" or
-    "device" on its top border), so the layout of the diagram types and
-    the edge ports stay the same  */
+    badge of a "person" or "device" on its top border, a "stack" fitting
+    its front box and the copies behind it into the box together), so
+    the layout of the diagram types and the edge ports stay the same and
+    the edges start and end at the outline, where the glyph of a badge takes the
+    text color of the node, as the border color is too faint for it  */
 const renderOutline = (shape: NodeShape, x: number, y: number, w: number, h: number,
-    cls: string, dash: string): string[] => {
+    cls: string, dash: string, glyphCls: string): string[] => {
     if (shape === "database") {
-        const ry = Math.min(14, h / 6)
+        const ry = Math.min(16, h / 7)
         return [ `<path d="M ${x} ${y + ry} a ${w / 2} ${ry} 0 0 1 ${w} 0 v ${h - 2 * ry} ` +
                 `a ${w / 2} ${ry} 0 0 1 ${-w} 0 z" class="${cls}"${dash}/>`,
         `<path d="M ${x} ${y + ry} a ${w / 2} ${ry} 0 0 0 ${w} 0" class="${cls}"${dash}/>` ]
     }
     else if (shape === "queue") {
-        const rx = Math.min(16, w / 8)
+        const rx = QUEUE_RX
         return [ `<path d="M ${x + rx} ${y} h ${w - 2 * rx} a ${rx} ${h / 2} 0 0 1 0 ${h} ` +
                 `h ${2 * rx - w} a ${rx} ${h / 2} 0 0 1 0 ${-h} z" class="${cls}"${dash}/>`,
         `<path d="M ${x + w - rx} ${y} a ${rx} ${h / 2} 0 0 0 0 ${h}" class="${cls}"${dash}/>` ]
     }
     else if (shape === "cloud") {
-        const p = (fx: number, fy: number) => `${x + fx * w} ${y + fy * h}`
-        const r = (f: number) => `${f * w} ${f * h * 1.6}`
-        return [ `<path d="M ${p(0.14, 1)} L ${p(0.86, 1)} A ${r(0.13)} 0 0 0 ${p(0.95, 0.42)} ` +
-            `A ${r(0.2)} 0 0 0 ${p(0.62, 0.06)} A ${r(0.19)} 0 0 0 ${p(0.3, 0.1)} ` +
-            `A ${r(0.13)} 0 0 0 ${p(0.06, 0.5)} A ${r(0.1)} 0 0 0 ${p(0.14, 1)} z" class="${cls}"${dash}/>` ]
+        /*  bulges all around: arcs between points on an ellipse, which
+            touches the left and right box border at half height (where
+            the edges attach), with the bulges of the top and bottom
+            staying inside the box  */
+        const n  = 12
+        const [ cx, cy ] = [ x + w / 2, y + h / 2 ]
+        const [ a, b ]   = [ w / 2, h / 2 - h * 0.14 ]
+        const pt = (k: number) => {
+            const t = Math.PI * 2 * k / n - Math.PI / 2
+            return [ cx + a * Math.cos(t), cy + b * Math.sin(t) ]
+        }
+        const [ sx, sy ] = pt(0)
+        let d = `M ${sx} ${sy}`
+        for (let k = 1; k <= n; k++) {
+            const [ px, py ] = pt(k - 1)
+            const [ qx, qy ] = pt(k)
+            const r = Math.hypot(qx - px, qy - py) * 0.58
+            d += ` A ${r} ${r} 0 0 1 ${qx} ${qy}`
+        }
+        return [ `<path d="${d} z" class="${cls}"${dash}/>` ]
     }
     else if (shape === "stack")
         return [ 12, 6, 0 ].map((d) =>
-            `<rect x="${x + d}" y="${y - d}" width="${w}" height="${h}" rx="6" class="${cls}"${dash}/>`)
+            `<rect x="${x + d}" y="${y + 12 - d}" width="${w - 12}" height="${h - 12}" rx="6" ` +
+            `class="${cls}"${dash}/>`)
     const box = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" class="${cls}"${dash}/>`
     if (shape === "person" || shape === "device") {
         const [ bx, by, r ] = [ x + w / 2, y, 13 ]
@@ -418,7 +436,7 @@ const renderOutline = (shape: NodeShape, x: number, y: number, w: number, h: num
                 `M ${bx - 7} ${by + 8} q 0 -8 7 -8 q 7 0 7 8` :
             `M ${bx - 7} ${by - 7} h 14 v 10 h -14 z M ${bx - 4} ${by + 7} h 8 M ${bx} ${by + 3} v 4`
         return [ box, `<circle cx="${bx}" cy="${by}" r="${r}" class="${cls}"/>`,
-            `<path d="${glyph}" fill="none" class="${cls}" stroke-width="2"/>` ]
+            `<path d="${glyph}" class="${glyphCls}"/>` ]
     }
     return [ box ]
 }
@@ -433,32 +451,39 @@ const renderNode = (node: Node, layout: Layout, style: NodeStyle, styler: Styler
     const x     = cx(node.id) - w / 2
     const y     = cy(node.id) - h / 2
     const lines = linesOfNode(node, config)
+    const shape = shapeOf(node)
+
+    /*  the text sits centered on the body of the outline: left of the
+        inner cap of a lying cylinder, and on the front box of a stack  */
+    const tx    = cx(node.id) - (shape === "queue" ? QUEUE_RX / 2 : shape === "stack" ? 6 : 0)
+    const ty0   = shape === "stack" ? 6 : 0
     const url   = urlOf(node)
     const parts: string[] = []
-    parts.push(...renderOutline(shapeOf(node), x, y, w, h, styler.box(style.fill, style.stroke, 4),
-        style.dash !== undefined ? ` stroke-dasharray="${escapeXML(style.dash)}"` : ""))
+    parts.push(...renderOutline(shape, x, y, w, h, styler.box(style.fill, style.stroke, 4),
+        style.dash !== undefined ? ` stroke-dasharray="${escapeXML(style.dash)}"` : "",
+        styler.line(style.text, 2.5)))
 
     /*  vertically center the textual content block within the box, with
         the optional type lines shifting the name and attributes down and
         the additional wrapped name lines shifting the attributes down  */
-    const ty    = cy(node.id) - contentH.get(node.id)! / 2
+    const ty    = cy(node.id) + ty0 - contentH.get(node.id)! / 2
     const th    = lines.type.length * TYPE_H(config)
     const nh    = (lines.name.length - 1) * NAME_H(config)
     const asc   = config["size-font-node"] * 0.36
     const nameY = lines.attrs.length > 0 ?
-        ty + th + MIN_H(config) / 2 + asc : cy(node.id) + th / 2 + asc - nh / 2
+        ty + th + MIN_H(config) / 2 + asc : cy(node.id) + ty0 + th / 2 + asc - nh / 2
     lines.type.forEach((line, k) => {
-        parts.push(`<text x="${cx(node.id)}" ` +
+        parts.push(`<text x="${tx}" ` +
             `y="${nameY - TYPE_D(config) - (lines.type.length - 1 - k) * TYPE_H(config)}" ` +
             `class="${styler.text(style.text, "size-font-type", { middle: true })}">${escapeXML(line)}</text>`)
     })
     lines.name.forEach((line, k) => {
-        parts.push(`<text x="${cx(node.id)}" y="${nameY + k * NAME_H(config)}" ` +
+        parts.push(`<text x="${tx}" y="${nameY + k * NAME_H(config)}" ` +
             `class="${styler.text(style.text, "size-font-node", { bold: true, middle: true })}">` +
             `${escapeXML(line)}</text>`)
     })
     lines.attrs.forEach((line, k) => {
-        parts.push(`<text x="${cx(node.id)}" ` +
+        parts.push(`<text x="${tx}" ` +
             `y="${ty + th + nh + MIN_H(config) + ATTR_P + k * ATTR_H(config)}" ` +
             `class="${styler.text(style.text, "size-font-prop", { middle: true })}">${escapeXML(line)}</text>`)
     })

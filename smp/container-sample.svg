@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="20 20 2927 404" width="2927" height="404">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="20 20 3076 672" width="3076" height="672">
 <defs>
 <style>
 .gradia-1b78e744 { fill: none; stroke: #999999; stroke-width: 3 }
@@ -8,71 +8,73 @@
 .gradia-11dad4ff { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-edge, 16px); text-anchor: middle; fill: #333333; stroke: var(--gradia-color-edge-halo, #ffffff); stroke-width: 4.5; paint-order: stroke; stroke-linejoin: round }
 .gradia-cc24e345 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-arity, 16px); text-anchor: middle; fill: #333333; stroke: var(--gradia-color-edge-halo, #ffffff); stroke-width: 4.5; paint-order: stroke; stroke-linejoin: round }
 .gradia-a6a22853 { fill: #e0f0ff; stroke: #c0d0e0; stroke-width: 4 }
+.gradia-eb505b30 { fill: none; stroke: #336699; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round }
 .gradia-776a87aa { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); text-anchor: middle; fill: #336699 }
 .gradia-769fb48f { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-node, 30px); font-weight: 600; text-anchor: middle; fill: #336699 }
 .gradia-ceed8dfe { fill: #336699; stroke: #003366; stroke-width: 4 }
+.gradia-823c8733 { fill: none; stroke: #ffffff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round }
 .gradia-fc3c7305 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-node, 30px); font-weight: 600; text-anchor: middle; fill: #ffffff }
 .gradia-c2ff906f { fill: var(--gradia-color-container-box, #f6f6f6); stroke: var(--gradia-color-container-border, #a0a0a0); stroke-width: 3 }
 .gradia-466acfed { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); fill: var(--gradia-color-container-name, #666666) }
 .gradia-a062cd18 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 600; fill: var(--gradia-color-container-name, #666666) }
 </style>
-<marker id="gradia-c2294187b9ee-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+<marker id="gradia-1e11a467b412-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
 <path d="M 0 1 L 9 5 L 0 9 z" class="gradia-72a34555"/>
 </marker>
 </defs>
 <a href="#frontend" xlink:href="#frontend">
-<rect x="400" y="89.25" width="627" height="221" rx="12" class="gradia-c2ff906f" stroke-dasharray="10 6"/>
-<text x="418" y="117.25" class="gradia-466acfed">zone</text>
-<text x="418" y="145.25" class="gradia-a062cd18">Frontend Zone</text>
+<rect x="398" y="221.5" width="813" height="221" rx="12" class="gradia-c2ff906f" stroke-dasharray="10 6"/>
+<text x="416" y="249.5" class="gradia-466acfed">zone</text>
+<text x="416" y="277.5" class="gradia-a062cd18">Frontend Zone</text>
 </a>
-<rect x="1167" y="42.25" width="1745.28" height="314.5" rx="12" class="gradia-c2ff906f" stroke-dasharray="10 6"/>
-<text x="1185" y="70.25" class="gradia-466acfed">zone</text>
-<text x="1185" y="98.25" class="gradia-a062cd18">Backend Zone</text>
-<rect x="2001.28" y="126.25" width="857" height="157" rx="12" class="gradia-c2ff906f" stroke-dasharray="10 6"/>
-<text x="2019.28" y="162.25" class="gradia-a062cd18">Data Zone</text>
-<path d="M 709 204.75 L 717 204.75 Q 723 204.75 723 198.75 L 723 198.75 Q 723 192.75 729 192.75 L 749 192.75" class="gradia-1b78e744" marker-end="url(#gradia-c2294187b9ee-arrow)"/>
-<path d="M 1482.28 238.75 L 1507.28 238.75 Q 1527.28 238.75 1527.28 258.75 L 1527.28 275.25 Q 1527.28 295.25 1547.28 295.25 L 1629.78 295.25" class="gradia-1b78e744" marker-end="url(#gradia-c2294187b9ee-arrow)"/>
-<path d="M 1482.28 204.75 L 1622.28 204.75" class="gradia-1b78e744" marker-end="url(#gradia-c2294187b9ee-arrow)"/>
-<path d="M 1861.28 187.75 L 2001.28 187.75" class="gradia-1b78e744" marker-end="url(#gradia-c2294187b9ee-arrow)"/>
-<path d="M 1853.78 295.25 L 1886.28 295.25 Q 1906.28 295.25 1906.28 275.25 L 1906.28 241.75 Q 1906.28 221.75 1926.28 221.75 L 2001.28 221.75" class="gradia-1b78e744" marker-end="url(#gradia-c2294187b9ee-arrow)"/>
-<path d="M 260 86.5 L 309 86.5 Q 329 86.5 329 106.5 L 329 172.75 Q 329 192.75 349 192.75 L 470 192.75" class="gradia-1b78e744" marker-end="url(#gradia-c2294187b9ee-arrow)"/>
-<path d="M 260 199.5 L 297 199.5 A 8 8 0 0 1 313 199.5 L 313 199.5 Q 317 199.5 317 203.5 L 317 276.25 Q 317 280.25 321 280.25 L 321 280.25 A 8 8 0 0 1 337 280.25 L 430 280.25 Q 450 280.25 450 260.25 L 450 226.75 Q 450 216.75 460 216.75 L 470 216.75" class="gradia-1b78e744" marker-end="url(#gradia-c2294187b9ee-arrow)"/>
-<path d="M 969 204.75 L 1262.28 204.75" class="gradia-1b78e744" marker-end="url(#gradia-c2294187b9ee-arrow)"/>
-<path d="M 1861.28 221.75 L 1898.28 221.75 Q 1918.28 221.75 1918.28 241.75 L 1918.28 275.25 Q 1918.28 295.25 1938.28 295.25 L 2906.2799999999997 295.25 Q 2926.2799999999997 295.25 2926.2799999999997 315.25 L 2926.2799999999997 348.75 Q 2926.2799999999997 368.75 2906.2799999999997 368.75 L 1080 368.75 A 8 8 0 0 0 1064 368.75 L 349 368.75 Q 329 368.75 329 348.75 L 329 268.25 Q 329 248.25 349 248.25 L 442 248.25 A 8 8 0 0 1 458 248.25 L 719.25 248.25 Q 735 248.25 735 232.5 L 735 223.75 Q 735 216.75 742 216.75 L 749 216.75" class="gradia-1b78e744" marker-end="url(#gradia-c2294187b9ee-arrow)"/>
-<path d="M 260 300.5 L 285 300.5 Q 305 300.5 305 280.5 L 305 165.75 Q 305 151.75 319 151.75 L 321 151.75 A 8 8 0 0 1 337 151.75 L 400 151.75" class="gradia-1b78e744" marker-end="url(#gradia-c2294187b9ee-arrow)"/>
-<path d="M 260 324.5 L 285 324.5 Q 305 324.5 305 344.5 L 305 360.75 Q 305 380.75 325 380.75 L 1052 380.75 Q 1072 380.75 1072 360.75 L 1072 244.75 Q 1072 224.75 1092 224.75 L 1216.64 224.75 Q 1223.64 224.75 1223.64 231.75 L 1223.64 231.75 Q 1223.64 238.75 1230.64 238.75 L 1262.28 238.75" class="gradia-1b78e744" marker-end="url(#gradia-c2294187b9ee-arrow)"/>
+<rect x="1313" y="153" width="1718" height="358" rx="12" class="gradia-c2ff906f" stroke-dasharray="10 6"/>
+<text x="1331" y="181" class="gradia-466acfed">zone</text>
+<text x="1331" y="209" class="gradia-a062cd18">Backend Zone</text>
+<rect x="2120" y="237" width="857" height="157" rx="12" class="gradia-c2ff906f" stroke-dasharray="10 6"/>
+<text x="2138" y="273" class="gradia-a062cd18">Data Zone</text>
+<path d="M 769 337 L 808 337 Q 814 337 814 331 L 814 331 Q 814 325 820 325 L 871 325" class="gradia-1b78e744" marker-end="url(#gradia-1e11a467b412-arrow)"/>
+<path d="M 1665 349.5 L 1696 349.5 Q 1716 349.5 1716 369.5 L 1716 429.5 Q 1716 449.5 1736 449.5 L 1774.5 449.5" class="gradia-1b78e744" marker-end="url(#gradia-1e11a467b412-arrow)"/>
+<path d="M 1665 315.5 L 1767 315.5" class="gradia-1b78e744" marker-end="url(#gradia-1e11a467b412-arrow)"/>
+<path d="M 2006 298.5 L 2120 298.5" class="gradia-1b78e744" marker-end="url(#gradia-1e11a467b412-arrow)"/>
+<path d="M 1998.5 449.5 L 2049 449.5 Q 2069 449.5 2069 429.5 L 2069 352.5 Q 2069 332.5 2089 332.5 L 2120 332.5" class="gradia-1b78e744" marker-end="url(#gradia-1e11a467b412-arrow)"/>
+<path d="M 260 86.5 L 297 86.5 Q 317 86.5 317 106.5 L 317 305 Q 317 325 337 325 L 530 325" class="gradia-1b78e744" marker-end="url(#gradia-1e11a467b412-arrow)"/>
+<path d="M 260 412.5 L 309 412.5 A 20 8 0 0 1 349 412.5 L 459 412.5 Q 479 412.5 479 392.5 L 479 369 Q 479 349 499 349 L 530 349" class="gradia-1b78e744" marker-end="url(#gradia-1e11a467b412-arrow)"/>
+<path d="M 1091 337 L 1251.25 337 Q 1262 337 1262 326.25 L 1262 326.25 Q 1262 315.5 1272.75 315.5 L 1445 315.5" class="gradia-1b78e744" marker-end="url(#gradia-1e11a467b412-arrow)"/>
+<path d="M 2006 332.5 L 2037 332.5 Q 2057 332.5 2057 352.5 L 2057 402 Q 2057 406 2061 406 L 2061 406 A 8 8 0 0 1 2077 406 L 3056 406 Q 3076 406 3076 426 L 3076 531 Q 3076 551 3056 551 L 361 551 Q 341 551 341 531 L 341 400.5 Q 341 380.5 361 380.5 L 471 380.5 A 8 8 0 0 1 487 380.5 L 810.25 380.5 Q 826 380.5 826 364.75 L 826 364.75 Q 826 349 841.75 349 L 871 349" class="gradia-1b78e744" marker-end="url(#gradia-1e11a467b412-arrow)"/>
+<path d="M 260 613.5 L 297 613.5 Q 317 613.5 317 593.5 L 317 369 Q 317 349 337 349 L 398 349" class="gradia-1b78e744" marker-end="url(#gradia-1e11a467b412-arrow)"/>
+<path d="M 260 637.5 L 309 637.5 Q 329 637.5 329 617.5 L 329 543 Q 329 539 333 539 L 333 539 A 8 8 0 0 1 349 539 L 1242 539 Q 1262 539 1262 519 L 1262 469.5 Q 1262 449.5 1282 449.5 L 1374 449.5 Q 1394 449.5 1394 429.5 L 1394 369.5 Q 1394 349.5 1414 349.5 L 1445 349.5" class="gradia-1b78e744" marker-end="url(#gradia-1e11a467b412-arrow)"/>
 <rect x="40" y="40" width="220" height="93" rx="6" class="gradia-a6a22853"/>
 <text x="150" y="74.3" class="gradia-776a87aa">client</text>
 <text x="150" y="110.3" class="gradia-769fb48f">Web Browser</text>
-<rect x="40" y="153" width="220" height="93" rx="6" class="gradia-a6a22853"/>
-<text x="150" y="187.3" class="gradia-776a87aa">client</text>
-<text x="150" y="223.3" class="gradia-769fb48f">Mobile App</text>
-<rect x="40" y="266" width="220" height="93" rx="6" class="gradia-a6a22853"/>
-<text x="150" y="300.3" class="gradia-776a87aa">ops</text>
-<text x="150" y="336.3" class="gradia-769fb48f">Monitoring</text>
-<rect x="470" y="173.25" width="239" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="589.5" y="215.55" class="gradia-769fb48f">Load Balancer</text>
-<rect x="749" y="173.25" width="220" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="859" y="215.55" class="gradia-769fb48f">Web Server</text>
-<rect x="1262.28" y="182.75" width="220" height="78" rx="6" class="gradia-ceed8dfe"/>
-<text x="1372.28" y="232.55" class="gradia-fc3c7305">API Gateway</text>
-<rect x="1629.78" y="263.75" width="224" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="1741.78" y="306.05" class="gradia-769fb48f">Auth Service</text>
-<rect x="1622.28" y="165.75" width="239" height="78" rx="6" class="gradia-a6a22853"/>
-<text x="1741.78" y="215.55" class="gradia-769fb48f">Order Service</text>
-<rect x="2031.2799999999997" y="190.25" width="239" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="2150.7799999999997" y="232.55" class="gradia-769fb48f">Database</text>
-<rect x="2310.2799999999997" y="190.25" width="239" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="2429.7799999999997" y="232.55" class="gradia-769fb48f">Cache</text>
-<rect x="2589.2799999999997" y="190.25" width="239" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="2708.7799999999997" y="232.55" class="gradia-769fb48f">Message Queue</text>
-<text x="1605.78" y="288.25" class="gradia-8a894d87">verify</text>
-<text x="1977.28" y="180.75" class="gradia-8a894d87">persist</text>
-<text x="446" y="185.75" class="gradia-8a894d87">https</text>
-<text x="1197" y="197.75" class="gradia-8a894d87">rest</text>
-<text x="374.36" y="300.25" class="gradia-11dad4ff">https</text>
-<text x="1946.06" y="362.75" class="gradia-11dad4ff">notify</text>
-<text x="375.04" y="171.75" class="gradia-11dad4ff">scrape</text>
-<text x="822.9524999999999" y="400.75" class="gradia-11dad4ff">scrape</text>
-<text x="1221.6399999999999" y="197.75" class="gradia-cc24e345">1..n</text>
+<rect x="40" y="366" width="220" height="93" rx="6" class="gradia-a6a22853"/>
+<text x="150" y="400.3" class="gradia-776a87aa">client</text>
+<text x="150" y="436.3" class="gradia-769fb48f">Mobile App</text>
+<rect x="40" y="579" width="220" height="93" rx="6" class="gradia-a6a22853"/>
+<text x="150" y="613.3" class="gradia-776a87aa">ops</text>
+<text x="150" y="649.3" class="gradia-769fb48f">Monitoring</text>
+<rect x="530" y="305.5" width="239" height="63" rx="6" class="gradia-a6a22853"/>
+<text x="649.5" y="347.8" class="gradia-769fb48f">Load Balancer</text>
+<rect x="871" y="305.5" width="220" height="63" rx="6" class="gradia-a6a22853"/>
+<text x="981" y="347.8" class="gradia-769fb48f">Web Server</text>
+<rect x="1445" y="293.5" width="220" height="78" rx="6" class="gradia-ceed8dfe"/>
+<text x="1555" y="343.3" class="gradia-fc3c7305">API Gateway</text>
+<rect x="1774.5" y="418" width="224" height="63" rx="6" class="gradia-a6a22853"/>
+<text x="1886.5" y="460.3" class="gradia-769fb48f">Auth Service</text>
+<rect x="1767" y="276.5" width="239" height="78" rx="6" class="gradia-a6a22853"/>
+<text x="1886.5" y="326.3" class="gradia-769fb48f">Order Service</text>
+<rect x="2150" y="301" width="239" height="63" rx="6" class="gradia-a6a22853"/>
+<text x="2269.5" y="343.3" class="gradia-769fb48f">Database</text>
+<rect x="2429" y="301" width="239" height="63" rx="6" class="gradia-a6a22853"/>
+<text x="2548.5" y="343.3" class="gradia-769fb48f">Cache</text>
+<rect x="2708" y="301" width="239" height="63" rx="6" class="gradia-a6a22853"/>
+<text x="2827.5" y="343.3" class="gradia-769fb48f">Message Queue</text>
+<text x="1745.96" y="406.5" class="gradia-11dad4ff">verify</text>
+<text x="2063" y="292.5" class="gradia-11dad4ff">persist</text>
+<text x="342.8" y="294.6875" class="gradia-11dad4ff">https</text>
+<text x="418.77777777777777" y="432.5" class="gradia-11dad4ff">https</text>
+<text x="1278.64" y="309.5" class="gradia-11dad4ff">rest</text>
+<text x="2044.1349999999998" y="545" class="gradia-11dad4ff">notify</text>
+<text x="287.03999999999996" y="472.96875" class="gradia-11dad4ff">scrape</text>
+<text x="905.885" y="533" class="gradia-11dad4ff">scrape</text>
+<text x="1404.36" y="308.5" class="gradia-cc24e345">1..n</text>
 </svg>

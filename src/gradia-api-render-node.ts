@@ -67,6 +67,7 @@ const ATTRS_SPECIAL = new Set([ "url", "type", "primary", "group", "parent", "co
     "device" (a box with a device badge), an unknown value being ignored  */
 export const nodeShapes = [ "box", "database", "queue", "cloud", "stack", "person", "device" ] as const
 export type NodeShape = typeof nodeShapes[number]
+export const QUEUE_RX = 16  /*  horizontal radius of the caps of a lying cylinder  */
 export const shapeOf = (node: Node): NodeShape => {
     const val = node.attrs.findLast((attr) => attr.key === "shape")?.val
     return nodeShapes.find((shape) => shape === val) ?? "box"
@@ -179,8 +180,17 @@ export const measureNodes = (
         const h = MIN_H(config) + (lines.name.length - 1) * NAME_H(config) +
             lines.type.length * TYPE_H(config) +
             (lines.attrs.length > 0 ? ATTR_P + (lines.attrs.length - 1) * ATTR_H(config) + ATTR_B : 0)
-        boxW.set(node.id, Math.max(config["size-node-width-min"], Math.ceil(w) + PAD_W * 2))
-        boxH.set(node.id, Math.max(h, Math.ceil(h * scaleOf(node))))
+        const bw = Math.max(config["size-node-width-min"], Math.ceil(w) + PAD_W * 2)
+        const bh = Math.max(h, Math.ceil(h * scaleOf(node)))
+
+        /*  an outline other than a box claims additional room around the
+            text: the caps of a cylinder, the bulges of a cloud, the
+            copies behind the front box of a stack  */
+        const shape = shapeOf(node)
+        boxW.set(node.id, shape === "queue" ? bw + QUEUE_RX * 2 + PAD_W :
+            shape === "cloud" ? Math.ceil(bw * 1.2) : shape === "stack" ? bw + 12 : bw)
+        boxH.set(node.id, shape === "database" ? Math.ceil(bh * 1.5) :
+            shape === "cloud" ? Math.ceil(bh * 1.4) : shape === "stack" ? bh + 12 : bh)
         contentH.set(node.id, h)
     }
     return { boxW, boxH, contentH }

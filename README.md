@@ -428,25 +428,24 @@ color-node-ghost-border    #a0a0a0      container-box-padding      30
 color-node-self-name       #444444      graph-columns-max          4
 color-node-self-box        #e0e0e0      graph-channel-width-max    140
 color-node-self-border     #707070      graph-channel-width-min    24
-color-group-name           #6699cc      graph-channel-padding      14
-color-group-box            #f4f8fc      graph-gutter-height-max    90
-color-group-border         #c0d0e0      graph-gutter-height-min    20
-color-container-name       #666666      graph-node-separation      30
-color-container-box        #f6f6f6      graph-rank-separation      60
-color-container-border     #a0a0a0      graph-node-degree-max      3
-color-edge-line            #999999      hub-channel-width-max      340
-color-edge-name            #333333      hub-channel-width-min      240
-color-edge-arity           #333333      hub-node-gap               20
-color-edge-halo            #ffffff      hub-node-degree-max        3
-color-mark-violation       #cc3333      hub-node-count-max         0
-color-mark-warning         #e08a00      grid-columns-max           4
-size-font-node             30           legend                     true
-size-font-type             16           legend-count               "references from {row} to {column}"
-size-font-prop             22           legend-trace               "references between {row} and {column}"
-size-font-edge             16           legend-cycle               "cyclic dependency"
-size-font-arity            16           legend-upward              "dependency against the layering"
-size-canvas-margin         40           legend-gap                 "{item} without any {other}"
-                                        legend-indirect            "{item} without a direct {other}, covered indirectly"
+color-group-name           #6699cc      graph-gutter-height-max    90
+color-group-box            #f4f8fc      graph-gutter-height-min    20
+color-group-border         #c0d0e0      graph-node-separation      30
+color-container-name       #666666      graph-rank-separation      60
+color-container-box        #f6f6f6      graph-node-degree-max      3
+color-container-border     #a0a0a0      hub-channel-width-max      340
+color-edge-line            #999999      hub-channel-width-min      240
+color-edge-name            #333333      hub-node-gap               20
+color-edge-arity           #333333      hub-node-degree-max        3
+color-edge-halo            #ffffff      hub-node-count-max         0
+color-mark-violation       #cc3333      grid-columns-max           4
+color-mark-warning         #e08a00      legend                     true
+size-font-node             30           legend-count               "references from {row} to {column}"
+size-font-type             16           legend-trace               "references between {row} and {column}"
+size-font-prop             22           legend-cycle               "cyclic dependency"
+size-font-edge             16           legend-upward              "dependency against the layering"
+size-font-arity            16           legend-gap                 "{item} without any {other}"
+size-canvas-margin         40           legend-indirect            "{item} without a direct {other}, covered indirectly"
                                         grid-columns-min           3
                                         grid-gap-horizontal        40
                                         grid-gap-vertical          20
@@ -510,10 +509,10 @@ along its run. The `-min` options raise the result, so that even an
 unlabeled diagram can be spaced out, while the `-max` options cap it, so
 that neither many parallel edges nor a long label can push the nodes
 apart without bound (except for the crowded channels and gutters, see
-below). The `graph-channel-padding` option keeps the outermost edge
-tracks of a used channel at least that far from the node boxes beside
-it, so the arrow heads, and the corners and hops in front of them, get
-enough room.
+below). A used channel always keeps its outermost edge tracks so far
+from the node boxes beside it, that an arrow head plus the corner in
+front of it fit in between, so neither a corner nor the hop of a
+crossing edge touches an arrow head.
 
 The `size-edge-track-gap` option controls the distance of the parallel
 edge tracks within a channel or gutter. A channel or gutter whose tracks

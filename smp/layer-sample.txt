@@ -1,5 +1,4 @@
 #type layer
-#config graph-channel-padding 36
 
 web:     "Web Client"       [ layer: Presentation ]
 admin:   "Admin Console"    [ layer: Presentation ]

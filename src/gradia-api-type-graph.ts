@@ -517,13 +517,15 @@ const computeGrid = (
     }
 
     /*  size the channels and gutters by their actual edge usage (a used
-        channel keeping at least "graph-channel-padding" between its
-        outermost tracks and the node boxes beside it, so the arrow heads
-        and the corners in front of them do not collide), grown
+        channel keeping its outermost tracks so far from the node boxes
+        beside it, that an arrow head plus the corner in front of it plus
+        some air fit in between, so neither a corner nor a hop of a
+        crossing edge touches an arrow head), grown
         to hold the edge labels landing inside (a channel by its widest
         label demand, a gutter by one line per label) and the self-loop
         detours rising into a gutter from the row below, and floored by
         the configured minimum width/height  */
+    const room    = arrowRoom(config)
     const chanOf  = (c: number, tracks: number) =>
         Math.min(config["graph-channel-width-max"],
             Math.max(config["graph-channel-width-min"], tracks, chanLbl.get(c) ?? 0))
@@ -537,7 +539,7 @@ const computeGrid = (
     }
     const chanCap = Array.from({ length: ncols }, (_, c) => {
         const cnt = chanCnt.get(c) ?? 0
-        return chanOf(c, cnt === 0 ? CHAN_W0 : Math.max(CHAN_W1, 2 * config["graph-channel-padding"]) +
+        return chanOf(c, cnt === 0 ? CHAN_W0 : Math.max(CHAN_W1, 2 * room) +
             (cnt - 1) * config["size-edge-track-gap"])
     })
     const gutCap  = Array.from({ length: nrows }, (_, g) => {

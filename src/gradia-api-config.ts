@@ -57,7 +57,6 @@ export const configDefaults = {
     "graph-columns-max":         4,     /*  graph: max side-by-side nodes          */
     "graph-channel-width-max":   140,   /*  graph: max width of column channels    */
     "graph-channel-width-min":   24,    /*  graph: min width of column channels    */
-    "graph-channel-padding":     14,    /*  graph: min gap of a node to its edges  */
     "graph-gutter-height-max":   90,    /*  graph: max height of row gutters       */
     "graph-gutter-height-min":   20,    /*  graph: min height of row gutters       */
     "graph-node-separation":     30,    /*  graph: layered layout node separation  */
