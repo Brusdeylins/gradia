@@ -151,7 +151,7 @@ export interface ShapeText {
     text:    string
     box:     Area
     fill:    ConfigEmbedded
-    size:    ConfigFontSize
+    size:    ConfigFontSize | number
     anchor:  "start" | "middle" | "end"
     bold?:   boolean
     url?:    string
@@ -164,9 +164,9 @@ export type Area = [ number, number, number, number ]
 /*  create a text shape, estimating the area it covers (from the
     baseline up by one font size and down by a descender)  */
 export const textShape = (x: number, y: number, text: string, fill: ConfigEmbedded,
-    size: ConfigFontSize, config: Config, anchor: "start" | "middle" | "end" = "start",
+    size: ConfigFontSize | number, config: Config, anchor: "start" | "middle" | "end" = "start",
     bold = false, url?: string): Shape => {
-    const px   = config[size]
+    const px   = typeof size === "number" ? size : config[size]
     const w    = textWidth(text, px)
     const left = anchor === "middle" ? x - w / 2 : anchor === "end" ? x - w : x
     return { kind: "text", x, y, text, fill, size, anchor, bold, url,

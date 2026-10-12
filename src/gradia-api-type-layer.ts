@@ -7,7 +7,7 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }        from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
-import { Layout, Shape, textShape, textWidth }
+import { Layout, Shape, FS_GROUP, textShape, textWidth }
     from "./gradia-api-render-base.js"
 import { LevelContext, boundsOf }   from "./gradia-api-render-container.js"
 import { parentOf, containerTypeOf }
@@ -57,7 +57,6 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     /*  determine the vertical extent of every layer from its node boxes
         and split the gutters between neighboring layers in the middle  */
     const pad    = config["group-box-padding"]
-    const fsText = config["size-font-prop"]
     const top    = layers.map(() => Infinity)
     const bottom = layers.map(() => -Infinity)
     for (const node of layout.nodes) {
@@ -70,9 +69,10 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     }
 
     /*  draw every layer as a band spanning the whole diagram, with the
-        layer name left of its nodes, below the edges and the nodes  */
+        layer name left of its nodes in the bold font of the group tags,
+        below the edges and the nodes  */
     const bounds = boundsOf(layout)
-    const labelW = layers.reduce((w, name) => Math.max(w, textWidth(name, fsText)), 0)
+    const labelW = layers.reduce((w, name) => Math.max(w, textWidth(name, FS_GROUP)), 0)
     const left   = bounds.minX - pad - labelW - pad
     const right  = bounds.maxX + pad
     const shapes: Shape[] = []
@@ -83,8 +83,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         const y2 = i === layers.length - 1 ? bottom[i] + pad : (bottom[i] + top[i + 1]) / 2 - BAND_GAP / 2
         shapes.push({ kind: "rect", x: left, y: y1, w: right - left, h: y2 - y1, rx: 12,
             fill: "color-group-box", stroke: "color-group-border", width: 3 })
-        shapes.push(textShape(left + pad, (y1 + y2) / 2 + fsText * 0.36, name,
-            "color-group-name", "size-font-prop", config, "start", true))
+        shapes.push(textShape(left + pad, (y1 + y2) / 2 + FS_GROUP * 0.36, name,
+            "color-group-name", FS_GROUP, config, "start", true))
     })
 
     /*  an edge pointing from a lower layer to a higher one violates the
