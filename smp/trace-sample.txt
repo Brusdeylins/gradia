@@ -1,0 +1,21 @@
+#type matrix
+
+login:   "Log In"              [ axis: column ]
+order:   "Place Order"         [ axis: column ]
+pay:     "Pay by Card"         [ axis: column ]
+refund:  "Refund Payment"      [ axis: column ]
+export:  "Export Orders"       [ axis: column ]
+
+t1: "Valid Login Accepted"
+t2: "Wrong Password Rejected"
+t3: "Order With Empty Cart"
+t4: "Card Declined"
+t5: "Order Placed and Paid"
+t6: "Obsolete Smoke Test"
+
+t1 --> login
+t2 --> login
+t3 --> order
+t4 --> pay
+t5 --> order
+t5 --> pay

@@ -120,6 +120,14 @@ nodes reaching each other through their edges, is moved into
 consecutive rows and outlined as a dashed block on the diagonal, with
 the numbers of its edges in the "color-edge-violation" color.
 
+As soon as a node carries the attribute "axis: column", the "matrix" is a
+traceability matrix instead: the "axis: column" nodes are its columns and all
+other nodes its rows, a cell counts the edges between its row and its
+column in either direction (as a trace may be recorded on either side,
+e.g. a test case referencing the requirement it verifies), there is no
+diagonal and no cycle, and a row or column without any entry is marked
+as a gap by a header outlined dashed in the "color-edge-violation" color.
+
 The "graph" type imposes no such constraints and hence is the safe choice
 whenever the topology is not known to fit "hub" or "grid" (and is no binary
 structure for "layout").

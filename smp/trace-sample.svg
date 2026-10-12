@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="20 20 582 513" width="582" height="513">
+<defs>
+<style>
+.gradia-3167da4d { fill: none; stroke: var(--gradia-color-edge-line, #999999); stroke-width: 3 }
+.gradia-6c7500cd { fill: var(--gradia-color-edge-line, #999999) }
+.gradia-613ab0f0 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-node-regular-border, #c0d0e0); stroke-width: 2 }
+.gradia-8f91fa3b { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-prop, 22px); font-weight: 600; fill: var(--gradia-color-node-regular-name, #336699) }
+.gradia-de1fc8b2 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-edge-violation, #cc3333); stroke-width: 2 }
+.gradia-63bd54c1 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 1 }
+.gradia-2b6fce7b { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); font-weight: 600; text-anchor: middle; fill: var(--gradia-color-node-regular-name, #336699) }
+.gradia-30482995 { fill: var(--gradia-color-group-box, #f4f8fc); stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 1 }
+</style>
+<marker id="gradia-cf12242741d5-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+<path d="M 0 1 L 9 5 L 0 9 z" class="gradia-6c7500cd"/>
+</marker>
+</defs>
+<rect x="362" y="40" width="44" height="201" rx="6" class="gradia-613ab0f0"/>
+<text x="391.92" y="229" transform="rotate(-90 391.92 229)" class="gradia-8f91fa3b">Log In</text>
+<rect x="406" y="40" width="44" height="201" rx="6" class="gradia-613ab0f0"/>
+<text x="435.92" y="229" transform="rotate(-90 435.92 229)" class="gradia-8f91fa3b">Place Order</text>
+<rect x="450" y="40" width="44" height="201" rx="6" class="gradia-613ab0f0"/>
+<text x="479.92" y="229" transform="rotate(-90 479.92 229)" class="gradia-8f91fa3b">Pay by Card</text>
+<rect x="494" y="40" width="44" height="201" rx="6" class="gradia-de1fc8b2" stroke-dasharray="6 4"/>
+<text x="523.92" y="229" transform="rotate(-90 523.92 229)" class="gradia-8f91fa3b">Refund Payment</text>
+<rect x="538" y="40" width="44" height="201" rx="6" class="gradia-de1fc8b2" stroke-dasharray="6 4"/>
+<text x="567.92" y="229" transform="rotate(-90 567.92 229)" class="gradia-8f91fa3b">Export Orders</text>
+<rect x="40" y="249" width="314" height="44" rx="6" class="gradia-613ab0f0"/>
+<text x="52" y="278.92" class="gradia-8f91fa3b">Valid Login Accepted</text>
+<rect x="40" y="293" width="314" height="44" rx="6" class="gradia-613ab0f0"/>
+<text x="52" y="322.92" class="gradia-8f91fa3b">Wrong Password Rejected</text>
+<rect x="40" y="337" width="314" height="44" rx="6" class="gradia-613ab0f0"/>
+<text x="52" y="366.92" class="gradia-8f91fa3b">Order With Empty Cart</text>
+<rect x="40" y="381" width="314" height="44" rx="6" class="gradia-613ab0f0"/>
+<text x="52" y="410.92" class="gradia-8f91fa3b">Card Declined</text>
+<rect x="40" y="425" width="314" height="44" rx="6" class="gradia-613ab0f0"/>
+<text x="52" y="454.92" class="gradia-8f91fa3b">Order Placed and Paid</text>
+<rect x="40" y="469" width="314" height="44" rx="6" class="gradia-de1fc8b2" stroke-dasharray="6 4"/>
+<text x="52" y="498.92" class="gradia-8f91fa3b">Obsolete Smoke Test</text>
+<rect x="362" y="249" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<text x="384" y="276.76" class="gradia-2b6fce7b">1</text>
+<rect x="406" y="249" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="450" y="249" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="494" y="249" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="538" y="249" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="362" y="293" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<text x="384" y="320.76" class="gradia-2b6fce7b">1</text>
+<rect x="406" y="293" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="450" y="293" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="494" y="293" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="538" y="293" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="362" y="337" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="406" y="337" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<text x="428" y="364.76" class="gradia-2b6fce7b">1</text>
+<rect x="450" y="337" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="494" y="337" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="538" y="337" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="362" y="381" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="406" y="381" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="450" y="381" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<text x="472" y="408.76" class="gradia-2b6fce7b">1</text>
+<rect x="494" y="381" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="538" y="381" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="362" y="425" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="406" y="425" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<text x="428" y="452.76" class="gradia-2b6fce7b">1</text>
+<rect x="450" y="425" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<text x="472" y="452.76" class="gradia-2b6fce7b">1</text>
+<rect x="494" y="425" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="538" y="425" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="362" y="469" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="406" y="469" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="450" y="469" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="494" y="469" width="44" height="44" rx="0" class="gradia-30482995"/>
+<rect x="538" y="469" width="44" height="44" rx="0" class="gradia-30482995"/>
+</svg>
