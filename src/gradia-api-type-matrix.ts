@@ -71,8 +71,8 @@ const cyclesOf = (ids: string[], edges: { source: string, target: string }[]): M
     attributes, the ones without one trailing, while the members of a
     cycle move up to its first member, so every cycle forms a block on
     the diagonal) are both the rows and the columns, a row header
-    carrying the node label in a box, a column header the node label
-    running upwards, and the cell of row X and column Y carrying the number of
+    carrying the node label in a box, a column header the very same box
+    upright, so a row reads "depends on" its columns, and the cell of row X and column Y carrying the number of
     edges from X to Y (their summed numeric arities), while the diagonal
     is shaded and every cycle is outlined as a dashed block with the
     numbers of its edges in the violation color, as a cyclic dependency
@@ -119,17 +119,20 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const nameW  = nodes.reduce((w, node) => Math.max(w, textWidth(node.name, fsName)), 0)
     const headW  = Math.ceil(nameW + HEAD_PAD * 2)
     const x0     = margin + headW + HEAD_GAP
-    const y0     = margin + Math.ceil(nameW) + HEAD_GAP
+    const y0     = margin + headW + HEAD_GAP
     const base   = (y: number, size: number) => y + cell / 2 + size * 0.36
 
-    /*  generate the shapes: the column headers (the node labels running
-        upwards from the cells), the row headers (in the colors of their
-        node boxes), and the cells  */
+    /*  generate the shapes: the column headers (upright boxes, the node
+        labels running upwards) and the row headers (the very same boxes
+        lying), both in the colors of the node boxes, and the cells  */
     const shapes: Shape[] = []
     nodes.forEach((node, i) => {
-        shapes.push(textShape(x0 + i * cell + cell / 2 + fsName * 0.36, y0 - HEAD_GAP, node.name,
-            "color-node-regular-name", "size-font-prop", config, "start", true, urlOf(node), true))
         const style = isPrimary(node) ? "primary" : "regular"
+        const x     = x0 + i * cell
+        shapes.push({ kind: "rect", x, y: margin, w: cell, h: headW, rx: 6,
+            fill: `color-node-${style}-box`, stroke: `color-node-${style}-border`, width: 2 })
+        shapes.push(textShape(x + cell / 2 + fsName * 0.36, margin + headW - HEAD_PAD, node.name,
+            `color-node-${style}-name`, "size-font-prop", config, "start", true, urlOf(node), true))
         const y     = y0 + i * cell
         shapes.push({ kind: "rect", x: margin, y, w: headW, h: cell, rx: 6,
             fill: `color-node-${style}-box`, stroke: `color-node-${style}-border`, width: 2 })

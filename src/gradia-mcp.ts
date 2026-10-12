@@ -111,11 +111,11 @@ layer to a higher one, i.e. against the layering, is drawn dashed in the
 The diagram type "matrix" draws a dependency structure matrix (DSM) and
 rejects the input with an error as soon as the graph contains a
 container. The nodes are both its rows and its columns (in declaration
-order, or in the order of their "order" attributes), a row header
-carrying the node label (in the node box colors, linked through "url")
-and its number, a column header its number only. The cell of row X and
-column Y carries the number of edges from X to Y (their summed numeric
-arities), the diagonal is shaded, and every cycle, i.e. every set of
+order, or in the order of their "order" attributes), the row and
+column headers carrying the node labels in boxes of the node box colors
+(linked through "url"), lying and upright. A matrix reads from a row to
+its columns: the cell of row X and column Y carries the number of edges
+from X to Y (their summed numeric arities), i.e. how often X depends on Y, the diagonal is shaded, and every cycle, i.e. every set of
 nodes reaching each other through their edges, is moved into
 consecutive rows and outlined as a dashed block on the diagonal, with
 the numbers of its edges in the "color-edge-violation" color.
