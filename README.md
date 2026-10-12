@@ -413,9 +413,9 @@ size-canvas-margin         40           layout-row-cells           8
 ```
 
 The `size-*`, `group-*`, `container-*`, `graph-*`, `hub-*`, `grid-*`,
-`layout-*`, and `matrix-*` options control the rendering geometry (text font sizes, canvas
-margin, node box sizing, edge routing, group and container box spacing,
-and the per-diagram-type layout) and take non-negative numbers, except
+`layout-*`, and `matrix-*` options control the rendering geometry (text
+font sizes, canvas margin, node box sizing, edge routing, group and
+container box spacing, and the per-diagram-type layout) and take non-negative numbers, except
 the booleans `grid-node-width-equal` and `grid-node-height-equal`.
 
 The `size-font-*` options control the font sizes of the node names
