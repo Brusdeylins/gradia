@@ -489,10 +489,21 @@ interface Need {
     gut:  Map<number, number>
 }
 
+/*  the uniform box sizing of an explicitly ordered graph laid out in
+    lanes (e.g. the layers of a "layer" diagram): all boxes take one
+    width, the boxes of a lane one height (the edge attachment growth
+    included), and all gutters between the rows one height, so the
+    lanes are evenly spaced  */
+export interface Uniform {
+    laneOf: (id: string) => number
+}
+
 /*  determine grid cell sizes and final node center positions, with
     channel widths and gutter heights sized by actual edge usage to
-    keep the overall layout compact, except the crowded ones, which are
-    sized by the needs of their bundled tracks  */
+    keep the overall layout compact (or, for a uniform layout, all
+    gutters at the height of the highest one, rounded up to the raster),
+    except the crowded ones, which are sized by the needs of their
+    bundled tracks  */
 const computeGrid = (
     nodes:   Node[],
     col:     Map<string, number>,
@@ -506,6 +517,7 @@ const computeGrid = (
     chanLbl: Map<number, number>,
     gutLbl:  Map<number, number>,
     gutLoop: Map<number, number>,
+    even:    boolean,
     need:    Need,
     config:  Config
 ): Grid => {
@@ -546,14 +558,18 @@ const computeGrid = (
         const cnt = gutCnt.get(g) ?? 0
         return gutOf(g, cnt === 0 ? GUT_H0 : GUT_H1 + (cnt - 1) * config["size-edge-track-gap"])
     })
+    if (even)
+        gutCap.fill(onRaster(Math.max(0, ...gutCap)))
 
     /*  size the crowded channels and gutters by the needs of their
         bundled tracks instead of by their edge count, which shrinks them
         below their capped size or grows them beyond their configured
         maximum, but still lets them hold their labels and loops like
-        all others  */
+        all others (for a uniform layout again all gutters alike)  */
     const chanW = chanCap.map((w, c) => need.chan.has(c) ? Math.max(need.chan.get(c)!, chanOf(c, 0)) : w)
     const gutH  = gutCap.map((h, g)  => need.gut.has(g)  ? Math.max(need.gut.get(g)!,  gutOf(g, 0))  : h)
+    if (even && need.gut.size > 0)
+        gutH.fill(onRaster(Math.max(0, ...gutH)))
 
     /*  derive the column and row center positions  */
     const colCX: number[] = []
@@ -1240,7 +1256,8 @@ const growBoxes = (
 /*  lay out a directed graph model (for a containment level: with the
     container placeholders at their fixed sizes, the edge ends attaching
     to them at their fixed ports, and the gate nodes on the boundary)  */
-export const render = async (graph: Graph, config: Config, level: LevelContext = {}): Promise<Layout> => {
+export const render = async (graph: Graph, config: Config, level: LevelContext = {},
+    uniform?: Uniform): Promise<Layout> => {
     const nodes = Array.from(graph.nodes.values())
     const edges = graph.edges
 
@@ -1264,9 +1281,9 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const ordered = real.some((node) => orderOf(node) !== undefined)
 
     /*  only the layered layout packs its columns (see packColumns), as
-        the rows of an explicitly ordered graph carry a meaning of their
-        own  */
-    const packed  = !ordered
+        the rows of an explicitly ordered graph and the lanes of a
+        uniform layout carry a meaning of their own  */
+    const packed  = !ordered && uniform === undefined
     if (ordered) {
         /*  an explicitly ordered graph (at least one node carrying an
             "order" attribute) bypasses the layered layout: the distinct
@@ -1395,35 +1412,45 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const { plans, chanCnt, gutCnt, chanLbl, gutLbl, gutLoop } = routes
 
     /*  align the boxes on the raster: every box takes the width of the
-        widest box of its grid column and the content height of the
-        highest box of its grid row, both rounded up to the raster step,
-        so the boxes of a lane are of equal size and their names share
-        one baseline (the fixed-size boxes of a containment level are
-        exempt)  */
+        widest box of its grid column and the box height of the highest
+        box of its grid row, both rounded up to the raster step, so the
+        boxes of a lane are of equal size and their names share one
+        baseline, and only then the boxes grow by their edge attachment
+        needs, individually and again onto the raster, as a box with many
+        edges would otherwise inflate its whole row (a uniform layout
+        unifies its lanes after the growth instead, and the fixed-size
+        boxes of a containment level are exempt)  */
     const free  = real.filter((node) => !level.fixedSize?.has(node.id))
-    const laneW = new Map<number, number>()
-    const laneH = new Map<number, number>()
-    for (const node of free) {
-        const [ c, r ] = [ col.get(node.id)!, row.get(node.id)! ]
-        laneW.set(c, Math.max(laneW.get(c) ?? 0, onRaster(boxW.get(node.id)!)))
-        laneH.set(r, Math.max(laneH.get(r) ?? 0, onRaster(boxH.get(node.id)!)))
+    const unify = (laneOfW: (id: string) => number, laneOfH: (id: string) => number) => {
+        const laneW = new Map<number, number>()
+        const laneH = new Map<number, number>()
+        for (const node of free) {
+            const [ lw, lh ] = [ laneOfW(node.id), laneOfH(node.id) ]
+            laneW.set(lw, Math.max(laneW.get(lw) ?? 0, onRaster(boxW.get(node.id)!)))
+            laneH.set(lh, Math.max(laneH.get(lh) ?? 0, onRaster(boxH.get(node.id)!)))
+        }
+        for (const node of free) {
+            boxW.set(node.id, laneW.get(laneOfW(node.id))!)
+            boxH.set(node.id, laneH.get(laneOfH(node.id))!)
+        }
     }
-    for (const node of free) {
-        boxW.set(node.id, laneW.get(col.get(node.id)!)!)
-        boxH.set(node.id, laneH.get(row.get(node.id)!)!)
-    }
-
-    /*  grow the boxes by their edge attachment needs (individually, as a
-        box with many edges would otherwise inflate its whole row), again
-        onto the raster (anew from their aligned sizes, once the edge ends
-        merged into one port are known)  */
+    const sizedW = new Map(boxW)
     const sizedH = new Map(boxH)
     const sizeBoxes = (merged?: Merge) => {
+        for (const [ id, w ] of sizedW)
+            boxW.set(id, w)
         for (const [ id, h ] of sizedH)
             boxH.set(id, h)
-        growBoxes(nodes, edges, sides, boxH, config, level, merged)
-        for (const node of free)
-            boxH.set(node.id, onRaster(boxH.get(node.id)!))
+        if (uniform === undefined) {
+            unify((id) => col.get(id)!, (id) => row.get(id)!)
+            growBoxes(nodes, edges, sides, boxH, config, level, merged)
+            for (const node of free)
+                boxH.set(node.id, onRaster(boxH.get(node.id)!))
+        }
+        else {
+            growBoxes(nodes, edges, sides, boxH, config, level, merged)
+            unify(() => 0, uniform.laneOf)
+        }
     }
     sizeBoxes()
 
@@ -1433,7 +1460,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const need: Need = { chan: new Map<number, number>(), gut: new Map<number, number>() }
     const layoutGrid = () => {
         const grid = computeGrid(nodes, col, row, boxW, boxH, ncols, nrows,
-            chanCnt, gutCnt, chanLbl, gutLbl, gutLoop, need, config)
+            chanCnt, gutCnt, chanLbl, gutLbl, gutLoop, uniform !== undefined, need, config)
         return packed ? packColumns(grid, nodes, edges, plans, col, row, boxH, nrows, config) : grid
     }
     let   grid = layoutGrid()

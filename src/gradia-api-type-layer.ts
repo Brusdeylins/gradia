@@ -7,7 +7,7 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }        from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
-import { Layout, FS_GROUP, ASC, onRaster, textWidth }
+import { Layout, FS_GROUP, ASC, textWidth }
     from "./gradia-api-render-base.js"
 import { Shape, textShape, legendShapes }
     from "./gradia-api-render-shape.js"
@@ -102,42 +102,16 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         edges: graph.edges
     }
 
-    /*  lay out the graph twice: first freely, to learn the box sizes the
-        texts and the edge ports demand, and then with every box fixed to
-        the raster-rounded width of the widest box of the diagram and the
-        height of the highest box of its layer, so the boxes form a
-        regular raster, the columns line up across the layers, and the
-        names of a layer share one baseline (the text keeping its own
-        content height, so it stays vertically centered)  */
-    /*  the gutters between the layers have to hold the margins of the
-        two bands beside them plus the gap between the bands  */
+    /*  lay out the graph with uniformly sized boxes: every box takes the
+        width of the widest box of the diagram and the height of the
+        highest box of its layer, so the boxes form a regular raster, the
+        columns line up across the layers, and the names of a layer share
+        one baseline, and the gutters between the layers take one height,
+        so the bands are evenly spaced, where the gutters have to hold the
+        margins of the two bands beside them plus the gap between them  */
     const cfg    = { ...config, "graph-gutter-height-min":
         Math.max(config["graph-gutter-height-min"], BAND_MARGIN * 2 + BAND_GAP) }
-    const free   = await renderGraph(ordered, cfg, level)
-    const width  = onRaster(free.nodes.reduce((w, node) => Math.max(w, free.boxW.get(node.id)!), 0))
-    const height = new Map<number | undefined, number>()
-    for (const node of free.nodes) {
-        const i = indexOf(node.id)
-        height.set(i, Math.max(height.get(i) ?? 0, onRaster(free.boxH.get(node.id)!)))
-    }
-    const fixedSize = new Map(free.nodes.map((node) =>
-        [ node.id, { w: width, h: height.get(indexOf(node.id))! } ]))
-
-    /*  unify the gutters between the layers onto the raster-rounded
-        height of the highest one, so the bands are evenly spaced  */
-    const extent = (layout: Layout, i: number, edge: "top" | "bottom") =>
-        layout.nodes.filter((node) => indexOf(node.id) === i).reduce((y, node) => edge === "top" ?
-            Math.min(y, layout.cy(node.id) - layout.boxH.get(node.id)! / 2) :
-            Math.max(y, layout.cy(node.id) + layout.boxH.get(node.id)! / 2), edge === "top" ? Infinity : -Infinity)
-    let gutter = cfg["graph-gutter-height-min"]
-    for (let i = 0; i < layers.length - 1; i++) {
-        const gap = extent(free, i + 1, "top") - extent(free, i, "bottom")
-        if (Number.isFinite(gap))
-            gutter = Math.max(gutter, gap)
-    }
-    const layout = await renderGraph(ordered, { ...cfg, "graph-gutter-height-min": onRaster(gutter) },
-        { ...level, fixedSize })
-    layout.contentH = free.contentH
+    const layout = await renderGraph(ordered, cfg, level, { laneOf: (id) => indexOf(id) ?? -1 })
 
     /*  determine the vertical extent of every layer from its node boxes  */
     const pad    = config["group-box-padding"]

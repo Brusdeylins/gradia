@@ -35,10 +35,13 @@ dependency structure matrix, its cycles outlined as blocks), and
         over for SVG generation, text width measurement (bold-aware),
         text word-wrapping, text template filling, and the shared
         raster step `RASTER` (`onRaster`), onto which every diagram type
-        rounds its node box sizes, unified per lane: per grid column
-        (width) and row (content height) for `graph`, per column for
+        with node boxes rounds their sizes, unified per lane: per grid
+        column (width) and row (box height) for `graph`, per column for
         `hub`, across the whole diagram (width) and per layer (height) for
-        `layer`, and across all participants for `sequence`
+        `layer` (a uniform `graph` layout), across all tiles for `grid`
+        (if equalized by its options), and across all participants for
+        `sequence`, where `graph` and `hub` grow a box with many edge
+        attachments individually afterwards, again onto the raster
     -   `src/gradia-api-render-shape.ts`: the free-standing `Shape`
         primitives (`rect`, `path`, `text`) a diagram type draws beside
         or instead of node boxes and edges, styled through the same
@@ -65,7 +68,8 @@ dependency structure matrix, its cycles outlined as blocks), and
         cells, ruler, braces, and labels of a binary structure, drawn as
         shapes only)
     -   `src/gradia-api-type-layer.ts`: the `layer` diagram type (an
-        explicitly ordered `graph`, one row per layer, plus the layer
+        explicitly ordered `graph` with uniformly sized boxes and evenly
+        spaced gutters, one row per layer, plus the layer
         bands as shapes and the violating edges marked through the
         per-edge `marked` flags of the `Layout`)
     -   `src/gradia-api-type-matrix.ts`: the `matrix` diagram type (the

@@ -128,16 +128,16 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const sides: { s: Side, t: Side }[] = edges.map(() => ({ s: "e", t: "w" }))
 
     /*  determine node box sizes from their textual content (all boxes
-        at half height scale)  */
+        at half height scale) and align them on the raster: every box of
+        the input and of the output column takes the width and the box
+        height of the widest and the highest box of its column, both
+        rounded up to the raster step, so the boxes of a column, wrapped
+        or not, line up evenly (the fixed-size boxes of a containment
+        level are exempt)  */
     const { boxW, boxH, contentH } = measureNodes(nodes, config, () => scale / 2, level.fixedSize)
-
-    /*  align the boxes on a raster: every box of the input and of the
-        output column takes the width and the height of the widest and
-        the highest box of its column, both rounded up to the raster
-        step, so the boxes of a column, wrapped or not, line up evenly
-        (the fixed-size boxes of a containment level are exempt)  */
+    const isFree = (node: Node) => !level.fixedSize?.has(node.id)
     for (const column of [ inputs, outputs ]) {
-        const free   = column.filter((node) => !level.fixedSize?.has(node.id))
+        const free   = column.filter(isFree)
         const width  = onRaster(free.reduce((w, node) => Math.max(w, boxW.get(node.id)!), 0))
         const height = onRaster(free.reduce((h, node) => Math.max(h, boxH.get(node.id)!), 0))
         for (const node of free) {
@@ -145,8 +145,6 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             boxH.set(node.id, height)
         }
     }
-    if (!level.fixedSize?.has(center.id))
-        boxH.set(center.id, onRaster(boxH.get(center.id)!))
 
     /*  the ports, the channel sizes and the column placement, all
         determined by "place" below, for the edge ends merged into one
@@ -179,14 +177,15 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
 
     /*  lay out the nodes and route the edges  */
     const place = (merged?: (edge: number, role: "s" | "t") => string | undefined) => {
-        /*  grow every box up to the height hosting all of its edge
-            attachments at the full port separation, and the one whose
-            attachments exceed the configured per-side maximum
-            additionally step-wise by one separation per additional edge,
-            so the ports of a node never pack tighter than configured,
-            however small its content height is (the edge ends merged
-            into one port counting as one, and the fixed-size boxes of a
-            containment level are exempt)  */
+        /*  grow every box individually (as a box with many edges would
+            otherwise inflate its whole column) up to the height hosting
+            all of its edge attachments at the full port separation, and
+            the one whose attachments exceed the configured per-side
+            maximum additionally step-wise by one separation per
+            additional edge, so the ports of a node never pack tighter
+            than configured, however small its content height is, again
+            onto the raster (the edge ends merged into one port counting
+            as one)  */
         portGap = portGapOf(edges, config, merged)
         portCnt.clear()
         edges.forEach((edge, i) => {
@@ -208,13 +207,11 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
                 }
             })
         }
-        for (const node of nodes) {
-            if (level.fixedSize?.has(node.id))
-                continue
+        for (const node of nodes.filter(isFree)) {
             const cnt   = Math.max(portCnt.get(`w:${node.id}`) ?? 0, portCnt.get(`e:${node.id}`) ?? 0)
             const extra = Math.max(0, cnt - config["hub-node-degree-max"])
-            boxH.set(node.id, Math.max(
-                sizedH.get(node.id)! + extra * portGap(node.id), cnt * portGap(node.id) + PORT_PAD))
+            boxH.set(node.id, onRaster(Math.max(
+                sizedH.get(node.id)! + extra * portGap(node.id), cnt * portGap(node.id) + PORT_PAD)))
         }
 
         /*  a stack of more nodes than the configured maximum wraps into
