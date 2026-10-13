@@ -21,7 +21,7 @@ graphs and the structures around them:
 - `graph`: a loosely grid-snapped layered layout of the whole graph,
   based on the Dagre algorithm of [@antv/layout](https://github.com/antvis/layout).
 - `hub`: a hub graph, placing one primary hub node between its input and
-  output nodes, the boxes of a column being of equal, raster-aligned size.
+  output nodes.
 - `grid`: a compact grid of tiles for an edge-less graph.
 - `layout`: the cell layout of a binary structure (e.g. a message frame,
   a file header, or a memory slot), drawing every node as a field of
@@ -31,6 +31,10 @@ graphs and the structures around them:
 - `matrix`: a dependency structure matrix, counting the edges between
   every pair of nodes and outlining the cycles.
 - `sequence`: a sequence diagram of participants and their messages.
+
+All node-based diagram types align their node boxes on a common raster:
+the boxes of a lane (a column or a row) share one size, rounded up to
+the raster step, so their names line up.
 
 Examples
 --------

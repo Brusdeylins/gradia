@@ -7,7 +7,7 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }        from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
-import { Layout, Shape, FS_GROUP, RASTER, textShape, textWidth, legendShapes }
+import { Layout, Shape, FS_GROUP, onRaster, textShape, textWidth, legendShapes }
     from "./gradia-api-render-base.js"
 import { LevelContext, boundsOf }   from "./gradia-api-render-container.js"
 import { parentOf, containerTypeOf }
@@ -104,12 +104,11 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const cfg    = { ...config, "graph-gutter-height-min":
         Math.max(config["graph-gutter-height-min"], BAND_MARGIN * 2 + BAND_GAP) }
     const free   = await renderGraph(ordered, cfg, level)
-    const step   = (n: number) => Math.ceil(n / RASTER) * RASTER
-    const width  = step(free.nodes.reduce((w, node) => Math.max(w, free.boxW.get(node.id)!), 0))
+    const width  = onRaster(free.nodes.reduce((w, node) => Math.max(w, free.boxW.get(node.id)!), 0))
     const height = new Map<number | undefined, number>()
     for (const node of free.nodes) {
         const i = indexOf(node.id)
-        height.set(i, Math.max(height.get(i) ?? 0, step(free.boxH.get(node.id)!)))
+        height.set(i, Math.max(height.get(i) ?? 0, onRaster(free.boxH.get(node.id)!)))
     }
     const fixedSize = new Map(free.nodes.map((node) =>
         [ node.id, { w: width, h: height.get(indexOf(node.id))! } ]))
@@ -126,7 +125,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         if (Number.isFinite(gap))
             gutter = Math.max(gutter, gap)
     }
-    const layout = await renderGraph(ordered, { ...cfg, "graph-gutter-height-min": step(gutter) },
+    const layout = await renderGraph(ordered, { ...cfg, "graph-gutter-height-min": onRaster(gutter) },
         { ...level, fixedSize })
     layout.contentH = free.contentH
 

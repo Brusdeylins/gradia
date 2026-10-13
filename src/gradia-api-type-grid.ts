@@ -8,7 +8,7 @@
 import { Node, Graph }           from "./gradia-api-model.js"
 import { Config }                from "./gradia-api-config.js"
 import { measureNodes, orderOf } from "./gradia-api-render-node.js"
-import { Layout }                from "./gradia-api-render-base.js"
+import { Layout, onRaster }      from "./gradia-api-render-base.js"
 import { LevelContext }          from "./gradia-api-render-container.js"
 
 /*  lay out an edge-less graph model as a compact grid of tiles (for a
@@ -35,14 +35,21 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             `(found ${graph.edges.length}, first is "${edge.source}" --> "${edge.target}")`)
     }
 
-    /*  determine node box sizes and, if configured, unify their widths
-        into a single tile width (the container placeholders included, so
-        the container boxes line up) and their heights into a single tile
-        height (the container placeholders excluded, as the height of a
-        container box is the one of its content)  */
+    /*  determine node box sizes, rounded up to the raster step, and, if
+        configured, unify their widths into a single tile width (the
+        container placeholders included, so the container boxes line up)
+        and their heights into a single tile height (the container
+        placeholders excluded, as the height of a container box is the
+        one of its content)  */
     const { boxW, boxH, contentH } = measureNodes(nodes, config,
         () => config["size-node-height-scale"] / 2, level.fixedSize)
     const isFixed = (node: Node): boolean => level.fixedSize?.has(node.id) ?? false
+    for (const node of nodes) {
+        if (!isFixed(node)) {
+            boxW.set(node.id, onRaster(boxW.get(node.id)!))
+            boxH.set(node.id, onRaster(boxH.get(node.id)!))
+        }
+    }
     const tileH = nodes.reduce((a, node) => isFixed(node) ? a : Math.max(a, boxH.get(node.id)!), 0)
     const tileW = nodes.reduce((a, node) => Math.max(a, boxW.get(node.id)!), 0)
     for (const node of nodes) {

@@ -10,7 +10,7 @@ import { DagreLayout } from "@antv/layout"
 /*  internal dependencies  */
 import { Graph, Node, Edge }                 from "./gradia-api-model.js"
 import { Config }                            from "./gradia-api-config.js"
-import { Poly, ARITY_OFF, textWidth, arrowRoom, stubRoom, Layout }
+import { Poly, ARITY_OFF, textWidth, onRaster, arrowRoom, stubRoom, Layout }
     from "./gradia-api-render-base.js"
 import { measureNodes, orderOf }             from "./gradia-api-render-node.js"
 import { LevelContext, GateSide }            from "./gradia-api-render-container.js"
@@ -1394,13 +1394,36 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     }
     const { plans, chanCnt, gutCnt, chanLbl, gutLbl, gutLoop } = routes
 
-    /*  grow the boxes by their edge attachment needs (anew from their
-        content sizes, once the edge ends merged into one port are known)  */
+    /*  align the boxes on the raster: every box takes the width of the
+        widest box of its grid column and the content height of the
+        highest box of its grid row, both rounded up to the raster step,
+        so the boxes of a lane are of equal size and their names share
+        one baseline (the fixed-size boxes of a containment level are
+        exempt)  */
+    const free  = real.filter((node) => !level.fixedSize?.has(node.id))
+    const laneW = new Map<number, number>()
+    const laneH = new Map<number, number>()
+    for (const node of free) {
+        const [ c, r ] = [ col.get(node.id)!, row.get(node.id)! ]
+        laneW.set(c, Math.max(laneW.get(c) ?? 0, onRaster(boxW.get(node.id)!)))
+        laneH.set(r, Math.max(laneH.get(r) ?? 0, onRaster(boxH.get(node.id)!)))
+    }
+    for (const node of free) {
+        boxW.set(node.id, laneW.get(col.get(node.id)!)!)
+        boxH.set(node.id, laneH.get(row.get(node.id)!)!)
+    }
+
+    /*  grow the boxes by their edge attachment needs (individually, as a
+        box with many edges would otherwise inflate its whole row), again
+        onto the raster (anew from their aligned sizes, once the edge ends
+        merged into one port are known)  */
     const sizedH = new Map(boxH)
     const sizeBoxes = (merged?: Merge) => {
         for (const [ id, h ] of sizedH)
             boxH.set(id, h)
         growBoxes(nodes, edges, sides, boxH, config, level, merged)
+        for (const node of free)
+            boxH.set(node.id, onRaster(boxH.get(node.id)!))
     }
     sizeBoxes()
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="20 20 1616 352" width="1616" height="352">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="20 20 1680 420" width="1680" height="420">
 <defs>
 <style>
 .gradia-1b78e744 { fill: none; stroke: #999999; stroke-width: 3 }
@@ -11,68 +11,68 @@
 .gradia-eb505b30 { fill: none; stroke: #336699; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round }
 .gradia-769fb48f { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-node, 30px); font-weight: 600; text-anchor: middle; fill: #336699 }
 </style>
-<marker id="gradia-85eb2221c40f-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+<marker id="gradia-c5b521bd250f-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
 <path d="M 0 1 L 9 5 L 0 9 z" class="gradia-72a34555"/>
 </marker>
 </defs>
 <a href="#event" xlink:href="#event">
-<rect x="40" y="40" width="364" height="63" rx="6" class="gradia-ceed8dfe"/>
-<text x="222" y="82.3" class="gradia-fc3c7305">Event</text>
+<rect x="40" y="40" width="380" height="80" rx="6" class="gradia-ceed8dfe"/>
+<text x="230" y="90.8" class="gradia-fc3c7305">Event</text>
 </a>
 <a href="#agendapoint" xlink:href="#agendapoint">
-<rect x="444" y="40" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="626" y="82.3" class="gradia-769fb48f">AgendaPoint</text>
+<rect x="460" y="40" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="650" y="90.8" class="gradia-769fb48f">AgendaPoint</text>
 </a>
 <a href="#channel" xlink:href="#channel">
-<rect x="848" y="40" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="1030" y="82.3" class="gradia-769fb48f">Channel</text>
+<rect x="880" y="40" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="1070" y="90.8" class="gradia-769fb48f">Channel</text>
 </a>
 <a href="#resource" xlink:href="#resource">
-<rect x="1252" y="40" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="1434" y="82.3" class="gradia-769fb48f">Resource</text>
+<rect x="1300" y="40" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="1490" y="90.8" class="gradia-769fb48f">Resource</text>
 </a>
 <a href="#resourceproviderparam" xlink:href="#resourceproviderparam">
-<rect x="40" y="123" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="222" y="165.3" class="gradia-769fb48f">ResourceProviderParam</text>
+<rect x="40" y="140" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="230" y="190.8" class="gradia-769fb48f">ResourceProviderParam</text>
 </a>
 <a href="#role" xlink:href="#role">
-<rect x="444" y="123" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="626" y="165.3" class="gradia-769fb48f">Role</text>
+<rect x="460" y="140" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="650" y="190.8" class="gradia-769fb48f">Role</text>
 </a>
 <a href="#user" xlink:href="#user">
-<rect x="848" y="123" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="1030" y="165.3" class="gradia-769fb48f">User</text>
+<rect x="880" y="140" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="1070" y="190.8" class="gradia-769fb48f">User</text>
 </a>
 <a href="#message" xlink:href="#message">
-<rect x="1252" y="123" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="1434" y="165.3" class="gradia-769fb48f">Message</text>
+<rect x="1300" y="140" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="1490" y="190.8" class="gradia-769fb48f">Message</text>
 </a>
 <a href="#messagetext" xlink:href="#messagetext">
-<rect x="40" y="206" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="222" y="248.3" class="gradia-769fb48f">MessageText</text>
+<rect x="40" y="240" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="230" y="290.8" class="gradia-769fb48f">MessageText</text>
 </a>
 <a href="#questiontag" xlink:href="#questiontag">
-<rect x="444" y="206" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="626" y="248.3" class="gradia-769fb48f">QuestionTag</text>
+<rect x="460" y="240" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="650" y="290.8" class="gradia-769fb48f">QuestionTag</text>
 </a>
 <a href="#authorizationtoken" xlink:href="#authorizationtoken">
-<rect x="848" y="206" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="1030" y="248.3" class="gradia-769fb48f">AuthorizationToken</text>
+<rect x="880" y="240" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="1070" y="290.8" class="gradia-769fb48f">AuthorizationToken</text>
 </a>
 <a href="#sessiontoken" xlink:href="#sessiontoken">
-<rect x="1252" y="206" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="1434" y="248.3" class="gradia-769fb48f">SessionToken</text>
+<rect x="1300" y="240" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="1490" y="290.8" class="gradia-769fb48f">SessionToken</text>
 </a>
 <a href="#eventstatistic" xlink:href="#eventstatistic">
-<rect x="40" y="289" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="222" y="331.3" class="gradia-769fb48f">EventStatistic</text>
+<rect x="40" y="340" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="230" y="390.8" class="gradia-769fb48f">EventStatistic</text>
 </a>
 <a href="#channelstatistic" xlink:href="#channelstatistic">
-<rect x="444" y="289" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="626" y="331.3" class="gradia-769fb48f">ChannelStatistic</text>
+<rect x="460" y="340" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="650" y="390.8" class="gradia-769fb48f">ChannelStatistic</text>
 </a>
 <a href="#userstatistic" xlink:href="#userstatistic">
-<rect x="848" y="289" width="364" height="63" rx="6" class="gradia-a6a22853"/>
-<text x="1030" y="331.3" class="gradia-769fb48f">UserStatistic</text>
+<rect x="880" y="340" width="380" height="80" rx="6" class="gradia-a6a22853"/>
+<text x="1070" y="390.8" class="gradia-769fb48f">UserStatistic</text>
 </a>
 </svg>

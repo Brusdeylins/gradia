@@ -7,7 +7,7 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }                       from "./gradia-api-model.js"
 import { Config }                                  from "./gradia-api-config.js"
-import { Poly, NodeStyle, Layout, ARITY_OFF, ARROW_AIR, RASTER, textWidth, arrowRoom, stubRoom }
+import { Poly, NodeStyle, Layout, ARITY_OFF, ARROW_AIR, onRaster, textWidth, arrowRoom, stubRoom }
     from "./gradia-api-render-base.js"
 import { isPrimary, measureNodes, defaultStyleOf } from "./gradia-api-render-node.js"
 import { LevelContext }                            from "./gradia-api-render-container.js"
@@ -136,18 +136,17 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         the highest box of its column, both rounded up to the raster
         step, so the boxes of a column, wrapped or not, line up evenly
         (the fixed-size boxes of a containment level are exempt)  */
-    const step = (n: number) => Math.ceil(n / RASTER) * RASTER
     for (const column of [ inputs, outputs ]) {
         const free   = column.filter((node) => !level.fixedSize?.has(node.id))
-        const width  = step(free.reduce((w, node) => Math.max(w, boxW.get(node.id)!), 0))
-        const height = step(free.reduce((h, node) => Math.max(h, boxH.get(node.id)!), 0))
+        const width  = onRaster(free.reduce((w, node) => Math.max(w, boxW.get(node.id)!), 0))
+        const height = onRaster(free.reduce((h, node) => Math.max(h, boxH.get(node.id)!), 0))
         for (const node of free) {
             boxW.set(node.id, width)
             boxH.set(node.id, height)
         }
     }
     if (!level.fixedSize?.has(center.id))
-        boxH.set(center.id, step(boxH.get(center.id)!))
+        boxH.set(center.id, onRaster(boxH.get(center.id)!))
 
     /*  the ports, the channel sizes and the column placement, all
         determined by "place" below, for the edge ends merged into one

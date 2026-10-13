@@ -7,7 +7,7 @@
 /*  internal dependencies  */
 import { Graph }                    from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
-import { Layout, Poly, Shape, ARROW_H, textWidth }
+import { Layout, Poly, Shape, ARROW_H, textWidth, onRaster }
     from "./gradia-api-render-base.js"
 import { LevelContext }             from "./gradia-api-render-container.js"
 import { measureNodes, orderOf, parentOf, containerTypeOf }
@@ -32,17 +32,20 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         throw new Error("diagram type \"sequence\" does not support containers")
     const nodes = all.toSorted((a, b) => (orderOf(a) ?? Infinity) - (orderOf(b) ?? Infinity) || 0)
 
-    /*  measure the participant boxes and space the lifelines evenly, wide
+    /*  measure the participant boxes, unified onto the raster-rounded
+        size of the largest one, and space the lifelines evenly, wide
         enough for the widest box and for the widest message name  */
     const { boxW, boxH, contentH } = measureNodes(nodes, config, () => config["size-node-height-scale"] / 2)
     const margin = config["size-canvas-margin"]
-    const widest = nodes.reduce((w, node) => Math.max(w, boxW.get(node.id)!), 0)
+    const widest = onRaster(nodes.reduce((w, node) => Math.max(w, boxW.get(node.id)!), 0))
     const label  = graph.edges.reduce((w, edge) =>
         Math.max(w, textWidth(edge.name ?? "", config["size-font-edge"])), 0)
     const step   = Math.max(widest + COLUMN_GAP, label + COLUMN_GAP * 1.5)
-    const headH  = nodes.reduce((h, node) => Math.max(h, boxH.get(node.id)!), 0)
-    for (const node of nodes)
+    const headH  = onRaster(nodes.reduce((h, node) => Math.max(h, boxH.get(node.id)!), 0))
+    for (const node of nodes) {
         boxW.set(node.id, widest)
+        boxH.set(node.id, headH)
+    }
     const xOf = new Map(nodes.map((node, i) => [ node.id, margin + widest / 2 + i * step ]))
     const cy  = margin + headH / 2
 

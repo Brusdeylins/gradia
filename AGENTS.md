@@ -33,7 +33,12 @@ dependency structure matrix, its cycles outlined as blocks), and
         constants, text width measurement, text word-wrapping, and the
         free-standing `Shape` primitives (`rect`, `path`, `text`) a
         diagram type draws beside or instead of node boxes and edges,
-        styled through the same configuration options
+        styled through the same configuration options, and the shared
+        raster step `RASTER` (`onRaster`), onto which every diagram type
+        rounds its node box sizes, unified per lane: per grid column
+        (width) and row (content height) for `graph`, per column for
+        `hub`, across the whole diagram (width) and per layer (height) for
+        `layer`, and across all participants for `sequence`
     -   `src/gradia-api-render-node.ts`: node box text line breaking,
         measurement, and styling helpers
     -   `src/gradia-api-render-edge.ts`: edge routing (port/track
@@ -49,10 +54,7 @@ dependency structure matrix, its cycles outlined as blocks), and
     -   `src/gradia-api-render-svg.ts`: the final SVG document generation from a `Layout`
     -   `src/gradia-api-type-graph.ts`: the `graph` diagram type (layered
         layout via the Dagre algorithm of `@antv/layout`)
-    -   `src/gradia-api-type-hub.ts`: the `hub` diagram type (hub graph
-        layout, the boxes of the input and of the output column aligned
-        on the shared raster `RASTER`, each taking the raster-rounded
-        width and height of the largest box of its column)
+    -   `src/gradia-api-type-hub.ts`: the `hub` diagram type (hub graph layout)
     -   `src/gradia-api-type-grid.ts`: the `grid` diagram type (compact grid layout)
     -   `src/gradia-api-type-layout.ts`: the `layout` diagram type (the
         cells, ruler, braces, and labels of a binary structure, drawn as

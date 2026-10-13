@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="20 8 930 366" width="930" height="366">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="20 -55 1019 375" width="1019" height="375">
 <defs>
 <style>
 .gradia-3167da4d { fill: none; stroke: var(--gradia-color-edge-line, #999999); stroke-width: 3 }
@@ -12,27 +12,27 @@
 .gradia-d356e2cb { fill: none; stroke: var(--gradia-color-node-regular-name, #336699); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round }
 .gradia-f36ab1ca { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-node, 30px); font-weight: 600; text-anchor: middle; fill: var(--gradia-color-node-regular-name, #336699) }
 </style>
-<marker id="gradia-268b17539697-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+<marker id="gradia-070f88298d2e-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
 <path d="M 0 1 L 9 5 L 0 9 z" class="gradia-6c7500cd"/>
 </marker>
 </defs>
-<path d="M 260 75 L 390 75 Q 410 75 410 55 L 410 8 Q 410 -12 390 -12 L 170 -12 Q 150 -12 150 8 L 150 40" class="gradia-3167da4d" marker-end="url(#gradia-268b17539697-arrow)"/>
-<path d="M 260 135 L 395 135 Q 410 135 410 120 L 410 120 Q 410 105 425 105 L 560 105" class="gradia-3167da4d" marker-end="url(#gradia-268b17539697-arrow)"/>
-<path d="M 260 195 L 395 195 Q 410 195 410 180 L 410 180 Q 410 165 425 165 L 560 165" class="gradia-3167da4d" marker-end="url(#gradia-268b17539697-arrow)"/>
-<path d="M 560 225 L 425 225 Q 410 225 410 240 L 410 240 Q 410 255 395 255 L 260 255" class="gradia-3167da4d" marker-end="url(#gradia-268b17539697-arrow)"/>
-<path d="M 780 165 L 910 165 Q 930 165 930 145 L 930 21 Q 930 1 910 1 L 690 1 Q 670 1 670 21 L 670 53" class="gradia-3167da4d" marker-end="url(#gradia-268b17539697-arrow)"/>
-<rect x="40" y="40" width="220" height="250" rx="6" class="gradia-c318c042"/>
-<text x="150" y="175.8" class="gradia-f36ab1ca">Unit</text>
-<rect x="560" y="53" width="220" height="224" rx="6" class="gradia-c318c042"/>
-<text x="670" y="175.8" class="gradia-f36ab1ca">Person</text>
+<path d="M 260 80 L 390 80 Q 410 80 410 60 L 410 8 Q 410 -12 390 -12 L 170 -12 Q 150 -12 150 8 L 150 40" class="gradia-3167da4d" marker-end="url(#gradia-070f88298d2e-arrow)"/>
+<path d="M 260 140 L 395 140 Q 410 140 410 125 L 410 125 Q 410 110 425 110 L 560 110" class="gradia-3167da4d" marker-end="url(#gradia-070f88298d2e-arrow)"/>
+<path d="M 260 200 L 395 200 Q 410 200 410 185 L 410 185 Q 410 170 425 170 L 560 170" class="gradia-3167da4d" marker-end="url(#gradia-070f88298d2e-arrow)"/>
+<path d="M 560 230 L 425 230 Q 410 230 410 245 L 410 245 Q 410 260 395 260 L 260 260" class="gradia-3167da4d" marker-end="url(#gradia-070f88298d2e-arrow)"/>
+<path d="M 780 170 L 910 170 Q 930 170 930 150 L 930 18 Q 930 -2 910 -2 L 690 -2 Q 670 -2 670 18 L 670 50" class="gradia-3167da4d" marker-end="url(#gradia-070f88298d2e-arrow)"/>
+<rect x="40" y="40" width="220" height="260" rx="6" class="gradia-c318c042"/>
+<text x="150" y="180.8" class="gradia-f36ab1ca">Unit</text>
+<rect x="560" y="50" width="220" height="240" rx="6" class="gradia-c318c042"/>
+<text x="670" y="180.8" class="gradia-f36ab1ca">Person</text>
 <text x="368.4" y="-18" class="gradia-17299245">parentUnit</text>
-<text x="444.12" y="127" class="gradia-17299245">members</text>
-<text x="448.28" y="187" class="gradia-17299245">director</text>
-<text x="452.44" y="247" class="gradia-17299245">belongsTo</text>
-<text x="976.6" y="18" class="gradia-17299245">supervisor</text>
+<text x="444.12" y="132" class="gradia-17299245">members</text>
+<text x="448.28" y="192" class="gradia-17299245">director</text>
+<text x="452.44" y="252" class="gradia-17299245">belongsTo</text>
+<text x="976.6" y="15" class="gradia-17299245">supervisor</text>
 <text x="172.64" y="19" class="gradia-a09eb644">0..1</text>
-<text x="531.84" y="98" class="gradia-a09eb644">*</text>
-<text x="519.36" y="158" class="gradia-a09eb644">0..1</text>
-<text x="300.64" y="248" class="gradia-a09eb644">0..1</text>
-<text x="692.64" y="32" class="gradia-a09eb644">0..1</text>
+<text x="531.84" y="103" class="gradia-a09eb644">*</text>
+<text x="519.36" y="163" class="gradia-a09eb644">0..1</text>
+<text x="300.64" y="253" class="gradia-a09eb644">0..1</text>
+<text x="692.64" y="29" class="gradia-a09eb644">0..1</text>
 </svg>
