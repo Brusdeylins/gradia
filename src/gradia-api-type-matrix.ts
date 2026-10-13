@@ -7,20 +7,24 @@
 /*  internal dependencies  */
 import { Node, Graph }              from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
-import { Layout, Shape, LegendEntry, textShape, textWidth, legendShapes, fillTemplate }
+import { Layout, ASC, textWidth, fillTemplate }
     from "./gradia-api-render-base.js"
-import { LevelContext }             from "./gradia-api-render-container.js"
-import { isPrimary, urlOf, orderOf, parentOf, containerTypeOf, typeOf }
+import { Shape, LegendEntry, textShape, shapeLayout, legendShapes }
+    from "./gradia-api-render-shape.js"
+import { LevelContext, rejectContainers }
+    from "./gradia-api-render-container.js"
+import { isPrimary, urlOf, byOrder, typeOf }
     from "./gradia-api-render-node.js"
 
 /*  the geometry of the row headers  */
 const HEAD_PAD = 12   /*  horizontal padding inside a row header  */
 const HEAD_GAP = 8    /*  gap between the headers and the cells    */
-const BOLD     = 1.1  /*  widening of the bold header labels      */
 
 /*  determine the cycles of a graph: its strongly connected components
-    of more than one node (Tarjan), plus the nodes carrying a self-loop,
-    each mapped onto the number of its component  */
+    of more than one node (Tarjan, iteratively with an explicit work
+    stack, as a recursion would overflow the call stack on a long chain
+    of nodes), plus the nodes carrying a self-loop, each mapped onto the
+    number of its component  */
 const cyclesOf = (ids: string[], edges: { source: string, target: string }[]): Map<string, number> => {
     const succ = new Map<string, string[]>(ids.map((id) => [ id, [] ]))
     for (const edge of edges)
@@ -31,33 +35,51 @@ const cyclesOf = (ids: string[], edges: { source: string, target: string }[]): M
     const onStk = new Set<string>()
     const comps = new Array<string[]>()
     let counter = 0
-    const visit = (v: string) => {
+    const enter = (v: string) => {
         idx.set(v, counter)
         low.set(v, counter++)
         stack.push(v)
         onStk.add(v)
-        for (const w of succ.get(v)!) {
-            if (!idx.has(w)) {
-                visit(w)
-                low.set(v, Math.min(low.get(v)!, low.get(w)!))
+    }
+    for (const root of ids) {
+        if (idx.has(root))
+            continue
+        enter(root)
+        const work = [ { v: root, k: 0 } ]
+        while (work.length > 0) {
+            const top  = work[work.length - 1]
+            const next = succ.get(top.v)!
+            if (top.k < next.length) {
+                /*  descend into the next unvisited successor  */
+                const w = next[top.k++]
+                if (!idx.has(w)) {
+                    enter(w)
+                    work.push({ v: w, k: 0 })
+                }
+                else if (onStk.has(w))
+                    low.set(top.v, Math.min(low.get(top.v)!, idx.get(w)!))
+                continue
             }
-            else if (onStk.has(w))
-                low.set(v, Math.min(low.get(v)!, idx.get(w)!))
-        }
-        if (low.get(v) === idx.get(v)) {
-            const comp = new Array<string>()
-            let w: string
-            do {
-                w = stack.pop()!
-                onStk.delete(w)
-                comp.push(w)
-            } while (w !== v)
-            comps.push(comp)
+
+            /*  return from a node: hand its low link to its parent and
+                pop its component, if it is the root of one  */
+            work.pop()
+            if (work.length > 0) {
+                const parent = work[work.length - 1].v
+                low.set(parent, Math.min(low.get(parent)!, low.get(top.v)!))
+            }
+            if (low.get(top.v) === idx.get(top.v)) {
+                const comp = new Array<string>()
+                let w: string
+                do {
+                    w = stack.pop()!
+                    onStk.delete(w)
+                    comp.push(w)
+                } while (w !== top.v)
+                comps.push(comp)
+            }
         }
     }
-    for (const id of ids)
-        if (!idx.has(id))
-            visit(id)
     const cycles = new Map<string, number>()
     comps.forEach((comp, k) => {
         if (comp.length > 1 || succ.get(comp[0])!.includes(comp[0]))
@@ -101,10 +123,8 @@ const isIndirect = (node: Node): boolean =>
 export const render = async (graph: Graph, config: Config, level: LevelContext = {}): Promise<Layout> => {
     /*  ensure the graph carries no containers, as the rows are flat  */
     const all = Array.from(graph.nodes.values())
-    if ((level.fixedSize?.size ?? 0) > 0
-        || all.some((node) => parentOf(node) !== undefined || containerTypeOf(node) !== undefined))
-        throw new Error("diagram type \"matrix\" does not support containers")
-    const sorted = all.toSorted((a, b) => (orderOf(a) ?? Infinity) - (orderOf(b) ?? Infinity) || 0)
+    rejectContainers("matrix", all, level)
+    const sorted = byOrder(all)
     const traced = sorted.some((node) => isColumn(node))
 
     /*  determine the rows and columns: in a DSM both are the nodes, with
@@ -150,7 +170,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const fsName = config["size-font-prop"]
     const fsNum  = config["size-font-type"]
     const headOf = (list: Node[]) =>
-        Math.ceil(list.reduce((w, node) => Math.max(w, textWidth(node.name, fsName) * BOLD), 0) + HEAD_PAD * 2)
+        Math.ceil(list.reduce((w, node) => Math.max(w, textWidth(node.name, fsName, true)), 0) + HEAD_PAD * 2)
     /*  the titles of the rows and the columns: the type shared by all of
         their nodes, if any  */
     const titleOf = (list: Node[]): string | undefined => {
@@ -160,12 +180,12 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     }
     const rowTitle = titleOf(rows)
     const colTitle = titleOf(cols)
-    const titleW   = Math.max(textWidth(rowTitle ?? "", fsNum), textWidth(colTitle ?? "", fsNum)) * BOLD
+    const titleW   = Math.max(textWidth(rowTitle ?? "", fsNum, true), textWidth(colTitle ?? "", fsNum, true))
     const rowW   = Math.max(headOf(rows), Math.ceil(titleW + HEAD_PAD * 2))
     const colH   = Math.max(headOf(cols), Math.ceil(fsNum * 4))
     const x0     = margin + rowW + HEAD_GAP
     const y0     = margin + colH + HEAD_GAP
-    const base   = (y: number, size: number) => y + cell / 2 + size * 0.36
+    const base   = (y: number, size: number) => y + cell / 2 + size * ASC
 
     /*  generate the shapes: the column headers (upright boxes, the node
         labels running upwards) and the row headers (the very same boxes
@@ -174,21 +194,18 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         the cells  */
     const shapes: Shape[] = []
     const gaps:   Shape[] = []
-    const header = (node: Node, x: number, y: number, w: number, h: number,
+    const header = (node: Node, x: number, y: number, w: number, h: number, upright: boolean,
         gap: "color-mark-violation" | "color-mark-warning" | undefined) => {
         const style = isPrimary(node) ? "primary" : "regular"
         shapes.push({ kind: "rect", x, y, w, h, rx: 6, fill: `color-node-${style}-box`,
             stroke: `color-node-${style}-border`, width: 2 })
         if (gap !== undefined)
-            gaps.push({ kind: "path", x: x + 6, y,
-                d: `h ${w - 12} a 6 6 0 0 1 6 6 v ${h - 12} a 6 6 0 0 1 -6 6 ` +
-                    `h ${12 - w} a 6 6 0 0 1 -6 -6 v ${12 - h} a 6 6 0 0 1 6 -6 z`,
-                box: [ x, y, x + w, y + h ], stroke: gap, width: 2, dash: "6 4" })
-        shapes.push(w < h ?
-            textShape(x + cell / 2 + fsName * 0.36, y + h - HEAD_PAD, node.name,
-                `color-node-${style}-name`, "size-font-prop", config, "start", true, urlOf(node), true) :
+            gaps.push({ kind: "rect", x, y, w, h, rx: 6, stroke: gap, width: 2, dash: "6 4" })
+        shapes.push(upright ?
+            textShape(x + cell / 2 + fsName * ASC, y + h - HEAD_PAD, node.name,
+                `color-node-${style}-name`, "size-font-prop", config, { bold: true, url: urlOf(node), upright }) :
             textShape(x + HEAD_PAD, base(y, fsName), node.name,
-                `color-node-${style}-name`, "size-font-prop", config, "start", true, urlOf(node)))
+                `color-node-${style}-name`, "size-font-prop", config, { bold: true, url: urlOf(node) }))
     }
     /*  a row or column of a traceability matrix without any entry is a
         gap, unless it is related to the other side indirectly  */
@@ -196,18 +213,18 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         !traced || used ? undefined : isIndirect(node) ? "color-mark-warning" as const : "color-mark-violation" as const
     const colMarks = cols.map((node, c) => markOf(node, usedCols.has(c)))
     const rowMarks = rows.map((node, r) => markOf(node, usedRows.has(r)))
-    cols.forEach((node, c) => header(node, x0 + c * cell, margin, cell, colH, colMarks[c]))
-    rows.forEach((node, r) => header(node, margin, y0 + r * cell, rowW, cell, rowMarks[r]))
+    cols.forEach((node, c) => header(node, x0 + c * cell, margin, cell, colH, true,  colMarks[c]))
+    rows.forEach((node, r) => header(node, margin, y0 + r * cell, rowW, cell, false, rowMarks[r]))
 
     /*  the titles in the corner above the row and left of the column
         headers: the one of the rows above the row headers, the one of
         the columns beside the column headers  */
     if (rowTitle !== undefined)
         shapes.push(textShape(margin + HEAD_PAD, margin + colH - HEAD_PAD, rowTitle,
-            "color-container-name", "size-font-type", config, "start", true))
+            "color-container-name", "size-font-type", config, { bold: true }))
     if (colTitle !== undefined)
         shapes.push(textShape(margin + rowW - HEAD_PAD, margin + HEAD_PAD + fsNum, colTitle,
-            "color-container-name", "size-font-type", config, "end", true))
+            "color-container-name", "size-font-type", config, { anchor: "end", bold: true }))
 
     /*  the gap outlines lie above all headers, as the neighboring header
         boxes would otherwise cover parts of them  */
@@ -225,7 +242,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             if (count !== undefined)
                 shapes.push(textShape(x + cell / 2, base(y, fsNum), String(count),
                     feedback ? "color-mark-violation" : "color-node-regular-name", "size-font-type",
-                    config, "middle", true))
+                    config, { anchor: "middle", bold: true }))
         }
     }
 
@@ -240,13 +257,13 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     for (const members of blocks.values()) {
         const [ x, y ] = [ x0 + members[0] * cell, y0 + members[0] * cell ]
         const size     = members.length * cell
-        shapes.push({ kind: "path", x, y, d: `h ${size} v ${size} h ${-size} z`,
-            box: [ x, y, x + size, y + size ], stroke: "color-mark-violation", width: 3, dash: "10 6" })
+        shapes.push({ kind: "rect", x, y, w: size, h: size,
+            stroke: "color-mark-violation", width: 3, dash: "10 6" })
     }
 
     /*  explain the visible marks in a legend below the matrix  */
     const legend: LegendEntry[] = []
-    const [ rowName, colName ] = [ rowTitle ?? "row", colTitle ?? "column" ]
+    const [ rowName, colName ] = [ rowTitle ?? config["legend-row"], colTitle ?? config["legend-column"] ]
     if (counts.size > 0)
         legend.push({ swatch: "cell",  color: "color-node-regular-name",
             text: fillTemplate(config[traced ? "legend-trace" : "legend-count"], { row: rowName, column: colName }) })
@@ -261,6 +278,5 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     shapes.push(...legendShapes(legend, margin, y0 + rows.length * cell + HEAD_GAP * 3, config))
 
     /*  hand over the shapes for SVG rendering (no node boxes and edges)  */
-    return { nodes: [], edges: [], cx: () => 0, cy: () => 0,
-        boxW: new Map(), boxH: new Map(), contentH: new Map(), polys: [], shapes }
+    return shapeLayout(shapes)
 }

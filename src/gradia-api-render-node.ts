@@ -55,6 +55,13 @@ export const orderOf = (node: Node): number | undefined => {
     return Number.isFinite(num) ? num : undefined
 }
 
+/*  sort the nodes by their "order" annotations, the ones without one
+    trailing, and otherwise keep their declaration order (the sort is
+    stable, and the "|| 0" turns the NaN of two trailing nodes, the
+    difference "Infinity - Infinity", into a tie)  */
+export const byOrder = (nodes: Node[]): Node[] =>
+    nodes.toSorted((a, b) => (orderOf(a) ?? Infinity) - (orderOf(b) ?? Infinity) || 0)
+
 /*  the special attributes consumed by the renderers instead of being
     rendered as node box text lines  */
 const ATTRS_SPECIAL = new Set([ "url", "type", "primary", "group", "parent", "container", "order", "shape" ])
@@ -67,11 +74,18 @@ const ATTRS_SPECIAL = new Set([ "url", "type", "primary", "group", "parent", "co
     "device" (a box with a device badge), an unknown value being ignored  */
 export const nodeShapes = [ "box", "database", "queue", "cloud", "stack", "person", "device" ] as const
 export type NodeShape = typeof nodeShapes[number]
-export const QUEUE_RX = 16  /*  horizontal radius of the caps of a lying cylinder  */
+export const QUEUE_RX  = 16  /*  horizontal radius of the caps of a lying cylinder   */
+export const STACK_OFF = 12  /*  offset of the rearmost copy behind a stack front    */
+export const BADGE_R   = 13  /*  radius of the badge on the top border of a box      */
 export const shapeOf = (node: Node): NodeShape => {
     const val = node.attrs.findLast((attr) => attr.key === "shape")?.val
     return nodeShapes.find((shape) => shape === val) ?? "box"
 }
+
+/*  the extent a node occupies above its box: the upper half of the
+    badge of a "person" or "device" plus some clearance  */
+export const badgeExtent = (node: Node): number =>
+    [ "person", "device" ].includes(shapeOf(node)) ? BADGE_R + 2 : 0
 
 /*  split the attributes rendered as text lines from the special ones  */
 export const attrsOfNode = (node: Node): Attr[] =>
@@ -188,9 +202,9 @@ export const measureNodes = (
             copies behind the front box of a stack  */
         const shape = shapeOf(node)
         boxW.set(node.id, shape === "queue" ? bw + QUEUE_RX * 2 + PAD_W :
-            shape === "cloud" ? Math.ceil(bw * 1.2) : shape === "stack" ? bw + 12 : bw)
+            shape === "cloud" ? Math.ceil(bw * 1.2) : shape === "stack" ? bw + STACK_OFF : bw)
         boxH.set(node.id, shape === "database" ? Math.ceil(bh * 1.5) :
-            shape === "cloud" ? Math.ceil(bh * 1.4) : shape === "stack" ? bh + 12 : bh)
+            shape === "cloud" ? Math.ceil(bh * 1.4) : shape === "stack" ? bh + STACK_OFF : bh)
         contentH.set(node.id, h)
     }
     return { boxW, boxH, contentH }

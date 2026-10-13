@@ -7,11 +7,11 @@
 /*  internal dependencies  */
 import { Node, Graph }                      from "./gradia-api-model.js"
 import { Config }                           from "./gradia-api-config.js"
-import { Layout, Shape, textShape, textWidth }
-    from "./gradia-api-render-base.js"
-import { LevelContext }                     from "./gradia-api-render-container.js"
-import { isPrimary, urlOf, parentOf, containerTypeOf }
-    from "./gradia-api-render-node.js"
+import { Layout, ASC, textWidth }           from "./gradia-api-render-base.js"
+import { Shape, textShape, pathShape, shapeLayout }
+    from "./gradia-api-render-shape.js"
+import { LevelContext, rejectContainers }   from "./gradia-api-render-container.js"
+import { isPrimary, urlOf }                 from "./gradia-api-render-node.js"
 
 /*  the geometry of the annotations around the cell rows  */
 const RULER_GAP  = 8    /*  gap between the ruler and the first row         */
@@ -87,9 +87,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             `(found ${graph.edges.length}, first is "${edge.source}" --> "${edge.target}")`)
     }
     const nodes = Array.from(graph.nodes.values())
-    if ((level.fixedSize?.size ?? 0) > 0
-        || nodes.some((node) => parentOf(node) !== undefined || containerTypeOf(node) !== undefined))
-        throw new Error("diagram type \"layout\" does not support containers")
+    rejectContainers("layout", nodes, level)
 
     /*  resolve the configurable rendering geometry  */
     const margin = config["size-canvas-margin"]
@@ -173,7 +171,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const shapes: Shape[] = []
     for (let c = 0; c < cols; c++)
         shapes.push(textShape(xOf(c) + cell / 2, margin + fsRule, String(c),
-            "color-container-name", "size-font-type", config, "middle"))
+            "color-container-name", "size-font-type", config, { anchor: "middle" }))
     let next = 0
     for (let row = 0; row < rows; row++) {
         for (let c = 0; c < cols && row * cols + c < total; c++) {
@@ -199,7 +197,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         }
         const offset = row * cols * bits
         const label  = offset % 8 === 0 ? `0x${(offset / 8).toString(16).padStart(2, "0")}` : `bit ${offset}`
-        shapes.push(textShape(xOf(cols) + ROW_LABEL, rowTop[row] + cell / 2 + fsText * 0.36, label,
+        shapes.push(textShape(xOf(cols) + ROW_LABEL, rowTop[row] + cell / 2 + fsText * ASC, label,
             "color-container-name", "size-font-prop", config))
     }
     for (const seg of segments) {
@@ -209,25 +207,24 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         const [ xa, xb ] = [ xOf(seg.from), xOf(seg.to) ]
 
         /*  the outline of the field segment  */
-        shapes.push({ kind: "path", x: xa, y: top,
-            d: `h ${xb - xa} v ${cell} h ${xa - xb} z`, box: [ xa, top, xb, top + cell ],
+        shapes.push({ kind: "rect", x: xa, y: top, w: xb - xa, h: cell,
             stroke: `color-node-${style}-border`, width: 4 })
 
         /*  the value, one digit per cell or once in the middle (in the
             smaller font, so it keeps clear of the borders of the cells)  */
         if (field.value !== undefined) {
-            const base = top + cell / 2 + fsRule * 0.36
+            const base = top + cell / 2 + fsRule * ASC
             if (perCell(field)) {
                 const chars = Array.from(field.value)
                 for (let c = seg.from; c < seg.to; c++) {
                     const k = row * cols + c - field.offset
                     shapes.push(textShape(xOf(c) + cell / 2, base, chars[k],
-                        `color-node-${style}-name`, "size-font-type", config, "middle"))
+                        `color-node-${style}-name`, "size-font-type", config, { anchor: "middle" }))
                 }
             }
             else if (seg.first)
                 shapes.push(textShape((xa + xb) / 2, base, field.value,
-                    `color-node-${style}-name`, "size-font-type", config, "middle"))
+                    `color-node-${style}-name`, "size-font-type", config, { anchor: "middle" }))
         }
 
         /*  the brace (or the tick of a single cell) below the segment,
@@ -238,26 +235,23 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         const ia  = xa + 4
         const ib  = xb - 4
         if (seg.to - seg.from > 1 && ib - ia >= BRACE_D * 4)
-            shapes.push({ kind: "path", x: ia, y: bt,
-                d: `q 0 ${BRACE_D} ${BRACE_D} ${BRACE_D} h ${xm - ia - BRACE_D * 2} ` +
+            shapes.push(pathShape(ia, bt,
+                `q 0 ${BRACE_D} ${BRACE_D} ${BRACE_D} h ${xm - ia - BRACE_D * 2} ` +
                     `q ${BRACE_D} 0 ${BRACE_D} ${BRACE_D} q 0 ${-BRACE_D} ${BRACE_D} ${-BRACE_D} ` +
                     `h ${ib - xm - BRACE_D * 2} q ${BRACE_D} 0 ${BRACE_D} ${-BRACE_D}`,
-                box: [ ia, bt, ib, tip ], stroke: "color-edge-line", width: 2 })
+                [ 0, 0, ib - ia, BRACE_D * 2 ], "color-edge-line", 2))
         else
-            shapes.push({ kind: "path", x: xm, y: bt, d: `v ${BRACE_D * 2}`,
-                box: [ xm - 1, bt, xm + 1, tip ], stroke: "color-edge-line", width: 2 })
+            shapes.push(pathShape(xm, bt, `v ${BRACE_D * 2}`, [ -1, 0, 1, BRACE_D * 2 ], "color-edge-line", 2))
 
         /*  the label in its tier, a lower tier connected by a leader line  */
         const tier = tierOf.get(seg)!
         const base = tip + LABEL_GAP + fsText * 0.8 + tier * tierH
         if (tier > 0)
-            shapes.push({ kind: "path", x: xm, y: tip, d: `v ${tier * tierH}`,
-                box: [ xm - 1, tip, xm + 1, tip + tier * tierH ], stroke: "color-edge-line", width: 2 })
+            shapes.push(pathShape(xm, tip, `v ${tier * tierH}`, [ -1, 0, 1, tier * tierH ], "color-edge-line", 2))
         shapes.push(textShape(xm, base, labelOf(field), "color-edge-name", "size-font-prop", config,
-            "middle", false, urlOf(field.node)))
+            { anchor: "middle", url: urlOf(field.node) }))
     }
 
     /*  hand over the shapes for SVG rendering (no node boxes and edges)  */
-    return { nodes: [], edges: [], cx: () => 0, cy: () => 0,
-        boxW: new Map(), boxH: new Map(), contentH: new Map(), polys: [], shapes }
+    return shapeLayout(shapes)
 }

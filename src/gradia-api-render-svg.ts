@@ -14,11 +14,12 @@ import UUID                                                 from "pure-uuid"
 import { Node, Edge }                                       from "./gradia-api-model.js"
 import { Config, ConfigEmbedded, ConfigFontSize, resolveFont, cssValueOf, cssSizeOf }
     from "./gradia-api-config.js"
-import { Poly, NodeStyle, Layout, GroupBox, ContainerBox, Shape,
-    FS_GROUP, ARITY_OFF, ARITY_PAD, ARITY_GAP, ARROW_AIR, arityHeight, textWidth, escapeXML, shapeBox }
+import { Area, Poly, NodeStyle, Layout, GroupBox, ContainerBox,
+    FS_GROUP, ARITY_OFF, ARITY_PAD, ARITY_GAP, ARROW_AIR, ASC, arityHeight, textWidth, escapeXML }
     from "./gradia-api-render-base.js"
-import { linesOfNode, urlOf, typeOf, defaultStyleOf, containerHead, shapeOf, QUEUE_RX, type NodeShape,
-    MIN_H, NAME_H, ATTR_H, ATTR_P, TYPE_H, TYPE_D, HEAD_H }
+import { Shape, shapeBox }                                  from "./gradia-api-render-shape.js"
+import { linesOfNode, urlOf, typeOf, defaultStyleOf, containerHead, shapeOf, badgeExtent,
+    QUEUE_RX, STACK_OFF, BADGE_R, type NodeShape, MIN_H, NAME_H, ATTR_H, ATTR_P, TYPE_H, TYPE_D, HEAD_H }
     from "./gradia-api-render-node.js"
 import { computeHops, piecesOf, pathOf, pointAt }
     from "./gradia-api-render-edge.js"
@@ -103,16 +104,9 @@ interface Styler {
     line: (stroke: ConfigEmbedded, width: number) => string
 }
 
-/*  a rectangular area, given by its top-left and bottom-right corners  */
-type Box = [ number, number, number, number ]
-
 /*  the placement of a group tag in the top-left corner of its group box  */
 const TAG_DX = 18  /*  left offset of the group tag  */
 const TAG_DY = 12  /*  top offset of the group tag   */
-
-/*  the radius of the badge of a "person" or "device" node on its top
-    border, which the node hence occupies above its box, too  */
-const BADGE_R = 13
 
 /*  the half width of the box an edge line segment occupies  */
 const LINE_PAD = 2
@@ -157,12 +151,12 @@ const BUCKET    = 64
 const GRID_OFF  = 1 << 20
 const GRID_SPAN = 2 * GRID_OFF
 interface AreaGrid {
-    add:    (area: Box) => number
+    add:    (area: Area) => number
     remove: (id: number) => void
-    visit:  (x1: number, y1: number, x2: number, y2: number, fn: (id: number, area: Box) => boolean) => void
+    visit:  (x1: number, y1: number, x2: number, y2: number, fn: (id: number, area: Area) => boolean) => void
 }
 const areaGrid = (): AreaGrid => {
-    const areas:   (Box | undefined)[] = []
+    const areas:   (Area | undefined)[] = []
     const buckets = new Map<number, number[]>()
     let   stamps  = new Uint32Array(0)
     let   stamp   = 0
@@ -170,7 +164,7 @@ const areaGrid = (): AreaGrid => {
         Math.max(-GRID_OFF, Math.min(GRID_OFF - 1, Math.floor(v / BUCKET)))
 
     /*  index an area and return its identifier  */
-    const add = (area: Box): number => {
+    const add = (area: Area): number => {
         const id = areas.length
         areas.push(area)
         for (let by = bucketOf(area[1]); by <= bucketOf(area[3]); by++) {
@@ -193,7 +187,7 @@ const areaGrid = (): AreaGrid => {
     /*  visit every indexed area sharing a bucket with the queried area
         once, until the visiting function signals to stop  */
     const visit = (x1: number, y1: number, x2: number, y2: number,
-        fn: (id: number, area: Box) => boolean): void => {
+        fn: (id: number, area: Area) => boolean): void => {
         if (stamps.length < areas.length) {
             const grown = new Uint32Array(Math.max(areas.length, 2 * stamps.length))
             grown.set(stamps)
@@ -232,15 +226,15 @@ const labelPlacer = (
     hopRadius: number,
     config:    Config
 ): {
-    claim:    (candidates: Box[], edge: number, dodge?: boolean, own?: Box, mates?: Set<number>) => Box,
-    seize:    (box: Box, edge: number) => boolean,
-    reserve:  (box: Box) => void,
-    occupied: Box[]
+    claim:    (candidates: Area[], edge: number, dodge?: boolean, own?: Area, mates?: Set<number>) => Area,
+    seize:    (box: Area, edge: number) => boolean,
+    reserve:  (box: Area) => void,
+    occupied: Area[]
 } => {
     const { nodes, cx, cy, boxW, boxH } = layout
-    const occupied: Box[] = nodes.map((node) => [
+    const occupied: Area[] = nodes.map((node) => [
         cx(node.id) - boxW.get(node.id)! / 2,
-        cy(node.id) - boxH.get(node.id)! / 2 - ([ "person", "device" ].includes(shapeOf(node)) ? BADGE_R + 2 : 0),
+        cy(node.id) - boxH.get(node.id)! / 2 - badgeExtent(node),
         cx(node.id) + boxW.get(node.id)! / 2, cy(node.id) + boxH.get(node.id)! / 2
     ])
 
@@ -254,8 +248,8 @@ const labelPlacer = (
 
     /*  collect the edge line segments and the hops bulging above them,
         kept per edge, so a label can tell its own route from the foreign ones  */
-    const lines: Box[][] = layout.polys.map((poly, i) => {
-        const boxes: Box[] = []
+    const lines: Area[][] = layout.polys.map((poly, i) => {
+        const boxes: Area[] = []
         for (let k = 0; k < poly.length - 1; k++) {
             const [ a, b ] = [ poly[k], poly[k + 1] ]
             boxes.push([ Math.min(a[0], b[0]) - LINE_PAD, Math.min(a[1], b[1]) - LINE_PAD,
@@ -293,9 +287,9 @@ const labelPlacer = (
         which the halo of the label keeps readable anyway (the lines of
         the "mates" of the edge, the other edges of a group labeled once,
         count as own lines, as they run on top of the own line)  */
-    const hit = (o: Box, x1: number, y1: number, x2: number, y2: number): boolean =>
+    const hit = (o: Area, x1: number, y1: number, x2: number, y2: number): boolean =>
         x1 < o[2] && x2 > o[0] && y1 < o[3] && y2 > o[1]
-    const collisions = (grid: AreaGrid, box: Box): number => {
+    const collisions = (grid: AreaGrid, box: Area): number => {
         let n = 0
         grid.visit(box[0], box[1], box[2], box[3], (_, o) => {
             if (hit(o, box[0], box[1], box[2], box[3]))
@@ -310,7 +304,7 @@ const labelPlacer = (
         cannot win anymore (the own lines are tested against the box
         itself, the foreign ones against the box grown by the clearance,
         which hence also bounds the buckets to visit)  */
-    const crossings = (box: Box, edge: number, limit: number, mates?: Set<number>, gap = LINE_GAP): number => {
+    const crossings = (box: Area, edge: number, limit: number, mates?: Set<number>, gap = LINE_GAP): number => {
         const [ x1, y1, x2, y2 ] = [ box[0] - gap, box[1] - gap, box[2] + gap, box[3] + gap ]
         let n = 0
         lineGrid.visit(x1, y1, x2, y2, (id, o) => {
@@ -324,8 +318,8 @@ const labelPlacer = (
 
     /*  reserve an area, indexed under its very object, so the claim of
         the label it is reserved for can release it again  */
-    const reserved = new Map<Box, number[]>()
-    const reserve = (box: Box) => {
+    const reserved = new Map<Area, number[]>()
+    const reserve = (box: Area) => {
         const id  = reservedGrid.add(box)
         const ids = reserved.get(box)
         if (ids === undefined)
@@ -339,7 +333,7 @@ const labelPlacer = (
         later one depends upon wherever it has an alternative of its
         own, while the "own" reservation of the claiming label is
         released, as that is the very area it is about to take  */
-    const claim = (candidates: Box[], edge: number, dodge = true, own?: Box, mates?: Set<number>): Box => {
+    const claim = (candidates: Area[], edge: number, dodge = true, own?: Area, mates?: Set<number>): Area => {
         if (own !== undefined) {
             const id = reserved.get(own)?.shift()
             if (id !== undefined)
@@ -374,8 +368,8 @@ const labelPlacer = (
         box is the fixed anchor of its label, which is attributed to its
         edge by that very position and not by its distance to the
         foreign lines), and tell whether it was claimed  */
-    const seize = (box: Box, edge: number): boolean => {
-        const aired: Box = [ box[0] - ANCHOR_AIR, box[1], box[2] + ANCHOR_AIR, box[3] ]
+    const seize = (box: Area, edge: number): boolean => {
+        const aired: Area = [ box[0] - ANCHOR_AIR, box[1], box[2] + ANCHOR_AIR, box[3] ]
         if (collisions(occupiedGrid, aired) > 0 || collisions(reservedGrid, aired) > 0
             || crossings(box, edge, 1, undefined, 0) > 0)
             return false
@@ -430,8 +424,8 @@ const renderOutline = (shape: NodeShape, x: number, y: number, w: number, h: num
         return [ `<path d="${d} z" class="${cls}"${dash}/>` ]
     }
     else if (shape === "stack")
-        return [ 12, 6, 0 ].map((d) =>
-            `<rect x="${x + d}" y="${y + 12 - d}" width="${w - 12}" height="${h - 12}" rx="6" ` +
+        return [ STACK_OFF, STACK_OFF / 2, 0 ].map((d) =>
+            `<rect x="${x + d}" y="${y + STACK_OFF - d}" width="${w - STACK_OFF}" height="${h - STACK_OFF}" rx="6" ` +
             `class="${cls}"${dash}/>`)
     const box = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" class="${cls}"${dash}/>`
     if (shape === "person" || shape === "device") {
@@ -440,7 +434,7 @@ const renderOutline = (shape: NodeShape, x: number, y: number, w: number, h: num
             `M ${bx} ${by - 7} m -3.5 0 a 3.5 3.5 0 1 0 7 0 a 3.5 3.5 0 1 0 -7 0 ` +
                 `M ${bx - 7} ${by + 8} q 0 -8 7 -8 q 7 0 7 8` :
             `M ${bx - 7} ${by - 7} h 14 v 10 h -14 z M ${bx - 4} ${by + 7} h 8 M ${bx} ${by + 3} v 4`
-        return [ box, `<circle cx="${bx}" cy="${by}" r="${r}" class="${cls}"/>`,
+        return [ box, `<circle cx="${bx}" cy="${by}" r="${r}" class="${cls}"${dash}/>`,
             `<path d="${glyph}" class="${glyphCls}"/>` ]
     }
     return [ box ]
@@ -460,8 +454,8 @@ const renderNode = (node: Node, layout: Layout, style: NodeStyle, styler: Styler
 
     /*  the text sits centered on the body of the outline: left of the
         inner cap of a lying cylinder, and on the front box of a stack  */
-    const tx    = cx(node.id) - (shape === "queue" ? QUEUE_RX / 2 : shape === "stack" ? 6 : 0)
-    const ty0   = shape === "stack" ? 6 : 0
+    const tx    = cx(node.id) - (shape === "queue" ? QUEUE_RX / 2 : shape === "stack" ? STACK_OFF / 2 : 0)
+    const ty0   = shape === "stack" ? STACK_OFF / 2 : 0
     const url   = urlOf(node)
     const parts: string[] = []
     parts.push(...renderOutline(shape, x, y, w, h, styler.box(style.fill, style.stroke, 4),
@@ -474,7 +468,7 @@ const renderNode = (node: Node, layout: Layout, style: NodeStyle, styler: Styler
     const ty    = cy(node.id) + ty0 - contentH.get(node.id)! / 2
     const th    = lines.type.length * TYPE_H(config)
     const nh    = (lines.name.length - 1) * NAME_H(config)
-    const asc   = config["size-font-node"] * 0.36
+    const asc   = config["size-font-node"] * ASC
     const nameY = lines.attrs.length > 0 ?
         ty + th + MIN_H(config) / 2 + asc : cy(node.id) + ty0 + th / 2 + asc - nh / 2
     lines.type.forEach((line, k) => {
@@ -500,7 +494,7 @@ const renderNode = (node: Node, layout: Layout, style: NodeStyle, styler: Styler
 /*  determine the overall bounding box of all rendered elements (the
     node boxes and the placed labels are handed over as already
     computed areas, the edge polylines are scanned here)  */
-const viewBoxOf = (layout: Layout, boxes: Box[], margin: number): { x: number, y: number, w: number, h: number } => {
+const viewBoxOf = (layout: Layout, boxes: Area[], margin: number): { x: number, y: number, w: number, h: number } => {
     const { polys } = layout
     let [ minX, minY, maxX, maxY ] = [ Infinity, Infinity, -Infinity, -Infinity ]
     for (const [ bx1, by1, bx2, by2 ] of boxes) {
@@ -533,12 +527,12 @@ const viewBoxOf = (layout: Layout, boxes: Box[], margin: number): { x: number, y
     own arrow, offering both sides at every further setback, which steps
     by the label extent along the segment, as a shorter step would leave
     the label on top of the very label it dodges  */
-const arityBoxes = (arity: string, poly: Poly, config: Config): Box[] => {
+const arityBoxes = (arity: string, poly: Poly, config: Config): Area[] => {
     const w    = textWidth(arity, config["size-font-arity"])
     const h    = arityHeight(config)
     const p    = pointAt(poly, 1.0)
     const prev = pointAt(poly, 0.999)
-    const candidates: Box[] = []
+    const candidates: Area[] = []
     for (let k = 0; k < ARITY_BACK; k++) {
         const back = k * ((p.horizontal ? w : h) + ARITY_STEP)
         if (p.horizontal) {
@@ -563,8 +557,8 @@ const arityBoxes = (arity: string, poly: Poly, config: Config): Box[] => {
     clearance anyway and it is the very setback from its own arrow head
     which attaches it to its edge, so a line crossed beneath its halo
     weighs less than a drift away from that arrow  */
-const renderEdgeArity = (edge: Edge, candidates: Box[], claim: (candidates: Box[], dodge?: boolean,
-    own?: Box) => Box, styler: Styler, alert: boolean): string[] => {
+const renderEdgeArity = (edge: Edge, candidates: Area[], claim: (candidates: Area[], dodge?: boolean,
+    own?: Area) => Area, styler: Styler, alert: boolean): string[] => {
     if (edge.arity === undefined)
         return []
     const box = claim(candidates, false, candidates[0])
@@ -579,9 +573,9 @@ const renderEdgeArity = (edge: Edge, candidates: Box[], claim: (candidates: Box[
     the stubs run too closely for this, below it), so the labels of all
     stubs of a bundle line up in front of the track instead of
     scattering along the stubs  */
-const stubLabels = (layout: Layout, config: Config): Map<number, Box[]> => {
+const stubLabels = (layout: Layout, config: Config): Map<number, Area[]> => {
     const { edges, polys } = layout
-    const anchors = new Map<number, Box[]>()
+    const anchors = new Map<number, Area[]>()
     const bundled = (i: number): boolean => layout.bundled?.[i] === true
     if (!edges.some((edge, i) => bundled(i) && edge.name !== undefined))
         return anchors
@@ -665,7 +659,7 @@ const stubLabels = (layout: Layout, config: Config): Map<number, Box[]> => {
     taken (e.g. by a box beside a lane between two boxes), at the
     positions stepping back from there along that very segment, as far
     as it holds the label clear of the corner at its other end  */
-const arrivalLabels = (edge: Edge, poly: Poly, config: Config): Box[] => {
+const arrivalLabels = (edge: Edge, poly: Poly, config: Config): Area[] => {
     if (edge.name === undefined)
         return []
     let k = poly.length - 2
@@ -682,7 +676,7 @@ const arrivalLabels = (edge: Edge, poly: Poly, config: Config): Box[] => {
         radius + ARROW_AIR
     const dir    = Math.sign(b[0] - a[0])
     const room   = Math.abs(b[0] - a[0]) - gap - w - (k > 0 ? radius : 0)
-    const anchors: Box[] = []
+    const anchors: Area[] = []
     for (let back = 0; back <= room; back += ANCHOR_STEP) {
         const x2 = b[0] - dir * (gap + back)
         const x1 = x2 - dir * w
@@ -697,7 +691,7 @@ const arrivalLabels = (edge: Edge, poly: Poly, config: Config): Box[] => {
     arity: at the port they run into at the anchor of a single edge (see
     "arrivalLabels" above), and at the port they run out of flush with
     the box (or else below the line)  */
-const portLabels = (edge: Edge, poly: Poly, into: boolean, config: Config): Box[] => {
+const portLabels = (edge: Edge, poly: Poly, into: boolean, config: Config): Area[] => {
     if (edge.name === undefined)
         return []
     if (into) {
@@ -719,8 +713,8 @@ const portLabels = (edge: Edge, poly: Poly, into: boolean, config: Config): Box[
     placed near the middle of the route (dodging into a collision-free
     position through the "claim" of the label placer), or, for a
     bundled edge, preferably at one of its given stub positions  */
-const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Box[], dodge?: boolean) => Box,
-    styler: Styler, config: Config, alert: boolean, preferred: Box[] = []): string[] => {
+const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Area[], dodge?: boolean) => Area,
+    styler: Styler, config: Config, alert: boolean, preferred: Area[] = []): string[] => {
     if (edge.name === undefined)
         return []
     const w = textWidth(edge.name, config["size-font-edge"])
@@ -747,9 +741,9 @@ const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Box[], dodge
         return positions
     }
     const mid = pointAt(poly, 0.50)
-    const near = (box: Box): number =>
+    const near = (box: Area): number =>
         Math.abs((box[0] + box[2]) / 2 - mid.x) + Math.abs((box[1] + box[3]) / 2 - mid.y)
-    const candidates: Box[] = []
+    const candidates: Area[] = []
     for (let k = 0; k < poly.length - 1; k++) {
         const [ a, b ] = [ poly[k], poly[k + 1] ]
         if (a[1] === b[1]) {
@@ -774,7 +768,7 @@ const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Box[], dodge
     claimed position, centered on it, or else aligned to its start or end
     (as the estimated text width may deviate from the rendered one, and
     a label anchored in front of an arrow head shall stay flush with it)  */
-const nameText = (edge: Edge, box: Box, styler: Styler, alert: boolean,
+const nameText = (edge: Edge, box: Area, styler: Styler, alert: boolean,
     align: "middle" | "start" | "end" = "middle"): string[] =>
     [ `<text x="${align === "middle" ? (box[0] + box[2]) / 2 : align === "start" ? box[0] : box[2]}" ` +
         `y="${box[3] - 3}" class="${styler.text(alert ? "color-mark-violation" : "color-edge-name",
@@ -814,13 +808,15 @@ const renderContainer = (c: ContainerBox, styler: Styler, config: Config): strin
     return [ `<a href="${escapeXML(url)}" xlink:href="${escapeXML(url)}">`, ...parts, "</a>" ]
 }
 
-/*  generate the SVG fragment for a single free-standing shape  */
+/*  generate the SVG fragment for a single free-standing shape (a
+    rectangle without a fill being drawn as its outline only)  */
 const renderShape = (shape: Shape, styler: Styler): string => {
     const dash = shape.kind !== "text" && shape.dash !== undefined ?
         ` stroke-dasharray="${escapeXML(shape.dash)}"` : ""
     if (shape.kind === "rect")
         return `<rect x="${shape.x}" y="${shape.y}" width="${shape.w}" height="${shape.h}" ` +
-            `rx="${shape.rx ?? 0}" class="${styler.box(shape.fill, shape.stroke, shape.width)}"${dash}/>`
+            `rx="${shape.rx ?? 0}" class="${shape.fill !== undefined ?
+                styler.box(shape.fill, shape.stroke, shape.width) : styler.line(shape.stroke, shape.width)}"${dash}/>`
     else if (shape.kind === "path")
         return `<path d="M ${shape.x} ${shape.y} ${shape.d}" class="${styler.line(shape.stroke, shape.width)}"${dash}/>`
     const turn = shape.upright === true ? ` transform="rotate(-90 ${shape.x} ${shape.y})"` : ""
@@ -830,6 +826,15 @@ const renderShape = (shape: Shape, styler: Styler): string => {
     return shape.url === undefined ? text :
         `<a href="${escapeXML(shape.url)}" xlink:href="${escapeXML(shape.url)}">${text}</a>`
 }
+
+/*  generate the SVG fragments of an arrow head marker  */
+const marker = (id: string, cls: string): string[] => [
+    `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" ` +
+        "markerWidth=\"21\" markerHeight=\"21\" markerUnits=\"userSpaceOnUse\" " +
+        "orient=\"auto-start-reverse\">",
+    `<path d="M 0 1 L 9 5 L 0 9 z" class="${cls}"/>`,
+    "</marker>"
+]
 
 /*  render a laid out graph into an SVG document (the seed determines the
     identifier prefix of the document, see "idPrefix" above)  */
@@ -985,7 +990,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     edges.forEach((edge, i) => {
         if (placed[i])
             return
-        const name = (preferred?: Box[], mates?: number[]) =>
+        const name = (preferred?: Area[], mates?: number[]) =>
             svgLabels.push(...renderEdgeName(edge, polys[i],
                 (c, dodge) => claim(c, i, dodge, undefined, mates !== undefined ? new Set(mates) : undefined),
                 styler, config, violates(i), preferred))
@@ -1018,9 +1023,9 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     const svgShapes = shapes.map((shape) => renderShape(shape, styler))
 
     /*  determine the overall bounding box of all rendered elements  */
-    const groupBoxes: Box[] = groups.map((group) =>
+    const groupBoxes: Area[] = groups.map((group) =>
         [ group.x, group.y, group.x + group.w, group.y + group.h ])
-    const containerBoxes: Box[] = containers.map((c) =>
+    const containerBoxes: Area[] = containers.map((c) =>
         [ c.x, c.y, c.x + c.w, c.y + c.h ])
     const vb = viewBoxOf(layout, [ ...occupied, ...groupBoxes, ...containerBoxes, ...shapes.map(shapeBox) ],
         config["size-canvas-margin"])
@@ -1039,18 +1044,8 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         ] : []),
         ...Array.from(rules, ([ decls, name ]) => `.${name} { ${escapeXML(decls)} }`),
         "</style>",
-        `<marker id="${idArrow}" viewBox="0 0 10 10" refX="9" refY="5" ` +
-            "markerWidth=\"21\" markerHeight=\"21\" markerUnits=\"userSpaceOnUse\" " +
-            "orient=\"auto-start-reverse\">",
-        `<path d="M 0 1 L 9 5 L 0 9 z" class="${classArrow}"/>`,
-        "</marker>",
-        ...(alerted ? [
-            `<marker id="${idAlert}" viewBox="0 0 10 10" refX="9" refY="5" ` +
-                "markerWidth=\"21\" markerHeight=\"21\" markerUnits=\"userSpaceOnUse\" " +
-                "orient=\"auto-start-reverse\">",
-            `<path d="M 0 1 L 9 5 L 0 9 z" class="${classAlertArrow}"/>`,
-            "</marker>"
-        ] : []),
+        ...marker(idArrow, classArrow),
+        ...(alerted ? marker(idAlert, classAlertArrow) : []),
         "</defs>",
         ...svgGroups,
         ...svgContainers,

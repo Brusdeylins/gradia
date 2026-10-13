@@ -30,17 +30,22 @@ dependency structure matrix, its cycles outlined as blocks), and
     -   `src/gradia-api-config.ts`: the rendering options (defaults,
         in-input directive parsing, font resolution)
     -   `src/gradia-api-render-base.ts`: shared rendering geometry/font
-        constants, text width measurement, text word-wrapping, and the
-        free-standing `Shape` primitives (`rect`, `path`, `text`) a
-        diagram type draws beside or instead of node boxes and edges,
-        styled through the same configuration options, and the shared
+        constants (e.g. the arrow head room `arrowRoom` every diagram
+        type keeps free in front of an arrow head), the `Layout` handed
+        over for SVG generation, text width measurement (bold-aware),
+        text word-wrapping, text template filling, and the shared
         raster step `RASTER` (`onRaster`), onto which every diagram type
         rounds its node box sizes, unified per lane: per grid column
         (width) and row (content height) for `graph`, per column for
         `hub`, across the whole diagram (width) and per layer (height) for
         `layer`, and across all participants for `sequence`
+    -   `src/gradia-api-render-shape.ts`: the free-standing `Shape`
+        primitives (`rect`, `path`, `text`) a diagram type draws beside
+        or instead of node boxes and edges, styled through the same
+        configuration options, their helpers, and the legend below a
+        diagram explaining its marks
     -   `src/gradia-api-render-node.ts`: node box text line breaking,
-        measurement, and styling helpers
+        measurement, ordering, outline shape geometry, and styling helpers
     -   `src/gradia-api-render-edge.ts`: edge routing (port/track
         assignment, polyline simplification, hop computation, SVG path
         generation)

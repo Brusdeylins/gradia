@@ -7,8 +7,10 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }        from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
-import { Layout, Shape, FS_GROUP, onRaster, textShape, textWidth, legendShapes }
+import { Layout, FS_GROUP, ASC, onRaster, textWidth }
     from "./gradia-api-render-base.js"
+import { Shape, textShape, legendShapes }
+    from "./gradia-api-render-shape.js"
 import { LevelContext, boundsOf }   from "./gradia-api-render-container.js"
 import { parentOf, containerTypeOf }
     from "./gradia-api-render-node.js"
@@ -29,10 +31,11 @@ const groupsOf = (node: Node): string[] =>
     (node.attrs.findLast((attr) => attr.key === "layer-group")?.val ?? "")
         .split("/").map((name) => name.trim()).filter((name) => name !== "")
 
-/*  the geometry of the layer groups and the layer numbers  */
-const GROUP_W   = 40   /*  width of a group column            */
-const GROUP_GAP = 8    /*  gap between the group columns      */
-const NUMBER_R  = 13   /*  radius of the circle of a number   */
+/*  the geometry of the layer groups, the layer numbers, and the legend  */
+const GROUP_W    = 40   /*  width of a group column              */
+const GROUP_GAP  = 8    /*  gap between the group columns        */
+const NUMBER_R   = 13   /*  radius of the circle of a number     */
+const LEGEND_GAP = 24   /*  gap between the bands and the legend  */
 
 /*  lay out a graph model as a layered architecture: the layers, in the
     order of their first appearance, become horizontal bands stacked
@@ -156,7 +159,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const bounds   = boundsOf(layout)
     const numbered = config["layer-numbered"]
     const numberW  = numbered ? NUMBER_R * 2 + 12 : 0
-    const labelW   = layers.reduce((w, name) => Math.max(w, textWidth(name, FS_GROUP)), 0) + numberW
+    const labelW   = layers.reduce((w, name) => Math.max(w, textWidth(name, FS_GROUP, true)), 0) + numberW
     const left     = bounds.minX - pad - labelW - pad
     const right    = bounds.maxX + pad
     const shapes: Shape[] = []
@@ -172,11 +175,11 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         if (numbered) {
             shapes.push({ kind: "rect", x: left + pad, y: mid - NUMBER_R, w: NUMBER_R * 2, h: NUMBER_R * 2,
                 rx: NUMBER_R, fill: "color-group-box", stroke: "color-group-name", width: 2 })
-            shapes.push(textShape(left + pad + NUMBER_R, mid + config["size-font-type"] * 0.36, String(i + 1),
-                "color-group-name", "size-font-type", config, "middle", true))
+            shapes.push(textShape(left + pad + NUMBER_R, mid + config["size-font-type"] * ASC, String(i + 1),
+                "color-group-name", "size-font-type", config, { anchor: "middle", bold: true }))
         }
-        shapes.push(textShape(left + pad + numberW, mid + FS_GROUP * 0.36, name,
-            "color-group-name", FS_GROUP, config, "start", true))
+        shapes.push(textShape(left + pad + numberW, mid + FS_GROUP * ASC, name,
+            "color-group-name", FS_GROUP, config, { bold: true }))
     })
 
     /*  draw every group of layers as a column left of the bands, nested
@@ -199,8 +202,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             const [ y1, y2 ] = [ y1Of(start), y2Of(end) ]
             shapes.push({ kind: "rect", x, y: y1, w: GROUP_W, h: y2 - y1, rx: 12,
                 fill: "color-group-box", stroke: "color-group-border", width: 3 })
-            shapes.push(textShape(x + GROUP_W / 2 + FS_GROUP * 0.36, (y1 + y2) / 2, path[k],
-                "color-group-name", FS_GROUP, config, "middle", true, undefined, true))
+            shapes.push(textShape(x + GROUP_W / 2 + FS_GROUP * ASC, (y1 + y2) / 2, path[k],
+                "color-group-name", FS_GROUP, config, { anchor: "middle", bold: true, upright: true }))
             start = end + 1
         }
     }
@@ -217,7 +220,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     if (marked.includes(true)) {
         const below = bottom.reduce((y, b) => Number.isFinite(b) ? Math.max(y, b) : y, bounds.maxY)
         shapes.push(...legendShapes([ { swatch: "line", color: "color-mark-violation",
-            text: config["legend-upward"] } ], left - depth * (GROUP_W + GROUP_GAP), below + BAND_MARGIN + 24, config))
+            text: config["legend-upward"] } ], left - depth * (GROUP_W + GROUP_GAP), below + BAND_MARGIN + LEGEND_GAP, config))
     }
     return { ...layout, shapes: [ ...(layout.shapes ?? []), ...shapes ], marked }
 }

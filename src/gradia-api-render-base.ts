@@ -6,7 +6,8 @@
 
 /*  internal dependencies  */
 import { Node, Edge }             from "./gradia-api-model.js"
-import { Config, ConfigEmbedded, ConfigFontSize } from "./gradia-api-config.js"
+import { Config, ConfigEmbedded } from "./gradia-api-config.js"
+import type { Shape }             from "./gradia-api-render-shape.js"
 
 /*  rendering font size constant of the group tags (the font sizes of
     the node and edge texts and the further geometry are configurable,
@@ -56,9 +57,16 @@ export const arityHeight = (config: Config): number =>
     Math.round(config["size-font-arity"] * 0.8)
 
 /*  estimate rendered text width (no canvas available under Node,
-    factor tuned for the average glyph advance of Source Sans 3)  */
-export const textWidth = (text: string, size: number): number =>
-    text.length * size * 0.52
+    factor tuned for the average glyph advance of Source Sans 3, a bold
+    text widened by the heavier advance of its glyphs)  */
+const BOLD = 1.1
+export const textWidth = (text: string, size: number, bold = false): number =>
+    text.length * size * 0.52 * (bold ? BOLD : 1)
+
+/*  the ascender ratio: the distance of the baseline of a text below the
+    vertical center of its line, relative to its font size, so a text
+    drawn at "center + size * ASC" sits vertically centered  */
+export const ASC = 0.36
 
 /*  greedily wrap a text into the lines fitting a maximum rendered width
     (a word exceeding the width on its own is kept unbroken, as breaking
@@ -128,80 +136,8 @@ export interface ContainerBox {
     h:    number
 }
 
-/*  a free-standing drawing primitive of a diagram type whose content is
-    not only made of node boxes and edges (e.g. the cells, braces, and
-    rulers of a "layout" diagram), styled exclusively through the very
-    same configuration options as the node boxes and edges, so it
-    blends seamlessly into the visual language of all other diagrams
-    (a "path" starts at its origin and continues with relative commands
-    only, so it can be shifted, and a "path" and a "text" carry the area
-    they cover, as their extent is opaque or depends on the font size)  */
-export interface ShapeRect {
-    kind:    "rect"
-    x:       number
-    y:       number
-    w:       number
-    h:       number
-    rx?:     number
-    fill:    ConfigEmbedded
-    stroke:  ConfigEmbedded
-    width:   number
-    dash?:   string
-}
-export interface ShapePath {
-    kind:    "path"
-    x:       number
-    y:       number
-    d:       string
-    box:     Area
-    stroke:  ConfigEmbedded
-    width:   number
-    dash?:   string
-}
-export interface ShapeText {
-    kind:    "text"
-    x:       number
-    y:       number
-    text:    string
-    box:     Area
-    fill:    ConfigEmbedded
-    size:    ConfigFontSize | number
-    anchor:  "start" | "middle" | "end"
-    bold?:   boolean
-    url?:    string
-    upright?: boolean
-}
-export type Shape = ShapeRect | ShapePath | ShapeText
-
 /*  a rectangular area, given by its top-left and bottom-right corners  */
 export type Area = [ number, number, number, number ]
-
-/*  create a text shape, estimating the area it covers (from the
-    baseline up by one font size and down by a descender), optionally
-    "upright", i.e. turned by 90 degrees counter-clockwise, so it runs
-    upwards from its anchor point (e.g. a column header)  */
-export const textShape = (x: number, y: number, text: string, fill: ConfigEmbedded,
-    size: ConfigFontSize | number, config: Config, anchor: "start" | "middle" | "end" = "start",
-    bold = false, url?: string, upright = false): Shape => {
-    const px   = typeof size === "number" ? size : config[size]
-    const w    = textWidth(text, px)
-    const from = anchor === "middle" ? w / 2 : anchor === "end" ? w : 0
-    const box: Area = upright ?
-        [ x - px, y + from - w, x + px * 0.25, y + from ] :
-        [ x - from, y - px, x - from + w, y + px * 0.25 ]
-    return { kind: "text", x, y, text, fill, size, anchor, bold, url, upright, box }
-}
-
-/*  determine the area a shape covers  */
-export const shapeBox = (shape: Shape): Area =>
-    shape.kind === "rect" ? [ shape.x, shape.y, shape.x + shape.w, shape.y + shape.h ] : shape.box
-
-/*  shift a shape by an offset (e.g. into its group box)  */
-export const shiftShape = (shape: Shape, dx: number, dy: number): Shape =>
-    shape.kind === "rect" ?
-        { ...shape, x: shape.x + dx, y: shape.y + dy } :
-        { ...shape, x: shape.x + dx, y: shape.y + dy,
-            box: [ shape.box[0] + dx, shape.box[1] + dy, shape.box[2] + dx, shape.box[3] + dy ] }
 
 /*  the laid out graph handed over for SVG generation (the optional
     "marked" flags run parallel to the edges and the polylines and mark
@@ -231,55 +167,3 @@ export interface Layout {
     junctions?:  Poly
     crowded?:    boolean
 }
-
-/*  an entry of the legend below a diagram, explaining one kind of mark
-    by a swatch drawn like the mark itself: a "cell" (a matrix cell with
-    its number), a "block" (a dashed square, like the outline of a
-    cycle), a "box" (a node box outlined dashed, like a gap), or a
-    "line" (a dashed edge line with its arrow head)  */
-export interface LegendEntry {
-    swatch: "cell" | "block" | "box" | "line"
-    color:  ConfigEmbedded
-    text:   string
-}
-
-/*  create the shapes of a legend, one entry per line, starting at the
-    given top-left corner, in the colors and the type font size of the
-    diagram (a legend drawn only where the "legend" option is enabled)  */
-export const legendShapes = (entries: LegendEntry[], x: number, y: number, config: Config): Shape[] => {
-    const shapes: Shape[] = []
-    if (!config.legend)
-        return shapes
-    const fs = config["size-font-type"]
-    const lh = Math.round(fs * 1.9)
-    const sw = 40
-    const sh = Math.round(fs * 1.4)
-    entries.forEach((entry, k) => {
-        const top = y + k * lh
-        const mid = top + sh / 2
-        if (entry.swatch === "cell" || entry.swatch === "block") {
-            shapes.push({ kind: "rect", x, y: top, w: sh, h: sh, fill: "color-node-regular-box",
-                stroke: "color-group-border", width: 1 })
-            shapes.push(textShape(x + sh / 2, mid + fs * 0.36, "1", entry.color, "size-font-type",
-                config, "middle", true))
-            if (entry.swatch === "block")
-                shapes.push({ kind: "path", x: x - 3, y: top - 3, d: `h ${sh + 6} v ${sh + 6} h ${-sh - 6} z`,
-                    box: [ x - 3, top - 3, x + sh + 3, top + sh + 3 ], stroke: entry.color, width: 2, dash: "6 4" })
-        }
-        else if (entry.swatch === "box") {
-            shapes.push({ kind: "rect", x, y: top, w: sw, h: sh, rx: 6, fill: "color-node-regular-box",
-                stroke: "color-node-regular-border", width: 2 })
-            shapes.push({ kind: "path", x, y: top, d: `h ${sw} v ${sh} h ${-sw} z`,
-                box: [ x, top, x + sw, top + sh ], stroke: entry.color, width: 2, dash: "6 4" })
-        }
-        else {
-            shapes.push({ kind: "path", x, y: mid, d: `h ${sw - 4}`, box: [ x, mid - 2, x + sw, mid + 2 ],
-                stroke: entry.color, width: 3, dash: "10 6" })
-            shapes.push({ kind: "path", x: x + sw - 10, y: mid - 6, d: "l 10 6 l -10 6",
-                box: [ x + sw - 10, mid - 6, x + sw, mid + 6 ], stroke: entry.color, width: 3 })
-        }
-        shapes.push(textShape(x + sw + 12, mid + fs * 0.36, entry.text, "color-edge-name", "size-font-type", config))
-    })
-    return shapes
-}
-

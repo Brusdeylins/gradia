@@ -7,8 +7,9 @@
 /*  internal dependencies  */
 import { Node, Graph }                         from "./gradia-api-model.js"
 import { Config }                              from "./gradia-api-config.js"
-import { Poly, FS_GROUP, textWidth, Layout, GroupBox, ContainerBox, shiftShape }
+import { Poly, FS_GROUP, textWidth, Layout, GroupBox, ContainerBox }
     from "./gradia-api-render-base.js"
+import { shiftShape }                          from "./gradia-api-render-shape.js"
 import { defaultStyleOf }                      from "./gradia-api-render-node.js"
 import { Containment, rootOf, boundsOf }       from "./gradia-api-render-container.js"
 

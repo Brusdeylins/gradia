@@ -73,26 +73,39 @@ export const configDefaults = {
     "grid-gap-vertical":         20,    /*  grid: vertical gap between tiles       */
     "grid-node-width-equal":     true,  /*  grid: force equal width of node boxes  */
     "grid-node-height-equal":    true,  /*  grid: force equal height of node boxes */
-    "legend":                    true,  /*  legend of the marks below a diagram    */
+    "layout-row-cells":          8,     /*  layout: cells per row                  */
+    "layout-cell-bits":          8,     /*  layout: bits per cell (1 or 8)         */
+    "layout-cell-size":          44,    /*  layout: width and height of a cell     */
     "layer-numbered":            false, /*  layer: number the layers top-down      */
+    "matrix-cell-size":          44,    /*  matrix: width and height of a cell     */
+    "sequence-message-gap":      56,    /*  sequence: vertical gap of the messages */
+    "legend":                    true,  /*  legend of the marks below a diagram    */
+
+    /*  the texts of the legend entries, with the placeholders "{row}"
+        and "{column}" (the rows and columns of a matrix, named by their
+        shared type, else by "legend-row" and "legend-column"), and
+        "{item}" and "{other}" (the side of a matrix carrying a mark and
+        the opposite side)  */
+    "legend-row":                "row",
+    "legend-column":             "column",
     "legend-count":              "references from {row} to {column}",
     "legend-trace":              "references between {row} and {column}",
     "legend-cycle":              "cyclic dependency",
     "legend-upward":             "dependency against the layering",
     "legend-gap":                "{item} without any {other}",
-    "legend-indirect":           "{item} without a direct {other}, covered indirectly",
-    "layout-row-cells":          8,     /*  layout: cells per row                  */
-    "layout-cell-bits":          8,     /*  layout: bits per cell (1 or 8)         */
-    "layout-cell-size":          44,    /*  layout: width and height of a cell     */
-    "matrix-cell-size":          44,    /*  matrix: width and height of a cell     */
-    "sequence-message-gap":      56     /*  sequence: vertical gap of the messages */
+    "legend-indirect":           "{item} without a direct {other}, covered indirectly"
 }
 export type Config = typeof configDefaults
+
+/*  the textual configuration options, which are rendered as text
+    content instead of being embedded as CSS values  */
+export type ConfigText = "legend-row" | "legend-column" | "legend-count" | "legend-trace" |
+    "legend-cycle" | "legend-upward" | "legend-gap" | "legend-indirect"
 
 /*  the configuration options which are directly embedded into the
     generated SVG (and hence can alternatively be provided at display
     time through "--gradia-<option>" CSS custom properties)  */
-export type ConfigEmbedded = { [K in keyof Config]: K extends `legend-${string}` ? never :
+export type ConfigEmbedded = { [K in keyof Config]: K extends ConfigText ? never :
     Config[K] extends string ? K : never }[keyof Config]
 
 /*  the font size options, which are embedded into the generated SVG,

@@ -7,9 +7,10 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }                       from "./gradia-api-model.js"
 import { Config }                                  from "./gradia-api-config.js"
-import { Poly, FS_GROUP, textWidth, Layout, ContainerBox, shapeBox, shiftShape }
+import { Poly, FS_GROUP, textWidth, Layout, ContainerBox }
     from "./gradia-api-render-base.js"
-import { parentOf, containerTypeOf, containerHead, typeOf, defaultStyleOf }
+import { shapeBox, shiftShape }                    from "./gradia-api-render-shape.js"
+import { parentOf, containerTypeOf, containerHead, typeOf, defaultStyleOf, badgeExtent }
     from "./gradia-api-render-node.js"
 import { simplifyPoly }                            from "./gradia-api-render-edge.js"
 
@@ -27,6 +28,15 @@ export interface LevelContext {
     fixedSize?: Map<string, { w: number, h: number }>
     fixedPort?: (edge: number, role: "s" | "t") => number | undefined
     gates?:     Map<string, GateSide>
+}
+
+/*  reject the containers for a diagram type laying out a flat graph
+    only: a member of a container, a node annotated as a container, and
+    a containment level with fixed-size placeholders  */
+export const rejectContainers = (type: string, nodes: Node[], level: LevelContext): void => {
+    if ((level.fixedSize?.size ?? 0) > 0
+        || nodes.some((node) => parentOf(node) !== undefined || containerTypeOf(node) !== undefined))
+        throw new Error(`diagram type "${type}" does not support containers`)
 }
 
 /*  a diagram type renderer  */
@@ -116,14 +126,15 @@ export interface Bounds {
     maxY: number
 }
 
-/*  determine the bounding box of a laid out graph (its nodes, edges,
-    container boxes, and the additionally given polylines)  */
+/*  determine the bounding box of a laid out graph (its nodes with
+    their badges, edges, shapes, container boxes, and the additionally
+    given polylines)  */
 export const boundsOf = (layout: Layout, extra: Poly[] = []): Bounds => {
     const { nodes, cx, cy, boxW, boxH, polys } = layout
     let [ minX, minY, maxX, maxY ] = [ Infinity, Infinity, -Infinity, -Infinity ]
     for (const node of nodes) {
         minX = Math.min(minX, cx(node.id) - boxW.get(node.id)! / 2)
-        minY = Math.min(minY, cy(node.id) - boxH.get(node.id)! / 2)
+        minY = Math.min(minY, cy(node.id) - boxH.get(node.id)! / 2 - badgeExtent(node))
         maxX = Math.max(maxX, cx(node.id) + boxW.get(node.id)! / 2)
         maxY = Math.max(maxY, cy(node.id) + boxH.get(node.id)! / 2)
     }

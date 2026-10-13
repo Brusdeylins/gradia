@@ -15,7 +15,7 @@
 .gradia-029e36c1 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-prop, 22px); text-anchor: middle; fill: var(--gradia-color-edge-name, #333333) }
 .gradia-70eb87a1 { fill: none; stroke: var(--gradia-color-node-primary-border, #003366); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round }
 </style>
-<marker id="gradia-398b54ff06d1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+<marker id="gradia-38013e06d9b4-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
 <path d="M 0 1 L 9 5 L 0 9 z" class="gradia-6c7500cd"/>
 </marker>
 </defs>
@@ -58,32 +58,32 @@
 <rect x="128" y="468" width="44" height="44" rx="0" class="gradia-613ab0f0"/>
 <rect x="172" y="468" width="44" height="44" rx="0" class="gradia-613ab0f0"/>
 <text x="408" y="497.92" class="gradia-05e2c606">0x18</text>
-<path d="M 40 64 h 88 v 44 h -88 z" class="gradia-19eb515b"/>
+<rect x="40" y="64" width="88" height="44" rx="0" class="gradia-19eb515b"/>
 <text x="84" y="91.76" class="gradia-7838a2f5">0x1F8B</text>
 <path d="M 44 114 q 0 8 8 8 h 24 q 8 0 8 8 q 0 -8 8 -8 h 24 q 8 0 8 -8" class="gradia-d27516e0"/>
 <text x="84" y="153.6" class="gradia-029e36c1">Magic</text>
-<path d="M 128 64 h 44 v 44 h -44 z" class="gradia-19eb515b"/>
+<rect x="128" y="64" width="44" height="44" rx="0" class="gradia-19eb515b"/>
 <text x="150" y="91.76" class="gradia-7838a2f5">3</text>
 <path d="M 150 114 v 16" class="gradia-d27516e0"/>
 <path d="M 150 130 v 29" class="gradia-d27516e0"/>
 <text x="150" y="182.6" class="gradia-029e36c1">Version</text>
-<path d="M 172 64 h 44 v 44 h -44 z" class="gradia-19eb515b"/>
+<rect x="172" y="64" width="44" height="44" rx="0" class="gradia-19eb515b"/>
 <path d="M 194 114 v 16" class="gradia-d27516e0"/>
 <text x="194" y="153.6" class="gradia-029e36c1">Flags</text>
-<path d="M 216 64 h 176 v 44 h -176 z" class="gradia-19eb515b"/>
+<rect x="216" y="64" width="176" height="44" rx="0" class="gradia-19eb515b"/>
 <path d="M 220 114 q 0 8 8 8 h 68 q 8 0 8 8 q 0 -8 8 -8 h 68 q 8 0 8 -8" class="gradia-d27516e0"/>
 <path d="M 304 130 v 29" class="gradia-d27516e0"/>
 <text x="304" y="182.6" class="gradia-029e36c1">Payload Length</text>
-<path d="M 40 218 h 176 v 44 h -176 z" class="gradia-19eb515b"/>
+<rect x="40" y="218" width="176" height="44" rx="0" class="gradia-19eb515b"/>
 <path d="M 44 268 q 0 8 8 8 h 68 q 8 0 8 8 q 0 -8 8 -8 h 68 q 8 0 8 -8" class="gradia-d27516e0"/>
 <text x="128" y="307.6" class="gradia-029e36c1">Sequence No.</text>
-<path d="M 304 218 h 88 v 44 h -88 z" class="gradia-70eb87a1"/>
+<rect x="304" y="218" width="88" height="44" rx="0" class="gradia-70eb87a1"/>
 <path d="M 308 268 q 0 8 8 8 h 24 q 8 0 8 8 q 0 -8 8 -8 h 24 q 8 0 8 -8" class="gradia-d27516e0"/>
 <text x="348" y="307.6" class="gradia-029e36c1">Checksum</text>
-<path d="M 40 343 h 352 v 44 h -352 z" class="gradia-19eb515b"/>
+<rect x="40" y="343" width="352" height="44" rx="0" class="gradia-19eb515b"/>
 <path d="M 44 393 q 0 8 8 8 h 156 q 8 0 8 8 q 0 -8 8 -8 h 156 q 8 0 8 -8" class="gradia-d27516e0"/>
 <text x="216" y="432.6" class="gradia-029e36c1">Payload</text>
-<path d="M 40 468 h 176 v 44 h -176 z" class="gradia-19eb515b"/>
+<rect x="40" y="468" width="176" height="44" rx="0" class="gradia-19eb515b"/>
 <path d="M 44 518 q 0 8 8 8 h 68 q 8 0 8 8 q 0 -8 8 -8 h 68 q 8 0 8 -8" class="gradia-d27516e0"/>
 <text x="128" y="557.6" class="gradia-029e36c1">Payload</text>
 </svg>

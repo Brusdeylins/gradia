@@ -7,15 +7,17 @@
 /*  internal dependencies  */
 import { Graph }                    from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
-import { Layout, Poly, Shape, ARROW_H, textWidth, onRaster }
+import { Layout, Poly, textWidth, onRaster, arrowRoom }
     from "./gradia-api-render-base.js"
-import { LevelContext }             from "./gradia-api-render-container.js"
-import { measureNodes, orderOf, parentOf, containerTypeOf }
-    from "./gradia-api-render-node.js"
+import { Shape, pathShape }         from "./gradia-api-render-shape.js"
+import { LevelContext, rejectContainers }
+    from "./gradia-api-render-container.js"
+import { measureNodes, byOrder }    from "./gradia-api-render-node.js"
 
 /*  the geometry of the lifelines and the messages  */
 const COLUMN_GAP = 60   /*  minimum gap between two participant boxes  */
 const LOOP_H     = 40   /*  height of the loop of a self message       */
+const LOOP_AIR   = 24   /*  extra width of the loop of a self message   */
 const TAIL       = 32   /*  length of a lifeline below the last message */
 
 /*  lay out a graph model as a sequence diagram: the nodes (in
@@ -27,10 +29,8 @@ const TAIL       = 32   /*  length of a lifeline below the last message */
 export const render = async (graph: Graph, config: Config, level: LevelContext = {}): Promise<Layout> => {
     /*  ensure the graph carries no containers, as the participants are flat  */
     const all = Array.from(graph.nodes.values())
-    if ((level.fixedSize?.size ?? 0) > 0
-        || all.some((node) => parentOf(node) !== undefined || containerTypeOf(node) !== undefined))
-        throw new Error("diagram type \"sequence\" does not support containers")
-    const nodes = all.toSorted((a, b) => (orderOf(a) ?? Infinity) - (orderOf(b) ?? Infinity) || 0)
+    rejectContainers("sequence", all, level)
+    const nodes = byOrder(all)
 
     /*  measure the participant boxes, unified onto the raster-rounded
         size of the largest one, and space the lifelines evenly, wide
@@ -50,10 +50,10 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const cy  = margin + headH / 2
 
     /*  place the messages top-down, one per gap, and route each as a
-        straight line between the lifelines (a self message as a loop)  */
-    /*  a self message loops wide enough for its arrow head plus the
-        corner in front of it plus some air, like every other edge  */
-    const loopW = ARROW_H + config["size-edge-corner-radius"] + 8 + 24
+        straight line between the lifelines (a self message as a loop,
+        wide enough for the room of its arrow head, like every other
+        edge, plus some air)  */
+    const loopW = arrowRoom(config) + LOOP_AIR
     const gap   = config["sequence-message-gap"]
     const polys = new Array<Poly>()
     let y = margin + headH + gap
@@ -69,12 +69,10 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     }
 
     /*  draw the lifelines below the participant boxes  */
+    const top    = cy + headH / 2
     const end    = y - gap + TAIL
-    const shapes: Shape[] = nodes.map((node) => {
-        const x = xOf.get(node.id)!
-        return { kind: "path", x, y: cy + headH / 2, d: `v ${end - cy - headH / 2}`,
-            box: [ x - 1, cy + headH / 2, x + 1, end ], stroke: "color-group-border", width: 2, dash: "8 6" }
-    })
+    const shapes: Shape[] = nodes.map((node) =>
+        pathShape(xOf.get(node.id)!, top, `v ${end - top}`, [ -1, 0, 1, end - top ], "color-group-border", 2, "8 6"))
 
     /*  hand over the participants, the messages, and the lifelines  */
     return { nodes, edges: graph.edges, cx: (id) => xOf.get(id)!, cy: () => cy,
