@@ -3,7 +3,7 @@
 **gradia** is the opinionated tooling of *Dr. Ralf S. Engelschall*
 for *Object Graph Diagram Rendering*: a small CLI for rendering
 directed graphs, described in a concise textual input language, as SVG
-diagrams. Six diagram types are supported: `graph` (a grid-snapped
+diagrams. Seven diagram types are supported: `graph` (a grid-snapped
 layered layout of the whole graph, based on the Dagre algorithm of
 `@antv/layout`), `hub` (a hub graph, placing one primary hub node
 between its input and output nodes), `grid` (a compact grid of
@@ -11,7 +11,8 @@ tiles for an edge-less graph), `layout` (the cell layout of a
 binary structure, its nodes being fields with an `offset` and a `size`),
 `layer` (a layered architecture, its layers stacked as bands and
 the edges against the layering marked as violations), and `matrix` (a
-dependency structure matrix, its cycles outlined as blocks).
+dependency structure matrix, its cycles outlined as blocks), and
+`sequence` (a sequence diagram of participants and their messages).
 
 ## Repository Layout
 
@@ -61,6 +62,9 @@ dependency structure matrix, its cycles outlined as blocks).
         headers and cells of a dependency structure matrix, drawn as
         shapes only, the cycles found as the strongly connected
         components of the graph)
+    -   `src/gradia-api-type-sequence.ts`: the `sequence` diagram type
+        (the participants as node boxes, the messages as edges, and the
+        lifelines as shapes)
 -   `etc/`: the tool configurations (`eslint.mjs`, `tsconfig.json`,
     `stx.conf`, `vite.ts`)
 -   `smp/`: the sample graph descriptions (`*.txt`), their rendered
@@ -91,7 +95,7 @@ No test target is defined.
 ## CLI Command
 
 ```
-gradia [-t graph|hub|grid|layout|layer|matrix] [-f <format>] [-c <name>=<value>] [-o <file>.svg] <graph>.txt
+gradia [-t graph|hub|grid|layout|layer|matrix|sequence] [-f <format>] [-c <name>=<value>] [-o <file>.svg] <graph>.txt
 ```
 
 The output format is `svg:standalone` (a standalone SVG/XML document,

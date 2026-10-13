@@ -50,6 +50,8 @@ component relationships, data flows, dependency graphs, and similar structures.
 - "matrix": a dependency structure matrix: the nodes are rows and columns, a
   cell counts the edges from its row to its column, and the cycles are outlined
   as blocks on the diagonal.
+- "sequence": a sequence diagram: the nodes are the participants on top of
+  their lifelines, and the edges are the messages, top-down in declaration order.
 
 ### Diagram Type Constraints
 
@@ -112,6 +114,16 @@ groups ("/"-separated, outermost first, e.g. "Server/Broker"), which are
 drawn as columns left of the bands, spanning the bands of their layers,
 with their names running upwards (the layers of a group are kept
 together), and the option "layer-numbered" numbers the layers top-down.
+
+The diagram type "sequence" draws a sequence diagram and rejects the
+input with an error as soon as the graph contains a container: the nodes
+(in declaration order, or in the order of their "order" attributes) are
+the participants, drawn as regular node boxes side by side (all of the
+width of the widest one) on top of their dashed lifelines, and the edges
+are the messages, drawn as regular edges with their names and arities
+between the lifelines, top-down in declaration order, where an edge from
+a node to itself loops on its own lifeline. The option
+"sequence-message-gap" sets the vertical distance of the messages.
 
 The diagram type "matrix" draws a dependency structure matrix (DSM) and
 rejects the input with an error as soon as the graph contains a
@@ -184,7 +196,7 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
     <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                        | "#type" <whitespace> { <whitespace> } <type>
     <option>         ::= <letter> { <letter> | <digit> | "-" }
-    <type>           ::= "graph" | "hub" | "grid" | "layout" | "layer" | "matrix"
+    <type>           ::= "graph" | "hub" | "grid" | "layout" | "layer" | "matrix" | "sequence"
     <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
     <newline>        ::= "\\n"
     <whitespace>     ::= " " | "\\t" | "\\r"

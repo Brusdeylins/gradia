@@ -84,7 +84,8 @@ export const configDefaults = {
     "layout-row-cells":          8,     /*  layout: cells per row                  */
     "layout-cell-bits":          8,     /*  layout: bits per cell (1 or 8)         */
     "layout-cell-size":          44,    /*  layout: width and height of a cell     */
-    "matrix-cell-size":          44     /*  matrix: width and height of a cell     */
+    "matrix-cell-size":          44,    /*  matrix: width and height of a cell     */
+    "sequence-message-gap":      56     /*  sequence: vertical gap of the messages */
 }
 export type Config = typeof configDefaults
 

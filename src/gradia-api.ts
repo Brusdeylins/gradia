@@ -19,6 +19,7 @@ import { render as renderGrid }                    from "./gradia-api-type-grid.
 import { render as renderLayout }                  from "./gradia-api-type-layout.js"
 import { render as renderLayer }                   from "./gradia-api-type-layer.js"
 import { render as renderMatrix }                  from "./gradia-api-type-matrix.js"
+import { render as renderSequence }                from "./gradia-api-type-sequence.js"
 
 /*  re-export the graph model and configuration companion types  */
 export type { Attr, Node, Edge, Graph }            from "./gradia-api-model.js"
@@ -32,7 +33,8 @@ const renderers = {
     grid:   { render: renderGrid,   gated: false },
     layout: { render: renderLayout, gated: false },
     layer:  { render: renderLayer,  gated: false },
-    matrix: { render: renderMatrix, gated: false }
+    matrix:   { render: renderMatrix,   gated: false },
+    sequence: { render: renderSequence, gated: false }
 } satisfies Record<string, DiagramTypeSpec>
 export type DiagramType = keyof typeof renderers
 export const diagramTypes = Object.keys(renderers) as DiagramType[]

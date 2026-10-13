@@ -14,7 +14,7 @@ About
 -----
 
 **Gradia** is a small API and CLI for rendering directed graphs,
-described in a concise textual input language, as SVG diagrams. Six
+described in a concise textual input language, as SVG diagrams. Seven
 diagram types are supported which fit the scenario of visualizing object
 graphs and the structures around them:
 
@@ -30,6 +30,7 @@ graphs and the structures around them:
   marking the edges pointing upwards against the layering.
 - `matrix`: a dependency structure matrix, counting the edges between
   every pair of nodes and outlining the cycles.
+- `sequence`: a sequence diagram of participants and their messages.
 
 Examples
 --------
@@ -80,6 +81,10 @@ Here are examples of the diagram renderings:
 
   ![shape-sample](smp/shape-sample.svg)
 
+- [sequence-sample](smp/sequence-sample.txt) (sequence diagram):
+
+  ![sequence-sample](smp/sequence-sample.svg)
+
 Playground
 ----------
 
@@ -98,7 +103,7 @@ Usage
 -----
 
 ```sh
-$ gradia [-t graph|hub|grid|layout|layer|matrix] [-f <format>] [-c <name>=<value>] -o <file>.svg <graph>.txt
+$ gradia [-t graph|hub|grid|layout|layer|matrix|sequence] [-f <format>] [-c <name>=<value>] -o <file>.svg <graph>.txt
 ```
 
 The diagram type is selected with the `-t` command-line option or, when
@@ -115,7 +120,7 @@ MCP Service
 -----------
 
 ```sh
-$ gradia --mcp [-t graph|hub|grid|layout|layer|matrix] [-f <format>] [-c <name>=<value>]
+$ gradia --mcp [-t graph|hub|grid|layout|layer|matrix|sequence] [-f <format>] [-c <name>=<value>]
 ```
 
 With the `-m`/`--mcp` option, **Gradia** instead runs as a [Model Context
@@ -182,7 +187,7 @@ separated by `|`.
 <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                    | "#type" <whitespace> { <whitespace> } <type>
 <option>         ::= <letter> { <letter> | <digit> | "-" }
-<type>           ::= "graph" | "hub" | "grid" | "layout" | "layer" | "matrix"
+<type>           ::= "graph" | "hub" | "grid" | "layout" | "layer" | "matrix" | "sequence"
 <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
 <newline>        ::= "\n"
 <whitespace>     ::= " " | "\t" | "\r"
@@ -366,6 +371,16 @@ drawn as columns left of the bands, spanning the bands of their layers,
 with their names running upwards (the layers of a group are kept
 together), and the option `layer-numbered` numbers the layers top-down.
 
+The diagram type `sequence` draws a sequence diagram and rejects the
+input with an error as soon as the graph contains a container: the nodes
+(in declaration order, or in the order of their `order` attributes) are
+the participants, drawn as regular node boxes side by side (all of the
+width of the widest one) on top of their dashed lifelines, and the edges
+are the messages, drawn as regular edges with their names and arities
+between the lifelines, top-down in declaration order, where an edge from
+a node to itself loops on its own lifeline. The option
+`sequence-message-gap` sets the vertical distance of the messages.
+
 The diagram type `matrix` draws a dependency structure matrix (DSM) and
 rejects the input with an error as soon as the graph contains a
 container. The nodes are both its rows and its columns (in declaration
@@ -412,7 +427,7 @@ group and every `hub` container needs its own primary node.
 
 ### Directives
 
-A `#type` directive sets the diagram type (`graph`, `hub`, `grid`, `layout`, `layer`, or `matrix`),
+A `#type` directive sets the diagram type (`graph`, `hub`, `grid`, `layout`, `layer`, `matrix`, or `sequence`),
 which otherwise is settable through the `-t`/`--type` command-line
 option (which takes precedence). The last occurrence wins and an invalid
 type is silently ignored. Without both, the type defaults to `graph`.
@@ -465,10 +480,11 @@ size-canvas-margin         40           legend-gap                 "{item} witho
                                         layout-cell-bits           8
                                         layout-cell-size           44
                                         matrix-cell-size           44
+                                        sequence-message-gap       56
 ```
 
 The `size-*`, `group-*`, `container-*`, `graph-*`, `hub-*`, `grid-*`,
-`layout-*`, and `matrix-*` options control the rendering geometry (text
+`layout-*`, `matrix-*`, and `sequence-*` options control the rendering geometry (text
 font sizes, canvas margin, node box sizing, edge routing, group and
 container box spacing, and the per-diagram-type layout) and take non-negative numbers, except
 the booleans `grid-node-width-equal` and `grid-node-height-equal`.

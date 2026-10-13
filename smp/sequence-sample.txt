@@ -1,0 +1,14 @@
+#type sequence
+
+client:  "Web Client"     [ shape: person ]
+gateway: "API Gateway"
+service: "Order Service"
+db:      "Order Database" [ shape: database ]
+
+client  --("POST /orders")--> gateway
+gateway --("validate token")--> gateway
+gateway --(createOrder)--> service
+service --("INSERT order")--> db
+db      --("order id")--> service
+service --("201 Created")--> gateway
+gateway --("201 Created")--> client
