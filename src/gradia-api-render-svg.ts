@@ -110,6 +110,10 @@ type Box = [ number, number, number, number ]
 const TAG_DX = 18  /*  left offset of the group tag  */
 const TAG_DY = 12  /*  top offset of the group tag   */
 
+/*  the radius of the badge of a "person" or "device" node on its top
+    border, which the node hence occupies above its box, too  */
+const BADGE_R = 13
+
 /*  the half width of the box an edge line segment occupies  */
 const LINE_PAD = 2
 
@@ -235,7 +239,8 @@ const labelPlacer = (
 } => {
     const { nodes, cx, cy, boxW, boxH } = layout
     const occupied: Box[] = nodes.map((node) => [
-        cx(node.id) - boxW.get(node.id)! / 2, cy(node.id) - boxH.get(node.id)! / 2,
+        cx(node.id) - boxW.get(node.id)! / 2,
+        cy(node.id) - boxH.get(node.id)! / 2 - ([ "person", "device" ].includes(shapeOf(node)) ? BADGE_R + 2 : 0),
         cx(node.id) + boxW.get(node.id)! / 2, cy(node.id) + boxH.get(node.id)! / 2
     ])
 
@@ -430,7 +435,7 @@ const renderOutline = (shape: NodeShape, x: number, y: number, w: number, h: num
             `class="${cls}"${dash}/>`)
     const box = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" class="${cls}"${dash}/>`
     if (shape === "person" || shape === "device") {
-        const [ bx, by, r ] = [ x + w / 2, y, 13 ]
+        const [ bx, by, r ] = [ x + w / 2, y, BADGE_R ]
         const glyph = shape === "person" ?
             `M ${bx} ${by - 7} m -3.5 0 a 3.5 3.5 0 1 0 7 0 a 3.5 3.5 0 1 0 -7 0 ` +
                 `M ${bx - 7} ${by + 8} q 0 -8 7 -8 q 7 0 7 8` :
