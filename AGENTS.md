@@ -62,7 +62,7 @@ dependency structure matrix, its cycles outlined as blocks), and
     -   `src/gradia-api-type-layer.ts`: the `layer` diagram type (an
         explicitly ordered `graph`, one row per layer, plus the layer
         bands as shapes and the violating edges marked through the
-        `violates` predicate of the `Layout`)
+        per-edge `marked` flags of the `Layout`)
     -   `src/gradia-api-type-matrix.ts`: the `matrix` diagram type (the
         headers and cells of a dependency structure matrix, drawn as
         shapes only, the cycles found as the strongly connected

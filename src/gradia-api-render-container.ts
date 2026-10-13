@@ -32,12 +32,15 @@ export interface LevelContext {
 /*  a diagram type renderer  */
 export type Renderer = (graph: Graph, config: Config, level?: LevelContext) => Promise<Layout>
 
-/*  a diagram type: its renderer and whether it supports gate nodes
-    (and hence lets the edges crossing a container boundary continue
-    to the inner nodes, instead of ending at the container border)  */
+/*  a diagram type: its renderer, whether it lays out the members of a
+    container (and hence is valid as a "container" annotation), and
+    whether it supports gate nodes (and hence lets the edges crossing a
+    container boundary continue to the inner nodes, instead of ending at
+    the container border)  */
 export interface DiagramTypeSpec {
-    render: Renderer
-    gated:  boolean
+    render:   Renderer
+    nestable: boolean
+    gated:    boolean
 }
 
 /*  the containment tree of a graph  */
@@ -50,7 +53,7 @@ export interface Containment {
     appearance) and validate it: every "parent" has to be a declared
     node, no node may be nested into itself, no edge may connect a
     container with one of its own members, and every "container"
-    annotation has to name a valid diagram type  */
+    annotation has to name a diagram type laying out container members  */
 export const containmentOf = (graph: Graph, types: string[]): Containment => {
     /*  collect the parent/children relations of the nodes  */
     const parentOfId = new Map<string, string>()
@@ -58,7 +61,8 @@ export const containmentOf = (graph: Graph, types: string[]): Containment => {
     for (const node of graph.nodes.values()) {
         const type = containerTypeOf(node)
         if (type !== undefined && !types.includes(type))
-            throw new Error(`invalid container layout type "${type}" of node "${node.id}"`)
+            throw new Error(`invalid container layout type "${type}" of node "${node.id}" ` +
+                `(expected one of ${types.map((t) => `"${t}"`).join(", ")})`)
         const parent = parentOf(node)
         if (parent === undefined)
             continue
@@ -265,6 +269,7 @@ export const renderContained = async (
             (an edge crossing the boundary of this level stays partial)  */
         const edges:   Edge[]    = []
         const polys:   Poly[]    = []
+        const marked:  boolean[] = []
         const bundled: boolean[] = []
         const partial            = new Map<number, Poly>()
         parts.forEach((part, k) => {
@@ -273,6 +278,7 @@ export const renderContained = async (
             part.layout.edges.forEach((edge, ei) => {
                 edges.push(edge)
                 polys.push(shift(part.layout.polys[ei], k))
+                marked.push(part.layout.marked?.[ei] ?? false)
                 bundled.push(part.layout.bundled?.[ei] ?? false)
             })
         })
@@ -290,6 +296,7 @@ export const renderContained = async (
             else {
                 edges.push(graph.edges[i])
                 polys.push(poly)
+                marked.push(layout.marked?.[li] ?? false)
                 bundled.push(layout.bundled?.[li] ?? false)
             }
         })
@@ -314,7 +321,7 @@ export const renderContained = async (
             containers: [ ...boxes, ...innerBoxes ],
             shapes:     parts.flatMap((part) => (part.layout.shapes ?? []).map((shape) =>
                 shiftShape(shape, part.dx, part.dy))),
-            violates:   (edge) => parts.some((part) => part.layout.violates?.(edge) === true),
+            marked,
             bundled,
             junctions:  parts.flatMap((part, k) => shift(part.layout.junctions ?? [], k)),
             crowded:    parts.some((part) => part.layout.crowded === true)

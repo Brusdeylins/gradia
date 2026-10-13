@@ -891,8 +891,8 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         upwards in a layered diagram) is drawn dashed in the violation
         color, with an arrow head and labels of that color, so its labels
         are attributed to it even among neighboring edges  */
-    const violates   = layout.violates ?? (() => false)
-    const alerted    = edges.some((edge) => violates(edge))
+    const violates   = (i: number): boolean => layout.marked?.[i] === true
+    const alerted    = edges.some((_, i) => violates(i))
     const classAlert = alerted ? classOf(`fill: none; stroke: ${color("color-mark-violation")}; stroke-width: 3; ` +
         "stroke-dasharray: 10 6") : ""
     const classAlertArrow = alerted ? classOf(`fill: ${color("color-mark-violation")}`) : ""
@@ -945,8 +945,8 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     const svgEdges = piecesOf(polys, layout.bundled).flatMap((pieces, i) => pieces.map((piece) =>
         `<path d="${pathOf(polys[i], hops[i], config["size-edge-corner-radius"], config["size-edge-hop-radius"],
             junction, layout.crowded === true, piece)}" ` +
-        `class="${violates(edges[i]) ? classAlert : classEdge}"` +
-        (repeat[i] || !piece.end ? "/>" : ` marker-end="url(#${violates(edges[i]) ? idAlert : idArrow})"/>`)))
+        `class="${violates(i) ? classAlert : classEdge}"` +
+        (repeat[i] || !piece.end ? "/>" : ` marker-end="url(#${violates(i) ? idAlert : idArrow})"/>`)))
     const svgJunctions = junctions.map(([ x, y ]) =>
         `<circle cx="${x}" cy="${y}" r="${JUNCTION_R}" class="${classArrow}"/>`)
 
@@ -978,7 +978,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         const anchor = arrivalLabels(edge, polys[i], config).find((box) => seize(box, i))
         if (anchor === undefined)
             return false
-        svgLabels.push(...nameText(edge, anchor, styler, violates(edge),
+        svgLabels.push(...nameText(edge, anchor, styler, violates(i),
             anchor[2] <= polys[i][polys[i].length - 1][0] ? "end" : "start"))
         return true
     })
@@ -988,7 +988,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         const name = (preferred?: Box[], mates?: number[]) =>
             svgLabels.push(...renderEdgeName(edge, polys[i],
                 (c, dodge) => claim(c, i, dodge, undefined, mates !== undefined ? new Set(mates) : undefined),
-                styler, config, violates(edge), preferred))
+                styler, config, violates(i), preferred))
         if (!grouped.has(i))
             name(stubAt.get(i))
         if (into.has(i))
@@ -1000,7 +1000,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         const candidates = arities[i]
         if (candidates !== undefined)
             svgLabels.push(...renderEdgeArity(edge, candidates,
-                (c, dodge, own) => claim(c, i, dodge, own), styler, violates(edge)))
+                (c, dodge, own) => claim(c, i, dodge, own), styler, violates(i)))
     })
 
     /*  generate the SVG fragments for the node boxes  */

@@ -82,6 +82,13 @@ export const textWrap = (text: string, size: number, maxWidth: number): string[]
     return lines
 }
 
+/*  fill the "{name}" placeholders of a text template with their values
+    (through a replacer function, as a replacement string would treat
+    the "$&" and alike inside a value as substitution patterns), keeping
+    an unknown placeholder as it is  */
+export const fillTemplate = (template: string, vars: Record<string, string>): string =>
+    template.replace(/\{([a-z]+)\}/g, (match, name: string) => Object.hasOwn(vars, name) ? vars[name] : match)
+
 /*  escape a string for use in XML/SVG content (control and non-characters
     are stripped, as XML forbids them even in their escaped form)  */
 export const escapeXML = (text: string): string =>
@@ -197,13 +204,15 @@ export const shiftShape = (shape: Shape, dx: number, dy: number): Shape =>
             box: [ shape.box[0] + dx, shape.box[1] + dy, shape.box[2] + dx, shape.box[3] + dy ] }
 
 /*  the laid out graph handed over for SVG generation (the optional
-    "bundled" flags run parallel to the edges and the polylines and
-    mark the edges sharing a track with others, as flags compose by
-    concatenation exactly like the edges themselves, across groups and
-    containment levels alike, the optional "junctions" are the points
-    at which those edges join or leave the shared track, and the
-    optional "crowded" flag marks a layout with crowded channels or
-    gutters)  */
+    "marked" flags run parallel to the edges and the polylines and mark
+    the edges violating a rule of their diagram type, e.g. pointing
+    upwards in a layered diagram, as flags compose by concatenation
+    exactly like the edges themselves, across groups and containment
+    levels alike, the optional "bundled" flags run parallel to them,
+    too, and mark the edges sharing a track with others, the optional
+    "junctions" are the points at which those edges join or leave the
+    shared track, and the optional "crowded" flag marks a layout with
+    crowded channels or gutters)  */
 export interface Layout {
     nodes:       Node[]
     edges:       Edge[]
@@ -217,7 +226,7 @@ export interface Layout {
     groups?:     GroupBox[]
     containers?: ContainerBox[]
     shapes?:     Shape[]
-    violates?:   (edge: Edge) => boolean
+    marked?:     boolean[]
     bundled?:    boolean[]
     junctions?:  Poly
     crowded?:    boolean

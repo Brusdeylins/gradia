@@ -25,16 +25,17 @@ import { render as renderSequence }                from "./gradia-api-type-seque
 export type { Attr, Node, Edge, Graph }            from "./gradia-api-model.js"
 export type { Config }                             from "./gradia-api-config.js"
 
-/*  the supported diagram types, their renderers, and whether they let
-    the edges crossing a container boundary continue to the inner nodes  */
+/*  the supported diagram types, their renderers, whether they lay out
+    the members of a container, and whether they let the edges crossing
+    a container boundary continue to the inner nodes  */
 const renderers = {
-    graph:  { render: renderGraph,  gated: true  },
-    hub:    { render: renderHub,    gated: false },
-    grid:   { render: renderGrid,   gated: false },
-    layout: { render: renderLayout, gated: false },
-    layer:  { render: renderLayer,  gated: false },
-    matrix:   { render: renderMatrix,   gated: false },
-    sequence: { render: renderSequence, gated: false }
+    graph:    { render: renderGraph,    nestable: true,  gated: true  },
+    hub:      { render: renderHub,      nestable: true,  gated: false },
+    grid:     { render: renderGrid,     nestable: true,  gated: false },
+    layout:   { render: renderLayout,   nestable: false, gated: false },
+    layer:    { render: renderLayer,    nestable: false, gated: false },
+    matrix:   { render: renderMatrix,   nestable: false, gated: false },
+    sequence: { render: renderSequence, nestable: false, gated: false }
 } satisfies Record<string, DiagramTypeSpec>
 export type DiagramType = keyof typeof renderers
 export const diagramTypes = Object.keys(renderers) as DiagramType[]
@@ -118,7 +119,7 @@ export class Gradia {
                         `"${edge.source}" --> "${edge.target}" is not a declared node`)
 
         /*  determine (and validate) the containment tree of the graph  */
-        const containment = containmentOf(graph, diagramTypes)
+        const containment = containmentOf(graph, diagramTypes.filter((t) => renderers[t].nestable))
 
         /*  lay out the graph model (with its containers as nested
             levels): either as a whole, or partitioned into its named

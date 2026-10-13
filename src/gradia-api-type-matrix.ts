@@ -7,7 +7,7 @@
 /*  internal dependencies  */
 import { Node, Graph }              from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
-import { Layout, Shape, LegendEntry, textShape, textWidth, legendShapes }
+import { Layout, Shape, LegendEntry, textShape, textWidth, legendShapes, fillTemplate }
     from "./gradia-api-render-base.js"
 import { LevelContext }             from "./gradia-api-render-container.js"
 import { isPrimary, urlOf, orderOf, parentOf, containerTypeOf, typeOf }
@@ -249,17 +249,14 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const [ rowName, colName ] = [ rowTitle ?? "row", colTitle ?? "column" ]
     if (counts.size > 0)
         legend.push({ swatch: "cell",  color: "color-node-regular-name",
-            text: config[traced ? "legend-trace" : "legend-count"]
-                .replace(/\{row\}/g, rowName).replace(/\{column\}/g, colName) })
+            text: fillTemplate(config[traced ? "legend-trace" : "legend-count"], { row: rowName, column: colName }) })
     if (blocks.size > 0)
         legend.push({ swatch: "block", color: "color-mark-violation",    text: config["legend-cycle"] })
-    const phrase = (template: string, item: string, other: string) =>
-        template.replace(/\{item\}/g, item).replace(/\{other\}/g, other)
     for (const [ color, key ] of [ [ "color-mark-violation", "legend-gap" ], [ "color-mark-warning", "legend-indirect" ] ] as const) {
         if (rowMarks.includes(color))
-            legend.push({ swatch: "box", color, text: phrase(config[key], rowName, colName) })
+            legend.push({ swatch: "box", color, text: fillTemplate(config[key], { item: rowName, other: colName }) })
         if (colMarks.includes(color))
-            legend.push({ swatch: "box", color, text: phrase(config[key], colName, rowName) })
+            legend.push({ swatch: "box", color, text: fillTemplate(config[key], { item: colName, other: rowName }) })
     }
     shapes.push(...legendShapes(legend, margin, y0 + rows.length * cell + HEAD_GAP * 3, config))
 

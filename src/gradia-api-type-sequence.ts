@@ -78,5 +78,5 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
 
     /*  hand over the participants, the messages, and the lifelines  */
     return { nodes, edges: graph.edges, cx: (id) => xOf.get(id)!, cy: () => cy,
-        boxW, boxH: new Map(nodes.map((node) => [ node.id, headH ])), contentH, polys, shapes }
+        boxW, boxH, contentH, polys, shapes }
 }

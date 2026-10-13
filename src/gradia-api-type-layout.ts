@@ -22,6 +22,11 @@ const LABEL_SEP  = 12   /*  minimum horizontal gap between two labels       */
 const ROW_GAP    = 24   /*  vertical gap between two rows                   */
 const ROW_LABEL  = 16   /*  gap between a row and its offset label          */
 
+/*  the upper bounds of the cells of a layout, as the input is untrusted
+    and every cell becomes several SVG elements  */
+const ROW_CELLS_MAX = 256    /*  maximum of "layout-row-cells"           */
+const CELLS_MAX     = 4096   /*  maximum of the cells of all rows        */
+
 /*  a field of the layout: a node with its cell offset, cell size, and
     optional fixed value  */
 interface Field {
@@ -44,6 +49,11 @@ interface Segment {
 /*  the label of a field (a variable-sized one marked as continuing)  */
 const labelOf = (field: Field): string =>
     field.open ? `${field.node.name} ...` : field.node.name
+
+/*  whether the value of a field carries exactly one character per cell
+    (counted in code points, so a surrogate pair stays one character)  */
+const perCell = (field: Field): boolean =>
+    field.value !== undefined && Array.from(field.value).length === field.size
 
 /*  parse a cell count attribute (a decimal or hexadecimal integer)  */
 const cellsOf = (node: Node, key: string, min: number): number | undefined => {
@@ -84,6 +94,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     /*  resolve the configurable rendering geometry  */
     const margin = config["size-canvas-margin"]
     const cols   = Math.max(Math.floor(config["layout-row-cells"]), 1)
+    if (cols > ROW_CELLS_MAX)
+        throw new Error(`invalid "layout-row-cells" value ${cols} (expected at most ${ROW_CELLS_MAX})`)
     const bits   = Math.max(Math.floor(config["layout-cell-bits"]), 1)
     const cell   = Math.max(config["layout-cell-size"], 1)
     const fsRule = config["size-font-type"]
@@ -108,6 +120,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         if (fields[i].offset < fields[i - 1].offset + fields[i - 1].size)
             throw new Error(`field "${fields[i].node.id}" overlaps field "${fields[i - 1].node.id}"`)
     const total = fields.reduce((n, field) => Math.max(n, field.offset + field.size), 0)
+    if (total > CELLS_MAX)
+        throw new Error(`layout spans ${total} cells (expected at most ${CELLS_MAX})`)
     const rows  = Math.max(Math.ceil(total / cols), 1)
 
     /*  split the fields into their per-row segments  */
@@ -160,18 +174,23 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     for (let c = 0; c < cols; c++)
         shapes.push(textShape(xOf(c) + cell / 2, margin + fsRule, String(c),
             "color-container-name", "size-font-type", config, "middle"))
-    const covered = new Map<number, Field>()
-    for (const field of fields)
-        for (let k = 0; k < field.size; k++)
-            covered.set(field.offset + k, field)
+    let next = 0
     for (let row = 0; row < rows; row++) {
         for (let c = 0; c < cols && row * cols + c < total; c++) {
+            /*  the field covering the cell (the cells are visited in
+                ascending order, exactly like the sorted fields, so the
+                covering field is found by advancing past the fields
+                ending before the cell)  */
+            const pos = row * cols + c
+            while (next < fields.length && fields[next].offset + fields[next].size <= pos)
+                next++
+            const field = next < fields.length && fields[next].offset <= pos ? fields[next] : undefined
+
             /*  the cells of a field carrying one value across all of them
                 merge into a single box, so no cell border crosses the value  */
-            const field  = covered.get(row * cols + c)
             const style  = field === undefined ? "ghost" : isPrimary(field.node) ? "primary" : "regular"
-            const merged = field !== undefined && field.value !== undefined && field.value.length !== field.size
-            if (merged && row * cols + c !== Math.max(field.offset, row * cols))
+            const merged = field !== undefined && field.value !== undefined && !perCell(field)
+            if (merged && pos !== Math.max(field.offset, row * cols))
                 continue
             const w = merged ? (Math.min(field.offset + field.size, (row + 1) * cols) - row * cols - c) * cell : cell
             shapes.push({ kind: "rect", x: xOf(c), y: rowTop[row], w, h: cell,
@@ -198,10 +217,11 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             smaller font, so it keeps clear of the borders of the cells)  */
         if (field.value !== undefined) {
             const base = top + cell / 2 + fsRule * 0.36
-            if (field.value.length === field.size) {
+            if (perCell(field)) {
+                const chars = Array.from(field.value)
                 for (let c = seg.from; c < seg.to; c++) {
                     const k = row * cols + c - field.offset
-                    shapes.push(textShape(xOf(c) + cell / 2, base, field.value[k],
+                    shapes.push(textShape(xOf(c) + cell / 2, base, chars[k],
                         `color-node-${style}-name`, "size-font-type", config, "middle"))
                 }
             }

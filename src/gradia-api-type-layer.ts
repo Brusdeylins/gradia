@@ -56,8 +56,14 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const pathOf = new Map<string, string[]>()
     for (const node of nodes) {
         const layer = layerOf(node)
-        if (layer !== undefined && !pathOf.has(layer))
+        if (layer === undefined)
+            continue
+        const path = pathOf.get(layer)
+        if (path === undefined)
             pathOf.set(layer, groupsOf(node))
+        else if (path.join("/") !== groupsOf(node).join("/"))
+            throw new Error(`node "${node.id}" places layer "${layer}" into group ` +
+                `"${groupsOf(node).join("/")}", unlike group "${path.join("/")}" of its other nodes`)
     }
     const firstOf = new Map<string, number>()
     Array.from(pathOf.entries()).forEach(([ layer, path ], i) => {
@@ -80,7 +86,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     })
     const index  = new Map(layers.map((name, i) => [ name, i ]))
     const indexOf = (id: string): number | undefined => {
-        const name = layerOf(graph.nodes.get(id)!)
+        const node = graph.nodes.get(id)
+        const name = node !== undefined ? layerOf(node) : undefined
         return name !== undefined ? index.get(name) : undefined
     }
     const ordered: Graph = {
@@ -206,10 +213,11 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     }
 
     /*  explain a visible violation in a legend below the bands  */
-    if (graph.edges.some((edge) => violates(edge))) {
+    const marked = layout.edges.map((edge) => violates(edge))
+    if (marked.includes(true)) {
         const below = bottom.reduce((y, b) => Number.isFinite(b) ? Math.max(y, b) : y, bounds.maxY)
         shapes.push(...legendShapes([ { swatch: "line", color: "color-mark-violation",
             text: config["legend-upward"] } ], left - depth * (GROUP_W + GROUP_GAP), below + BAND_MARGIN + 24, config))
     }
-    return { ...layout, shapes: [ ...(layout.shapes ?? []), ...shapes ], violates }
+    return { ...layout, shapes: [ ...(layout.shapes ?? []), ...shapes ], marked }
 }
