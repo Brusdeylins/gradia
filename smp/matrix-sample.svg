@@ -8,10 +8,10 @@
 .gradia-8f91fa3b { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-prop, 22px); font-weight: 600; fill: var(--gradia-color-node-regular-name, #336699) }
 .gradia-5f52a16d { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); font-weight: 600; fill: var(--gradia-color-container-name, #666666) }
 .gradia-25a733d0 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); font-weight: 600; text-anchor: end; fill: var(--gradia-color-container-name, #666666) }
-.gradia-41dfb3e3 { fill: var(--gradia-color-node-ghost-box, #f0f0f0); stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 1 }
-.gradia-63bd54c1 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 1 }
+.gradia-831be281 { fill: var(--gradia-color-node-self-box, #e0e0e0); stroke: var(--gradia-color-container-border, #a0a0a0); stroke-width: 1 }
+.gradia-063da071 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-container-border, #a0a0a0); stroke-width: 1 }
 .gradia-2b6fce7b { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); font-weight: 600; text-anchor: middle; fill: var(--gradia-color-node-regular-name, #336699) }
-.gradia-30482995 { fill: var(--gradia-color-group-box, #f4f8fc); stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 1 }
+.gradia-de61de06 { fill: var(--gradia-color-container-box, #f6f6f6); stroke: var(--gradia-color-container-border, #a0a0a0); stroke-width: 1 }
 .gradia-c900d481 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); font-weight: 600; text-anchor: middle; fill: var(--gradia-color-mark-violation, #cc3333) }
 .gradia-8f5f281a { fill: none; stroke: var(--gradia-color-mark-violation, #cc3333); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round }
 .gradia-3858115f { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); fill: var(--gradia-color-edge-name, #333333) }
@@ -47,55 +47,55 @@
 <text x="52" y="523.92" class="gradia-8f91fa3b">Billing Service</text>
 <text x="52" y="254" class="gradia-5f52a16d">Component</text>
 <text x="254" y="68" class="gradia-25a733d0">Component</text>
-<rect x="274" y="274" width="44" height="44" rx="0" class="gradia-41dfb3e3"/>
-<rect x="318" y="274" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<rect x="274" y="274" width="44" height="44" rx="0" class="gradia-831be281"/>
+<rect x="318" y="274" width="44" height="44" rx="0" class="gradia-063da071"/>
 <text x="340" y="301.76" class="gradia-2b6fce7b">1</text>
-<rect x="362" y="274" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="406" y="274" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="450" y="274" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="494" y="274" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="274" y="318" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="318" y="318" width="44" height="44" rx="0" class="gradia-41dfb3e3"/>
-<rect x="362" y="318" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<rect x="362" y="274" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="406" y="274" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="450" y="274" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="494" y="274" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="274" y="318" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="318" y="318" width="44" height="44" rx="0" class="gradia-831be281"/>
+<rect x="362" y="318" width="44" height="44" rx="0" class="gradia-063da071"/>
 <text x="384" y="345.76" class="gradia-2b6fce7b">1</text>
-<rect x="406" y="318" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="450" y="318" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="494" y="318" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<rect x="406" y="318" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="450" y="318" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="494" y="318" width="44" height="44" rx="0" class="gradia-063da071"/>
 <text x="516" y="345.76" class="gradia-2b6fce7b">1</text>
-<rect x="274" y="362" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="318" y="362" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="362" y="362" width="44" height="44" rx="0" class="gradia-41dfb3e3"/>
-<rect x="406" y="362" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<rect x="274" y="362" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="318" y="362" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="362" y="362" width="44" height="44" rx="0" class="gradia-831be281"/>
+<rect x="406" y="362" width="44" height="44" rx="0" class="gradia-063da071"/>
 <text x="428" y="389.76" class="gradia-c900d481">1</text>
-<rect x="450" y="362" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<rect x="450" y="362" width="44" height="44" rx="0" class="gradia-063da071"/>
 <text x="472" y="389.76" class="gradia-c900d481">3</text>
-<rect x="494" y="362" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="274" y="406" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="318" y="406" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="362" y="406" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<rect x="494" y="362" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="274" y="406" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="318" y="406" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="362" y="406" width="44" height="44" rx="0" class="gradia-063da071"/>
 <text x="384" y="433.76" class="gradia-c900d481">1</text>
-<rect x="406" y="406" width="44" height="44" rx="0" class="gradia-41dfb3e3"/>
-<rect x="450" y="406" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="494" y="406" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="274" y="450" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="318" y="450" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="362" y="450" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="406" y="450" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<rect x="406" y="406" width="44" height="44" rx="0" class="gradia-831be281"/>
+<rect x="450" y="406" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="494" y="406" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="274" y="450" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="318" y="450" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="362" y="450" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="406" y="450" width="44" height="44" rx="0" class="gradia-063da071"/>
 <text x="428" y="477.76" class="gradia-c900d481">1</text>
-<rect x="450" y="450" width="44" height="44" rx="0" class="gradia-41dfb3e3"/>
-<rect x="494" y="450" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="274" y="494" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="318" y="494" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="362" y="494" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="406" y="494" width="44" height="44" rx="0" class="gradia-63bd54c1"/>
+<rect x="450" y="450" width="44" height="44" rx="0" class="gradia-831be281"/>
+<rect x="494" y="450" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="274" y="494" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="318" y="494" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="362" y="494" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="406" y="494" width="44" height="44" rx="0" class="gradia-063da071"/>
 <text x="428" y="521.76" class="gradia-2b6fce7b">1</text>
-<rect x="450" y="494" width="44" height="44" rx="0" class="gradia-30482995"/>
-<rect x="494" y="494" width="44" height="44" rx="0" class="gradia-41dfb3e3"/>
+<rect x="450" y="494" width="44" height="44" rx="0" class="gradia-de61de06"/>
+<rect x="494" y="494" width="44" height="44" rx="0" class="gradia-831be281"/>
 <rect x="362" y="362" width="132" height="132" rx="0" class="gradia-8f5f281a" stroke-dasharray="10 6"/>
-<rect x="40" y="562" width="22" height="22" rx="0" class="gradia-63bd54c1"/>
+<rect x="40" y="562" width="22" height="22" rx="0" class="gradia-063da071"/>
 <text x="51" y="578.76" class="gradia-2b6fce7b">1</text>
 <text x="92" y="578.76" class="gradia-3858115f">references from Component to Component</text>
-<rect x="40" y="592" width="22" height="22" rx="0" class="gradia-63bd54c1"/>
+<rect x="40" y="592" width="22" height="22" rx="0" class="gradia-063da071"/>
 <text x="51" y="608.76" class="gradia-c900d481">1</text>
 <rect x="37" y="589" width="28" height="28" rx="0" class="gradia-67ddb258" stroke-dasharray="6 4"/>
 <text x="92" y="608.76" class="gradia-3858115f">cyclic dependency</text>

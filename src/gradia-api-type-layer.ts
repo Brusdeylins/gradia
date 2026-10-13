@@ -145,15 +145,15 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         const [ y1, y2 ] = [ y1Of(i), y2Of(i) ]
         const mid = (y1 + y2) / 2
         shapes.push({ kind: "rect", x: left, y: y1, w: right - left, h: y2 - y1, rx: 12,
-            fill: "color-group-box", stroke: "color-group-border", width: 3 })
+            fill: "color-container-box", stroke: "color-container-border", width: 2 })
         if (numbered) {
             shapes.push({ kind: "rect", x: left + pad, y: mid - NUMBER_R, w: NUMBER_R * 2, h: NUMBER_R * 2,
-                rx: NUMBER_R, fill: "color-group-box", stroke: "color-group-name", width: 2 })
+                rx: NUMBER_R, fill: "color-container-box", stroke: "color-container-name", width: 2 })
             shapes.push(textShape(left + pad + NUMBER_R, mid + config["size-font-type"] * ASC, String(i + 1),
-                "color-group-name", "size-font-type", config, { anchor: "middle", bold: true }))
+                "color-container-name", "size-font-type", config, { anchor: "middle", bold: true }))
         }
         shapes.push(textShape(left + pad + numberW, mid + FS_GROUP * ASC, name,
-            "color-group-name", FS_GROUP, config, { bold: true }))
+            "color-container-name", FS_GROUP, config, { bold: true }))
     })
 
     /*  draw every group of layers as a column left of the bands, nested
@@ -175,9 +175,9 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
                 end++
             const [ y1, y2 ] = [ y1Of(start), y2Of(end) ]
             shapes.push({ kind: "rect", x, y: y1, w: GROUP_W, h: y2 - y1, rx: 12,
-                fill: "color-group-box", stroke: "color-group-border", width: 3 })
+                fill: "color-container-box", stroke: "color-container-border", width: 2 })
             shapes.push(textShape(x + GROUP_W / 2 + FS_GROUP * ASC, (y1 + y2) / 2, path[k],
-                "color-group-name", FS_GROUP, config, { anchor: "middle", bold: true, upright: true }))
+                "color-container-name", FS_GROUP, config, { anchor: "middle", bold: true, upright: true }))
             start = end + 1
         }
     }

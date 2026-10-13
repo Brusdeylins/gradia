@@ -237,8 +237,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             const k        = cycles.get(rows[r].id)
             const feedback = count !== undefined && k !== undefined && k === cycles.get(cols[c].id)
             shapes.push({ kind: "rect", x, y, w: cell, h: cell,
-                fill:   diagonal ? "color-node-ghost-box" : count !== undefined ? "color-node-regular-box" : "color-group-box",
-                stroke: "color-group-border", width: 1 })
+                fill:   diagonal ? "color-node-self-box" : count !== undefined ? "color-node-regular-box" : "color-container-box",
+                stroke: "color-container-border", width: 1 })
             if (count !== undefined)
                 shapes.push(textShape(x + cell / 2, base(y, fsNum), String(count),
                     feedback ? "color-mark-violation" : "color-node-regular-name", "size-font-type",

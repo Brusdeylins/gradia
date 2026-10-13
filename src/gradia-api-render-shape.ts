@@ -138,7 +138,7 @@ export const legendShapes = (entries: LegendEntry[], x: number, y: number, confi
         const mid = top + sh / 2
         if (entry.swatch === "cell" || entry.swatch === "block") {
             shapes.push({ kind: "rect", x, y: top, w: sh, h: sh, fill: "color-node-regular-box",
-                stroke: "color-group-border", width: 1 })
+                stroke: "color-container-border", width: 1 })
             shapes.push(textShape(x + sh / 2, mid + fs * ASC, "1", entry.color, "size-font-type",
                 config, { anchor: "middle", bold: true }))
             if (entry.swatch === "block")

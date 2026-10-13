@@ -105,7 +105,7 @@ The diagram type "layer" lays out a layered architecture and rejects
 the input with an error as soon as the graph contains a container. The
 attribute "layer: <name>" assigns a node to a layer, the layers stack
 top-down in the order of their first appearance as bands spanning the
-whole diagram (colored by the "color-group-*" options, the layer name
+whole diagram (colored by the "color-container-*" options, the layer name
 left of its nodes), and the nodes of a layer fill its band
 left-to-right (wrapped beyond "graph-columns-max" nodes), while the nodes
 without a layer trail outside of any band. An edge pointing from a lower

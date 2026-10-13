@@ -8,48 +8,48 @@
 .gradia-c318c042 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-node-regular-border, #c0d0e0); stroke-width: 4 }
 .gradia-d356e2cb { fill: none; stroke: var(--gradia-color-node-regular-name, #336699); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round }
 .gradia-f36ab1ca { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-node, 30px); font-weight: 600; text-anchor: middle; fill: var(--gradia-color-node-regular-name, #336699) }
-.gradia-5fbd5370 { fill: var(--gradia-color-group-box, #f4f8fc); stroke: var(--gradia-color-group-border, #c0d0e0); stroke-width: 3 }
-.gradia-124a92e5 { fill: var(--gradia-color-group-box, #f4f8fc); stroke: var(--gradia-color-group-name, #6699cc); stroke-width: 2 }
-.gradia-7b9ed983 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); font-weight: 600; text-anchor: middle; fill: var(--gradia-color-group-name, #6699cc) }
-.gradia-a5f2ba07 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 600; fill: var(--gradia-color-group-name, #6699cc) }
-.gradia-066050e1 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 600; text-anchor: middle; fill: var(--gradia-color-group-name, #6699cc) }
+.gradia-2091c3b2 { fill: var(--gradia-color-container-box, #f6f6f6); stroke: var(--gradia-color-container-border, #a0a0a0); stroke-width: 2 }
+.gradia-6e12a603 { fill: var(--gradia-color-container-box, #f6f6f6); stroke: var(--gradia-color-container-name, #666666); stroke-width: 2 }
+.gradia-3e123aeb { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); font-weight: 600; text-anchor: middle; fill: var(--gradia-color-container-name, #666666) }
+.gradia-a062cd18 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 600; fill: var(--gradia-color-container-name, #666666) }
+.gradia-6c11eb94 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 600; text-anchor: middle; fill: var(--gradia-color-container-name, #666666) }
 </style>
 <marker id="gradia-34efa0ddc606-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
 <path d="M 0 1 L 9 5 L 0 9 z" class="gradia-6c7500cd"/>
 </marker>
 </defs>
-<rect x="-167.824" y="20" width="937.8240000000001" height="120" rx="12" class="gradia-5fbd5370"/>
-<rect x="-137.824" y="67" width="26" height="26" rx="13" class="gradia-124a92e5"/>
-<text x="-124.82400000000001" y="85.76" class="gradia-7b9ed983">1</text>
-<text x="-99.82400000000001" y="88.64" class="gradia-a5f2ba07">Client</text>
-<rect x="-167.824" y="160" width="937.8240000000001" height="140" rx="12" class="gradia-5fbd5370"/>
-<rect x="-137.824" y="217" width="26" height="26" rx="13" class="gradia-124a92e5"/>
-<text x="-124.82400000000001" y="235.76" class="gradia-7b9ed983">2</text>
-<text x="-99.82400000000001" y="238.64" class="gradia-a5f2ba07">Cloud</text>
-<rect x="-167.824" y="320" width="937.8240000000001" height="140" rx="12" class="gradia-5fbd5370"/>
-<rect x="-137.824" y="377" width="26" height="26" rx="13" class="gradia-124a92e5"/>
-<text x="-124.82400000000001" y="395.76" class="gradia-7b9ed983">3</text>
-<text x="-99.82400000000001" y="398.64" class="gradia-a5f2ba07">Router</text>
-<rect x="-167.824" y="480" width="937.8240000000001" height="140" rx="12" class="gradia-5fbd5370"/>
-<rect x="-137.824" y="537" width="26" height="26" rx="13" class="gradia-124a92e5"/>
-<text x="-124.82400000000001" y="555.76" class="gradia-7b9ed983">4</text>
-<text x="-99.82400000000001" y="558.64" class="gradia-a5f2ba07">Proxy</text>
-<rect x="-167.824" y="640" width="937.8240000000001" height="120" rx="12" class="gradia-5fbd5370"/>
-<rect x="-137.824" y="687" width="26" height="26" rx="13" class="gradia-124a92e5"/>
-<text x="-124.82400000000001" y="705.76" class="gradia-7b9ed983">5</text>
-<text x="-99.82400000000001" y="708.64" class="gradia-a5f2ba07">Relay</text>
-<rect x="-167.824" y="780" width="937.8240000000001" height="140" rx="12" class="gradia-5fbd5370"/>
-<rect x="-137.824" y="837" width="26" height="26" rx="13" class="gradia-124a92e5"/>
-<text x="-124.82400000000001" y="855.76" class="gradia-7b9ed983">6</text>
-<text x="-99.82400000000001" y="858.64" class="gradia-a5f2ba07">Service</text>
-<rect x="-167.824" y="940" width="937.8240000000001" height="140" rx="12" class="gradia-5fbd5370"/>
-<rect x="-137.824" y="997" width="26" height="26" rx="13" class="gradia-124a92e5"/>
-<text x="-124.82400000000001" y="1015.76" class="gradia-7b9ed983">7</text>
-<text x="-99.82400000000001" y="1018.64" class="gradia-a5f2ba07">Database</text>
-<rect x="-263.824" y="320" width="40" height="760" rx="12" class="gradia-5fbd5370"/>
-<text x="-235.18400000000003" y="700" transform="rotate(-90 -235.18400000000003 700)" class="gradia-066050e1">Server</text>
-<rect x="-215.824" y="320" width="40" height="440" rx="12" class="gradia-5fbd5370"/>
-<text x="-187.18400000000003" y="540" transform="rotate(-90 -187.18400000000003 540)" class="gradia-066050e1">Broker</text>
+<rect x="-167.824" y="20" width="937.8240000000001" height="120" rx="12" class="gradia-2091c3b2"/>
+<rect x="-137.824" y="67" width="26" height="26" rx="13" class="gradia-6e12a603"/>
+<text x="-124.82400000000001" y="85.76" class="gradia-3e123aeb">1</text>
+<text x="-99.82400000000001" y="88.64" class="gradia-a062cd18">Client</text>
+<rect x="-167.824" y="160" width="937.8240000000001" height="140" rx="12" class="gradia-2091c3b2"/>
+<rect x="-137.824" y="217" width="26" height="26" rx="13" class="gradia-6e12a603"/>
+<text x="-124.82400000000001" y="235.76" class="gradia-3e123aeb">2</text>
+<text x="-99.82400000000001" y="238.64" class="gradia-a062cd18">Cloud</text>
+<rect x="-167.824" y="320" width="937.8240000000001" height="140" rx="12" class="gradia-2091c3b2"/>
+<rect x="-137.824" y="377" width="26" height="26" rx="13" class="gradia-6e12a603"/>
+<text x="-124.82400000000001" y="395.76" class="gradia-3e123aeb">3</text>
+<text x="-99.82400000000001" y="398.64" class="gradia-a062cd18">Router</text>
+<rect x="-167.824" y="480" width="937.8240000000001" height="140" rx="12" class="gradia-2091c3b2"/>
+<rect x="-137.824" y="537" width="26" height="26" rx="13" class="gradia-6e12a603"/>
+<text x="-124.82400000000001" y="555.76" class="gradia-3e123aeb">4</text>
+<text x="-99.82400000000001" y="558.64" class="gradia-a062cd18">Proxy</text>
+<rect x="-167.824" y="640" width="937.8240000000001" height="120" rx="12" class="gradia-2091c3b2"/>
+<rect x="-137.824" y="687" width="26" height="26" rx="13" class="gradia-6e12a603"/>
+<text x="-124.82400000000001" y="705.76" class="gradia-3e123aeb">5</text>
+<text x="-99.82400000000001" y="708.64" class="gradia-a062cd18">Relay</text>
+<rect x="-167.824" y="780" width="937.8240000000001" height="140" rx="12" class="gradia-2091c3b2"/>
+<rect x="-137.824" y="837" width="26" height="26" rx="13" class="gradia-6e12a603"/>
+<text x="-124.82400000000001" y="855.76" class="gradia-3e123aeb">6</text>
+<text x="-99.82400000000001" y="858.64" class="gradia-a062cd18">Service</text>
+<rect x="-167.824" y="940" width="937.8240000000001" height="140" rx="12" class="gradia-2091c3b2"/>
+<rect x="-137.824" y="997" width="26" height="26" rx="13" class="gradia-6e12a603"/>
+<text x="-124.82400000000001" y="1015.76" class="gradia-3e123aeb">7</text>
+<text x="-99.82400000000001" y="1018.64" class="gradia-a062cd18">Database</text>
+<rect x="-263.824" y="320" width="40" height="760" rx="12" class="gradia-2091c3b2"/>
+<text x="-235.18400000000003" y="700" transform="rotate(-90 -235.18400000000003 700)" class="gradia-6c11eb94">Server</text>
+<rect x="-215.824" y="320" width="40" height="440" rx="12" class="gradia-2091c3b2"/>
+<text x="-187.18400000000003" y="540" transform="rotate(-90 -187.18400000000003 540)" class="gradia-6c11eb94">Broker</text>
 <path d="M 320 68 L 382 68 Q 402 68 402 88 L 402 214 Q 402 218 398 218 L 398 218 A 8 8 0 0 0 382 218 L 320 218" class="gradia-3167da4d" marker-end="url(#gradia-34efa0ddc606-arrow)"/>
 <path d="M 320 242 L 358 242 Q 378 242 378 262 L 378 370 Q 378 390 358 390 L 320 390" class="gradia-3167da4d" marker-end="url(#gradia-34efa0ddc606-arrow)"/>
 <path d="M 320 92 L 370 92 Q 390 92 390 112 L 390 362 Q 390 366 386 366 L 386 366 A 8 8 0 0 0 370 366 L 320 366" class="gradia-3167da4d" marker-end="url(#gradia-34efa0ddc606-arrow)"/>
