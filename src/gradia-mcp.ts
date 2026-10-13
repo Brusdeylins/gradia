@@ -87,11 +87,13 @@ as continuing by a trailing "..." of its label. The fields are drawn in
 rows of "layout-row-cells" cells below a ruler of the cell numbers, a
 field exceeding its row continues in the next one, overlapping fields
 are rejected, and the cells between the fields are drawn as dashed gaps.
+A layout spans at most 4096 cells and "layout-row-cells" is at most
+256, as every cell becomes several elements of the drawing.
 Every field is labeled below its cells through a brace (or, for a single
 cell, a tick), where the labels of narrow neighboring fields stagger
 downwards, connected by a leader line. The optional attribute "value"
-shows a fixed value inside the cells: one character per cell, if it has
-exactly as many characters as the field has cells (e.g. the bits of a
+shows a fixed value inside the cells: one character (code point) per
+cell, if it has exactly as many characters as the field has cells (e.g. the bits of a
 marker), else once across the merged cells of the field (e.g. a magic
 number). The attributes "url" (on the label) and "primary" (the primary
 cell colors) are honored, and the "group" attribute stacks several
@@ -113,13 +115,16 @@ The attribute "layer-group: <path>" assigns the layer of a node to nested
 groups ("/"-separated, outermost first, e.g. "Server/Broker"), which are
 drawn as columns left of the bands, spanning the bands of their layers,
 with their names running upwards (the layers of a group are kept
-together), and the option "layer-numbered" numbers the layers top-down.
+together, and all nodes of a layer have to name the same path), and
+the option "layer-numbered" numbers the layers top-down. All node boxes
+take the width of the widest one and the boxes of a layer the height of
+the highest one, so the boxes line up across the layers.
 
 The diagram type "sequence" draws a sequence diagram and rejects the
 input with an error as soon as the graph contains a container: the nodes
 (in declaration order, or in the order of their "order" attributes) are
 the participants, drawn as regular node boxes side by side (all of the
-width of the widest one) on top of their dashed lifelines, and the edges
+size of the largest one) on top of their dashed lifelines, and the edges
 are the messages, drawn as regular edges with their names and arities
 between the lifelines, top-down in declaration order, where an edge from
 a node to itself loops on its own lifeline. The option
@@ -158,7 +163,8 @@ marks actually shown in a legend below the diagram (plus, for a
 disables and the "legend-*" options reword (e.g. to localize them),
 where "{row}" and "{column}" stand for the row and column titles of a
 matrix, and "{item}" and "{other}" for the title of the marked side and
-the one of the other side (falling back to "row" and "column").
+the one of the other side (falling back to the texts of "legend-row"
+and "legend-column").
 
 The "graph" type imposes no such constraints and hence is the safe choice
 whenever the topology is not known to fit "hub" or "grid" (and is no binary
@@ -233,7 +239,8 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
 - The <edge-name> is rendered as the label of the edge and the <edge-arity> as
   its cardinality label.
 - Eight attribute keys are reserved and consumed by the renderer instead of
-  being displayed as a regular "<key>: <val>" line:
+  being displayed as a regular "<key>: <val>" line (beside the ones the
+  individual diagram types reserve, see above):
   - "url: <url>" renders the node box as a hyperlink. Only relative URLs and
     the schemes "http", "https", and "mailto" are honored; any other URL is
     silently dropped and the node box then simply stays unlinked,
@@ -247,7 +254,8 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
   - "container: <type>" marks the node as a container whose members are laid
     out with the diagram type <type> ("graph", "hub", or "grid"), even if it
     has no members at all,
-  - "order: <number>" places the node explicitly (see below).
+  - "order: <number>" places the node explicitly (see below),
+  - "shape: <shape>" draws the node box with another outline (see below).
 - A "graph" (a "graph" container level, too) with at least one node carrying an
   "order" attribute is laid out in that explicit order instead of by the layered
   algorithm: the distinct order values become the rows, top-down in ascending
@@ -283,7 +291,8 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
 - Use containers (not groups) to visualize zones, tiers, deployment units, or
   packages whose members are connected to the outside world.
 - The attribute "shape: <shape>" draws the node box with another
-  outline, keeping its colors, its text, and its size: "box" (the
+  outline, keeping its colors and its text, where the outline claims
+  the additional room it needs around the text: "box" (the
   default), "database" (a cylinder), "queue" (a lying cylinder), "cloud"
   (a cloud), "stack" (the box stacked onto two copies of itself, for
   several instances), "person" (a box with a person badge on its top
@@ -316,13 +325,17 @@ over them. The recognized options, with their types and built-in defaults, are:
 
 ${configOptions}
 
-The "size-*", "group-*", "container-*", "graph-*", "hub-*", "grid-*", and
-"layout-*" options control the rendering geometry (canvas margin, node box sizing, edge routing,
-group and container box spacing, and the per-diagram-type layout) and take
+The "size-*", "group-*", "container-*", "graph-*", "hub-*", "grid-*",
+"layout-*", "layer-*", "matrix-*", and "sequence-*" options control the
+rendering geometry (canvas margin, node box sizing, edge routing, group and
+container box spacing, and the per-diagram-type layout) and take
 non-negative numbers, except the booleans "grid-node-width-equal" and
 "grid-node-height-equal", which force all node boxes of a "grid" diagram to
 the width of the widest one and to the height of the tallest one (a nested
-container box taking part in the width unification only).
+container box taking part in the width unification only), and
+"layer-numbered". The boolean "legend" enables the legend below a diagram
+marking violations or gaps, and the "legend-*" options are the non-empty
+texts of its entries.
 
 The "size-node-width-max" option additionally enables the word-wrapping of the
 node box texts: given a positive value, the node name, its type, and its

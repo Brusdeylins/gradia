@@ -10,7 +10,7 @@ between its input and output nodes), `grid` (a compact grid of
 tiles for an edge-less graph), `layout` (the cell layout of a
 binary structure, its nodes being fields with an `offset` and a `size`),
 `layer` (a layered architecture, its layers stacked as bands and
-the edges against the layering marked as violations), and `matrix` (a
+the edges against the layering marked as violations), `matrix` (a
 dependency structure matrix, its cycles outlined as blocks), and
 `sequence` (a sequence diagram of participants and their messages).
 
@@ -38,10 +38,11 @@ dependency structure matrix, its cycles outlined as blocks), and
         with node boxes rounds their sizes, unified per lane: per grid
         column (width) and row (box height) for `graph`, per column for
         `hub`, across the whole diagram (width) and per layer (height) for
-        `layer` (a uniform `graph` layout), across all tiles for `grid`
-        (if equalized by its options), and across all participants for
-        `sequence`, where `graph` and `hub` grow a box with many edge
-        attachments individually afterwards, again onto the raster
+        `layer` (a uniform `graph` layout), per tile for `grid` (and
+        across all tiles, if equalized by its options), and across all
+        participants for `sequence`, where `graph` and `hub` grow a box
+        with many edge attachments individually afterwards, again onto
+        the raster
     -   `src/gradia-api-render-shape.ts`: the free-standing `Shape`
         primitives (`rect`, `path`, `text`) a diagram type draws beside
         or instead of node boxes and edges, styled through the same
@@ -142,9 +143,11 @@ configuration, and the graph model -- so regenerating an unchanged
 diagram yields a byte-identical SVG.
 
 The rendering options (`font-family`, `font-embed`, the `color-*`
-family, and the numeric geometry families `size-*`, `group-*`,
-`graph-*`, `hub-*`, `grid-*`, `layout-*`, `matrix-*`, and `sequence-*`) are set through the repeatable
-`--config <name>=<value>` command-line option, or through `#config
+family, the geometry families `size-*`, `group-*`, `container-*`,
+`graph-*`, `hub-*`, `grid-*`, `layout-*`, `layer-*`, `matrix-*`, and
+`sequence-*`, the `legend` switch, and the `legend-*` texts) are set
+through the repeatable `--config <name>=<value>` command-line option,
+or through `#config
 <option> <value>` directives inside the input, except `font-embed` and
 WOFF2 file paths, which are command-line-only, as the input is treated
 as untrusted. The `font-family` and `color-*` options are embedded into
