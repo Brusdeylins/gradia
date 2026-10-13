@@ -129,7 +129,7 @@ diagram yields a byte-identical SVG.
 
 The rendering options (`font-family`, `font-embed`, the `color-*`
 family, and the numeric geometry families `size-*`, `group-*`,
-`graph-*`, `hub-*`, `grid-*`, `layout-*`, and `matrix-*`) are set through the repeatable
+`graph-*`, `hub-*`, `grid-*`, `layout-*`, `matrix-*`, and `sequence-*`) are set through the repeatable
 `--config <name>=<value>` command-line option, or through `#config
 <option> <value>` directives inside the input, except `font-embed` and
 WOFF2 file paths, which are command-line-only, as the input is treated
