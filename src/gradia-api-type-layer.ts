@@ -7,18 +7,17 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }        from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
-import { Layout, Shape, FS_GROUP, textShape, textWidth, legendShapes }
+import { Layout, Shape, FS_GROUP, RASTER, textShape, textWidth, legendShapes }
     from "./gradia-api-render-base.js"
 import { LevelContext, boundsOf }   from "./gradia-api-render-container.js"
 import { parentOf, containerTypeOf }
     from "./gradia-api-render-node.js"
 import { render as renderGraph }    from "./gradia-api-type-graph.js"
 
-/*  the gap between two neighboring layer bands, and the raster step
-    the unified node box sizes are rounded up to  */
+/*  the gap between two neighboring layer bands, and the margin of a
+    band around its node boxes  */
 const BAND_GAP    = 8
 const BAND_MARGIN = 20
-const RASTER      = 20
 
 /*  the special "layer" annotation (the name of the layer of a node)  */
 const layerOf = (node: Node): string | undefined =>

@@ -13,6 +13,10 @@ import { Config, ConfigEmbedded, ConfigFontSize } from "./gradia-api-config.js"
     see the "size-*" and per-diagram-type options in the configuration)  */
 export const FS_GROUP = 24   /*  font size of group tags       */
 
+/*  the raster step the unified node box sizes of the diagram types
+    arranging their boxes in lanes (columns or rows) are rounded up to  */
+export const RASTER = 20
+
 /*  the setback of an edge arity label from the arrow head it annotates
     (shared by the SVG rendering and the graph channel sizing)  */
 export const ARITY_OFF = 24

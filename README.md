@@ -21,7 +21,7 @@ graphs and the structures around them:
 - `graph`: a loosely grid-snapped layered layout of the whole graph,
   based on the Dagre algorithm of [@antv/layout](https://github.com/antvis/layout).
 - `hub`: a hub graph, placing one primary hub node between its input and
-  output nodes.
+  output nodes, the boxes of a column being of equal, raster-aligned size.
 - `grid`: a compact grid of tiles for an edge-less graph.
 - `layout`: the cell layout of a binary structure (e.g. a message frame,
   a file header, or a memory slot), drawing every node as a field of
