@@ -151,7 +151,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     /*  count the edges of every cell (summing the numeric arities, as a
         derived edge may stand for several references), in a traceability
         matrix regardless of their direction  */
-    const counts = new Map<string, number>()
+    const counts = new Map<number, number>()
+    const cellOf = (r: number, c: number) => r * cols.length + c
     for (const edge of graph.edges) {
         let [ r, c ] = [ rowOf.get(edge.source), colOf.get(edge.target) ]
         if (traced && (r === undefined || c === undefined))
@@ -159,10 +160,10 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         if (r === undefined || c === undefined)
             continue
         const arity = edge.arity !== undefined && /^\d+$/.test(edge.arity) ? Number(edge.arity) : 1
-        counts.set(`${r}:${c}`, (counts.get(`${r}:${c}`) ?? 0) + arity)
+        counts.set(cellOf(r, c), (counts.get(cellOf(r, c)) ?? 0) + arity)
     }
-    const usedRows = new Set(Array.from(counts.keys(), (key) => Number(key.split(":")[0])))
-    const usedCols = new Set(Array.from(counts.keys(), (key) => Number(key.split(":")[1])))
+    const usedRows = new Set(Array.from(counts.keys(), (key) => Math.floor(key / cols.length)))
+    const usedCols = new Set(Array.from(counts.keys(), (key) => key % cols.length))
 
     /*  resolve the configurable rendering geometry  */
     const margin = config["size-canvas-margin"]
@@ -232,7 +233,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     for (let r = 0; r < rows.length; r++) {
         for (let c = 0; c < cols.length; c++) {
             const [ x, y ] = [ x0 + c * cell, y0 + r * cell ]
-            const count    = counts.get(`${r}:${c}`)
+            const count    = counts.get(cellOf(r, c))
             const diagonal = !traced && r === c
             const k        = cycles.get(rows[r].id)
             const feedback = count !== undefined && k !== undefined && k === cycles.get(cols[c].id)
@@ -251,8 +252,13 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const blocks = new Map<number, number[]>()
     nodes.forEach((node, i) => {
         const k = cycles.get(node.id)
-        if (k !== undefined)
-            blocks.set(k, [ ...(blocks.get(k) ?? []), i ])
+        if (k === undefined)
+            return
+        const members = blocks.get(k)
+        if (members === undefined)
+            blocks.set(k, [ i ])
+        else
+            members.push(i)
     })
     for (const members of blocks.values()) {
         const [ x, y ] = [ x0 + members[0] * cell, y0 + members[0] * cell ]
