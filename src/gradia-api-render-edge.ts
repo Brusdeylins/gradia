@@ -230,6 +230,16 @@ const trackOverlaps = (a: TrackUser, b: TrackUser): number =>
     order is determined exactly (the effort doubles with every user)  */
 const TRACK_EXACT_MAX = 14
 
+/*  the maximum number of users for which the local search tries blocks
+    of any length and restarts after every improving move (beyond it,
+    the search moves blocks of at most "TRACK_BLOCK_MAX" users, applies
+    the best move per block and continues, for at most
+    "TRACK_PASSES_MAX" passes, as the restarting search grows too fast
+    with hundreds of users)  */
+const TRACK_SEARCH_MAX = 100
+const TRACK_BLOCK_MAX  = 8
+const TRACK_PASSES_MAX = 100
+
 /*  reorder the seeded track users to the order causing the fewest
     overlaps and then the fewest crossings, with ties broken toward the
     seed order: for small user sets exactly, by a dynamic programming
@@ -281,6 +291,50 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
             groups of users pass an obstacle which none of its users
             could pass on its own)  */
         order = seed.map((_, i) => i)
+        if (n > TRACK_SEARCH_MAX) {
+            /*  bounded search for large user sets: per block, determine
+                the best move over the run behind and ahead of it, apply
+                it, and continue with the next block  */
+            const maxLen = Math.min(n - 1, TRACK_BLOCK_MAX)
+            for (let improved = true, pass = 0; improved && pass < TRACK_PASSES_MAX; pass++) {
+                improved = false
+                for (let len = 1; len <= maxLen; len++) {
+                    for (let i = 0; i + len <= n; i++) {
+                        let best    = 0
+                        let target  = -1
+                        let forward = true
+                        let delta   = 0
+                        for (let k = i + len; k < n; k++) {
+                            for (let b = i; b < i + len; b++)
+                                delta += cost[order[k]][order[b]] - cost[order[b]][order[k]]
+                            if (delta < best) {
+                                best    = delta
+                                target  = k
+                                forward = true
+                            }
+                        }
+                        delta = 0
+                        for (let k = i - 1; k >= 0; k--) {
+                            for (let b = i; b < i + len; b++)
+                                delta += cost[order[b]][order[k]] - cost[order[k]][order[b]]
+                            if (delta < best) {
+                                best    = delta
+                                target  = k
+                                forward = false
+                            }
+                        }
+                        if (target >= 0) {
+                            if (forward)
+                                order.splice(target - len + 1, 0, ...order.splice(i, len))
+                            else
+                                order.splice(target, 0, ...order.splice(i, len))
+                            improved = true
+                        }
+                    }
+                }
+            }
+            return order.map((i) => seed[i])
+        }
         for (let improved = true; improved;) {
             improved = false
             for (let len = 1; len < n && !improved; len++) {
