@@ -20,7 +20,7 @@ import { Poly, NodeStyle, Layout, GroupBox, ContainerBox,
 import { linesOfNode, urlOf, typeOf, defaultStyleOf, containerHead,
     MIN_H, NAME_H, ATTR_H, ATTR_P, TYPE_H, TYPE_D, HEAD_H }
     from "./gradia-api-render-node.js"
-import { computeHops, pathOf, pointAt }
+import { computeHops, piecesOf, pathOf, pointAt }
     from "./gradia-api-render-edge.js"
 
 /*  escape a string for use inside a CSS string literal (the XML escaping
@@ -807,7 +807,11 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         gutters) and the dots marking those junctions on top of them,
         where the bundled edges whose ends were merged into one port
         form a group, standing for all of them, whose first edge alone
-        draws the arrow head and the arity at that port  */
+        draws the arrow head and the arity at that port, and where the
+        segments shared by bundled edges are drawn by the first of them
+        only (see "piecesOf"), with the crossing hops still determined
+        on the whole polylines, as the shared segments lie exactly on
+        top of each other and hence hop over the same crossings  */
     const junctions  = layout.junctions ?? []
     const junctionAt = new Set(junctions.map(([ x, y ]) => `${x}:${y}`))
     const junction   = junctionAt.size > 0 ? (x: number, y: number) => junctionAt.has(`${x}:${y}`) : undefined
@@ -836,11 +840,11 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     for (const list of into.values())
         for (const i of list.slice(1))
             repeat[i] = true
-    const svgEdges = polys.map((poly, i) =>
-        `<path d="${pathOf(poly, hops[i],
-            config["size-edge-corner-radius"], config["size-edge-hop-radius"], junction, layout.crowded === true)}" ` +
+    const svgEdges = piecesOf(polys, layout.bundled).flatMap((pieces, i) => pieces.map((piece) =>
+        `<path d="${pathOf(polys[i], hops[i], config["size-edge-corner-radius"], config["size-edge-hop-radius"],
+            junction, layout.crowded === true, piece)}" ` +
         `class="${classEdge}"` +
-        (repeat[i] ? "/>" : ` marker-end="url(#${idArrow})"/>`))
+        (repeat[i] || !piece.end ? "/>" : ` marker-end="url(#${idArrow})"/>`)))
     const svgJunctions = junctions.map(([ x, y ]) =>
         `<circle cx="${x}" cy="${y}" r="${JUNCTION_R}" class="${classArrow}"/>`)
 

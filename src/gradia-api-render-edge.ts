@@ -770,6 +770,105 @@ export const junctionsOf = (polys: Poly[]): Poly => {
     return out
 }
 
+/*  a piece of an edge polyline to draw: a sub-polyline, the index of
+    the segment of the whole polyline it starts on, and whether it runs
+    up to the end of the whole polyline (and hence carries its arrow head)  */
+export interface Piece {
+    poly: Poly
+    from: number
+    end:  boolean
+}
+
+/*  split the polylines of the bundled edges into the pieces not yet
+    covered by the polyline of an earlier bundled edge, so the segments
+    the edges of a bundle share (their common track and the stub of a
+    merged port) are drawn exactly once instead of once per edge, where
+    the anti-aliased fringes of the coinciding lines would add up into a
+    visibly thicker line: the first edge of a bundle keeps its whole
+    route, while every further edge keeps its own stub only, up to the
+    junction at which it joins (or from the one at which it leaves) the
+    shared track (the other edges are kept whole in a single piece)  */
+export const piecesOf = (polys: Poly[], bundled?: boolean[]): Piece[][] => {
+    /*  the covered intervals of the vertical lines by their X and of
+        the horizontal lines by their Y position, kept sorted and merged  */
+    const verts = new Map<number, [ number, number ][]>()
+    const horzs = new Map<number, [ number, number ][]>()
+    const cover = (map: Map<number, [ number, number ][]>, at: number, a: number, b: number) => {
+        const list = [ ...(map.get(at) ?? []), [ Math.min(a, b), Math.max(a, b) ] as [ number, number ] ]
+            .sort((m, n) => m[0] - n[0])
+        const merged: [ number, number ][] = []
+        for (const [ lo, hi ] of list) {
+            const last = merged.at(-1)
+            if (last !== undefined && lo <= last[1])
+                last[1] = Math.max(last[1], hi)
+            else
+                merged.push([ lo, hi ])
+        }
+        map.set(at, merged)
+    }
+
+    /*  the uncovered intervals of a line between two positions, in the
+        order from the first to the second position  */
+    const uncovered = (covered: [ number, number ][] | undefined, a: number, b: number): [ number, number ][] => {
+        const out: [ number, number ][] = []
+        let pos = Math.min(a, b)
+        for (const [ lo, hi ] of covered ?? []) {
+            if (hi <= pos || lo >= Math.max(a, b))
+                continue
+            if (lo > pos)
+                out.push([ pos, lo ])
+            pos = Math.max(pos, hi)
+        }
+        if (pos < Math.max(a, b))
+            out.push([ pos, Math.max(a, b) ])
+        return a <= b ? out : out.reverse().map(([ lo, hi ]) => [ hi, lo ])
+    }
+
+    return polys.map((poly, i) => {
+        if (bundled?.[i] !== true)
+            return [ { poly, from: 0, end: true } ]
+
+        /*  collect the uncovered parts of the segments, continuing the
+            current piece as long as they adjoin  */
+        const pieces: Piece[] = []
+        let current: Piece | undefined
+        for (let k = 0; k < poly.length - 1; k++) {
+            const [ a, b ] = [ poly[k], poly[k + 1] ]
+            const vertical = a[0] === b[0]
+            const point = (v: number): [ number, number ] => vertical ? [ a[0], v ] : [ v, a[1] ]
+            const parts = vertical ?
+                uncovered(verts.get(a[0]), a[1], b[1]) :
+                uncovered(horzs.get(a[1]), a[0], b[0])
+            for (const [ s, t ] of parts) {
+                const last = current?.poly.at(-1)
+                if (current !== undefined && last !== undefined && last[0] === point(s)[0] && last[1] === point(s)[1])
+                    current.poly.push(point(t))
+                else {
+                    if (current !== undefined)
+                        pieces.push(current)
+                    current = { poly: [ point(s), point(t) ], from: k, end: false }
+                }
+            }
+            if (current !== undefined && (parts.length === 0 || parts.at(-1)![1] !== (vertical ? b[1] : b[0]))) {
+                pieces.push(current)
+                current = undefined
+            }
+        }
+        if (current !== undefined)
+            pieces.push({ ...current, end: true })
+
+        /*  let the polyline of this edge cover the ones of the later edges  */
+        for (let k = 0; k < poly.length - 1; k++) {
+            const [ a, b ] = [ poly[k], poly[k + 1] ]
+            if (a[0] === b[0])
+                cover(verts, a[0], a[1], b[1])
+            else
+                cover(horzs, a[1], a[0], b[0])
+        }
+        return pieces
+    })
+}
+
 /*  the Manhattan length of an orthogonal polyline segment  */
 const len = (a: [ number, number ], b: [ number, number ]): number =>
     Math.abs(b[0] - a[0]) + Math.abs(b[1] - a[1])
@@ -781,9 +880,11 @@ const len = (a: [ number, number ], b: [ number, number ]): number =>
     for a diagram with crowded channels or gutters, whose closely
     spaced parallel tracks would turn the hops into a wavy line, the
     crossings are merged more generously and a merged run is spanned
-    by one flat bridge instead of one wide arc)  */
+    by one flat bridge instead of one wide arc), optionally only for a
+    piece of the polyline (see "piecesOf"), whose corners keep the
+    rounding of the whole polyline, as far as its cut segments hold it  */
 export const pathOf = (poly: Poly, hop: Map<number, number[]>, rounding: number, hopRadius: number,
-    junction?: (x: number, y: number) => boolean, bridges = false): string => {
+    junction?: (x: number, y: number) => boolean, bridges = false, piece?: Piece): string => {
     const radius = (k: number): number => {
         if (k <= 0 || k >= poly.length - 1 || junction?.(poly[k][0], poly[k][1]))
             return 0
@@ -796,17 +897,27 @@ export const pathOf = (poly: Poly, hop: Map<number, number[]>, rounding: number,
                 r = Math.min(r, Math.max(Math.abs(hx - poly[k][0]) - hopRadius - 2, 4))
         return r
     }
+
+    /*  the rounding of the corners of the drawn points (the ends of a
+        piece stay sharp, and its corners next to a cut segment are
+        rounded at most along the part of that segment it keeps)  */
+    const pts    = piece?.poly ?? poly
+    const from   = piece?.from ?? 0
+    const corner = (j: number): number =>
+        j <= 0 || j >= pts.length - 1 ? 0 :
+            Math.min(radius(from + j), len(pts[j - 1], pts[j]), len(pts[j], pts[j + 1]))
     const d: string[] = []
-    for (let k = 0; k < poly.length - 1; k++) {
-        const [ a, b ] = [ poly[k], poly[k + 1] ]
+    for (let j = 0; j < pts.length - 1; j++) {
+        const k   = from + j
+        const [ a, b ] = [ pts[j], pts[j + 1] ]
         const l   = len(a, b)
         const ux  = (b[0] - a[0]) / l
         const uy  = (b[1] - a[1]) / l
-        const r0  = radius(k)
-        const r1  = radius(k + 1)
+        const r0  = corner(j)
+        const r1  = corner(j + 1)
         const p0: [ number, number ] = [ a[0] + ux * r0, a[1] + uy * r0 ]
         const p1: [ number, number ] = [ b[0] - ux * r1, b[1] - uy * r1 ]
-        if (k === 0)
+        if (j === 0)
             d.push(`M ${p0[0]} ${p0[1]}`)
         if (a[1] === b[1] && hop.has(k)) {
             const dir = Math.sign(b[0] - a[0])
@@ -854,9 +965,9 @@ export const pathOf = (poly: Poly, hop: Map<number, number[]>, rounding: number,
             }
         }
         d.push(`L ${p1[0]} ${p1[1]}`)
-        if (k < poly.length - 2) {
-            const c  = poly[k + 1]
-            const n  = poly[k + 2]
+        if (j < pts.length - 2) {
+            const c  = pts[j + 1]
+            const n  = pts[j + 2]
             const nl = len(c, n)
             const q: [ number, number ] = [
                 c[0] + (n[0] - c[0]) / nl * r1,
