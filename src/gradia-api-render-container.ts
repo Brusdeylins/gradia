@@ -223,9 +223,10 @@ export const renderContained = async (
             partOf.set(node.id, 0)
         const boxes:      ContainerBox[] = []
         const innerBoxes: ContainerBox[] = []
+        const placed = new Set(layout.nodes.map((node) => node.id))
         for (const [ id, level ] of inner) {
             const member = graph.nodes.get(id)!
-            if (!layout.nodes.some((node) => node.id === id))
+            if (!placed.has(id))
                 throw new Error(`container "${id}" cannot be placed twice by diagram type "${type}"`)
             const { w, h } = sizeOf(member, level.bounds)
             const cx = layout.cx(id)

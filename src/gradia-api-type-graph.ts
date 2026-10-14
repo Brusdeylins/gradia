@@ -871,12 +871,14 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             declaration order (wrapped into further rows beyond the
             configured maximum of side-by-side nodes), and the nodes
             without an order follow in the trailing rows  */
-        const orderOrLast = (node: Node): number => orderOf(node) ?? Infinity
-        const values      = Array.from(new Set(real.map(orderOrLast))).sort((a, b) => a - b)
+        const byValue = new Map<number, Node[]>()
+        for (const node of real)
+            pushTo(byValue, orderOf(node) ?? Infinity, node)
+        const values  = Array.from(byValue.keys()).sort((a, b) => a - b)
         ncols = 1
         nrows = 0
         for (const value of values) {
-            const members = real.filter((node) => orderOrLast(node) === value)
+            const members = byValue.get(value)!
             members.forEach((node, i) => {
                 col.set(node.id, i % maxCols)
                 row.set(node.id, nrows + Math.floor(i / maxCols))
