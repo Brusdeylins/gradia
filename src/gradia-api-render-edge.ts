@@ -211,11 +211,17 @@ const fars  = (u: TrackUser): number[] =>
     entering one if mirrored) cross the track-following segment of b,
     and the near-side stubs of b cross the one of a (a stub touching
     the end of a segment counts too, as it would overlap a corner)  */
-const trackCrossings = (a: TrackUser, b: TrackUser): number => {
+const trackCrossings = (a: TrackUser, b: TrackUser, farsA: number[], nearsB: number[]): number => {
     const within = (u: TrackUser, pos: number): boolean =>
         pos >= Math.min(u.posIn, u.posOut) && pos <= Math.max(u.posIn, u.posOut)
-    return fars(a).filter((pos) => within(b, pos)).length +
-        nears(b).filter((pos) => within(a, pos)).length
+    let n = 0
+    for (const pos of farsA)
+        if (within(b, pos))
+            n++
+    for (const pos of nearsB)
+        if (within(a, pos))
+            n++
+    return n
 }
 
 /*  the number of collinear overlaps caused by placing user a on a
@@ -223,8 +229,16 @@ const trackCrossings = (a: TrackUser, b: TrackUser): number => {
     of b at the very same cross-axis position run on top of each other
     between the two tracks (unlike a crossing, which is still readable
     through its hop, an overlap merges the two edges visually)  */
-const trackOverlaps = (a: TrackUser, b: TrackUser): number =>
-    fars(a).filter((pos) => nears(b).includes(pos)).length
+const trackOverlaps = (farsA: number[], nearsB: number[]): number => {
+    let n = 0
+    for (const pos of farsA)
+        for (const near of nearsB)
+            if (near === pos) {
+                n++
+                break
+            }
+    return n
+}
 
 /*  the maximum number of users for which the crossing-minimal track
     order is determined exactly (the effort doubles with every user)  */
@@ -254,9 +268,16 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
     /*  the weighted cost of placing seed user i before seed user j: the
         overlaps dominate (one outweighs all crossings possible among the
         users, at most three per pair), then the crossings, and finally
-        a seed order inversion breaks ties  */
-    const cost = seed.map((a, i) => seed.map((b, j) =>
-        (trackOverlaps(a, b) * 2 * n * n + trackCrossings(a, b)) * n * n + (i > j ? 1 : 0)))
+        a seed order inversion breaks ties (the near-side and far-side
+        stubs of every user are determined once, as the matrix grows
+        quadratically with the users)  */
+    const nearsOf = seed.map(nears)
+    const farsOf  = seed.map(fars)
+    const cost    = new Float64Array(n * n)
+    for (let i = 0; i < n; i++)
+        for (let j = 0; j < n; j++)
+            cost[i * n + j] = (trackOverlaps(farsOf[i], nearsOf[j]) * 2 * n * n +
+                trackCrossings(seed[i], seed[j], farsOf[i], nearsOf[j])) * n * n + (i > j ? 1 : 0)
     let order: number[]
     if (n <= TRACK_EXACT_MAX) {
         const best = new Float64Array(1 << n).fill(Infinity)
@@ -270,7 +291,7 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
                 let total = best[rest]
                 for (let v = 0; v < n; v++)
                     if ((rest & (1 << v)) !== 0)
-                        total += cost[v][u]
+                        total += cost[v * n + u]
                 if (total < best[s]) {
                     best[s] = total
                     last[s] = u
@@ -289,7 +310,13 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
             run), until no such move remains (a single-user move is
             the block move of length one, while the longer blocks let
             groups of users pass an obstacle which none of its users
-            could pass on its own)  */
+            could pass on its own), with the cost change of swapping two
+            users precomputed once: diff[a * n + b] is the cost of placing
+            user a before user b minus the cost of the reverse placement  */
+        const diff = new Float64Array(n * n)
+        for (let a = 0; a < n; a++)
+            for (let b = 0; b < n; b++)
+                diff[a * n + b] = cost[a * n + b] - cost[b * n + a]
         order = seed.map((_, i) => i)
         if (n > TRACK_SEARCH_MAX) {
             /*  bounded search for large user sets: per block, determine
@@ -305,8 +332,9 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
                         let forward = true
                         let delta   = 0
                         for (let k = i + len; k < n; k++) {
+                            const row = order[k] * n
                             for (let b = i; b < i + len; b++)
-                                delta += cost[order[k]][order[b]] - cost[order[b]][order[k]]
+                                delta += diff[row + order[b]]
                             if (delta < best) {
                                 best    = delta
                                 target  = k
@@ -315,8 +343,9 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
                         }
                         delta = 0
                         for (let k = i - 1; k >= 0; k--) {
+                            const other = order[k]
                             for (let b = i; b < i + len; b++)
-                                delta += cost[order[b]][order[k]] - cost[order[k]][order[b]]
+                                delta += diff[order[b] * n + other]
                             if (delta < best) {
                                 best    = delta
                                 target  = k
@@ -341,8 +370,9 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
                 for (let i = 0; i + len <= n && !improved; i++) {
                     let delta = 0
                     for (let k = i + len; k < n && !improved; k++) {
+                        const row = order[k] * n
                         for (let b = i; b < i + len; b++)
-                            delta += cost[order[k]][order[b]] - cost[order[b]][order[k]]
+                            delta += diff[row + order[b]]
                         if (delta < 0) {
                             order.splice(k - len + 1, 0, ...order.splice(i, len))
                             improved = true
@@ -350,8 +380,9 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
                     }
                     delta = 0
                     for (let k = i - 1; k >= 0 && !improved; k--) {
+                        const other = order[k]
                         for (let b = i; b < i + len; b++)
-                            delta += cost[order[b]][order[k]] - cost[order[k]][order[b]]
+                            delta += diff[order[b] * n + other]
                         if (delta < 0) {
                             order.splice(k, 0, ...order.splice(i, len))
                             improved = true
