@@ -291,16 +291,17 @@ const placeGates = (
         }
         const wantOf = (id: string): number => row.get(otherOf.get(id)!)!
         ids.sort((a, b) => wantOf(a) - wantOf(b))
+        /*  the rows taken by the gates placed so far (determined anew
+            once an inserted row shifted them)  */
         const placed: string[] = []
+        let   taken = new Set<number>()
         for (const id of ids) {
-            const want  = wantOf(id)
-            const taken = (r: number): boolean =>
-                placed.some((other) => row.get(other) === r)
+            const want = wantOf(id)
             let r: number | undefined
             for (let d = 0; r === undefined && d < nrows; d++) {
-                if (want + d < nrows && !taken(want + d))
+                if (want + d < nrows && !taken.has(want + d))
                     r = want + d
-                else if (want - d >= 0 && !taken(want - d))
+                else if (want - d >= 0 && !taken.has(want - d))
                     r = want - d
             }
             if (r === undefined) {
@@ -309,10 +310,12 @@ const placeGates = (
                         row.set(other, otherRow + 1)
                 nrows++
                 r = want + 1
+                taken = new Set(placed.map((other) => row.get(other)!))
             }
             col.set(id, c)
             row.set(id, r)
             placed.push(id)
+            taken.add(r)
         }
     }
     place(ins, 0)
