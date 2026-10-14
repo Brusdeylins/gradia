@@ -102,6 +102,13 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         edges: graph.edges
     }
 
+    /*  an edge pointing from a lower layer to a higher one violates the
+        layering (an edge within a layer or towards a lower one is fine)  */
+    const violates = (edge: Edge): boolean => {
+        const [ s, t ] = [ indexOf(edge.source), indexOf(edge.target) ]
+        return s !== undefined && t !== undefined && s > t
+    }
+
     /*  lay out the graph with uniformly sized boxes: every box takes the
         width of the widest box of the diagram and the height of the
         highest box of its layer, so the boxes form a regular raster, the
@@ -111,7 +118,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         margins of the two bands beside them plus the gap between them  */
     const cfg    = { ...config, "graph-gutter-height-min":
         Math.max(config["graph-gutter-height-min"], BAND_MARGIN * 2 + BAND_GAP) }
-    const layout = await renderGraph(ordered, cfg, level, { laneOf: (id) => indexOf(id) ?? -1 })
+    const layout = await renderGraph(ordered, cfg, level, { laneOf: (id) => indexOf(id) ?? -1,
+        markOf: (edge) => violates(edge) })
 
     /*  determine the vertical extent of every layer from its node boxes  */
     const pad    = config["group-box-padding"]
@@ -180,13 +188,6 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
                 "color-container-name", FS_GROUP, config, { anchor: "middle", bold: true, upright: true }))
             start = end + 1
         }
-    }
-
-    /*  an edge pointing from a lower layer to a higher one violates the
-        layering (an edge within a layer or towards a lower one is fine)  */
-    const violates = (edge: Edge): boolean => {
-        const [ s, t ] = [ indexOf(edge.source), indexOf(edge.target) ]
-        return s !== undefined && t !== undefined && s > t
     }
 
     /*  explain a visible violation in a legend below the bands  */

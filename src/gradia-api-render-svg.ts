@@ -952,8 +952,16 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
             junction, layout.crowded === true, piece)}" ` +
         `class="${violates(i) ? classAlert : classEdge}"` +
         (repeat[i] || !piece.end ? "/>" : ` marker-end="url(#${violates(i) ? idAlert : idArrow})"/>`)))
-    const svgJunctions = junctions.map(([ x, y ]) =>
-        `<circle cx="${x}" cy="${y}" r="${JUNCTION_R}" class="${classArrow}"/>`)
+    const passes = (poly: Poly, x: number, y: number): boolean =>
+        poly.some((p, m) => m > 0
+            && Math.min(p[0], poly[m - 1][0]) <= x && x <= Math.max(p[0], poly[m - 1][0])
+            && Math.min(p[1], poly[m - 1][1]) <= y && y <= Math.max(p[1], poly[m - 1][1]))
+    const svgJunctions = junctions.map(([ x, y ]) => {
+        /*  a junction of a bundle of marked edges takes their color, as a
+            bundle never mixes marked and unmarked edges  */
+        const marked = alerted && polys.some((poly, i) => violates(i) && passes(poly, x, y))
+        return `<circle cx="${x}" cy="${y}" r="${JUNCTION_R}" class="${marked ? classAlertArrow : classArrow}"/>`
+    })
 
     /*  reserve the position every arity label prefers -- the one beside
         its own arrow head -- before any name label is placed, as an

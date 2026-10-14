@@ -495,7 +495,8 @@ interface Need {
     included), and all gutters between the rows one height, so the
     lanes are evenly spaced  */
 export interface Uniform {
-    laneOf: (id: string) => number
+    laneOf:  (id: string) => number
+    markOf?: (edge: Edge) => boolean
 }
 
 /*  determine grid cell sizes and final node center positions, with
@@ -786,6 +787,12 @@ const packColumns = (
     return { ...grid, gutCY, nodeCY, room }
 }
 
+/*  the edges marked by the diagram type (e.g. the ones violating the
+    layering), which are drawn differently and hence never share a bundle
+    with unmarked edges (keyed by the edge objects of a single rendering,
+    so concurrent renderings do not interfere)  */
+const markedEdges = new WeakSet<Edge>()
+
 /*  the bundle keys of an edge: the target key collects the edges of the
     same name leading to the same target node side with the same arity
     (directly from the channel the key belongs to, or else through the
@@ -793,9 +800,11 @@ const packColumns = (
     the same source node side (directly into the channel, or else
     through the given gutter)  */
 const targetKey = (c: number, edge: Edge, via?: number): string =>
-    `t:${c}:${via ?? ""}:${JSON.stringify([ edge.target, edge.arity ?? null, edge.name ?? null ])}`
+    `t:${c}:${via ?? ""}:${JSON.stringify([ edge.target, edge.arity ?? null, edge.name ?? null ])}` +
+    (markedEdges.has(edge) ? ":marked" : "")
 const sourceKey = (c: number, edge: Edge, via?: number): string =>
-    `s:${c}:${via ?? ""}:${JSON.stringify([ edge.source, edge.name ?? null ])}`
+    `s:${c}:${via ?? ""}:${JSON.stringify([ edge.source, edge.name ?? null ])}` +
+    (markedEdges.has(edge) ? ":marked" : "")
 
 /*  the merged edge ends: the key of the bundle whose edges run into
     their target node, or out of their source node, as one, merging
@@ -1260,6 +1269,10 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     uniform?: Uniform): Promise<Layout> => {
     const nodes = Array.from(graph.nodes.values())
     const edges = graph.edges
+    if (uniform?.markOf !== undefined)
+        for (const edge of edges)
+            if (uniform.markOf(edge))
+                markedEdges.add(edge)
 
     /*  the gate nodes are kept out of the layered layout and the grid
         refinement, as they are placed into their own columns afterwards  */
