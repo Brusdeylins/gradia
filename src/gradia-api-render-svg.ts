@@ -75,6 +75,9 @@ const LINE_GAP = 12
 const ARITY_STEP = 8
 const ARITY_BACK = 3
 
+/*  the edge length of the uniform grid buckets indexing the edge lines  */
+const BUCKET = 64
+
 /*  the maximum number of steps a name label is slid along a single
     segment of its route, as a long segment would otherwise offer far
     more candidate positions than a placement can ever need  */
@@ -126,6 +129,39 @@ const labelPlacer = (
     })
     const lineCount = lines.reduce((n, boxes) => n + boxes.length, 0)
 
+    /*  index the edge line boxes in a uniform grid of buckets, so a
+        candidate box only visits the line boxes of the buckets it
+        covers instead of all of them (a line box spanning several
+        buckets is visited once only, as every visit stamps it)  */
+    const owner = new Int32Array(lineCount)
+    const flat: Box[] = []
+    let [ gx0, gy0, gx1, gy1 ] = [ Infinity, Infinity, -Infinity, -Infinity ]
+    lines.forEach((boxes, i) => {
+        for (const o of boxes) {
+            owner[flat.length] = i
+            flat.push(o)
+            gx0 = Math.min(gx0, o[0])
+            gy0 = Math.min(gy0, o[1])
+            gx1 = Math.max(gx1, o[2])
+            gy1 = Math.max(gy1, o[3])
+        }
+    })
+    const gw      = flat.length > 0 ? Math.floor((gx1 - gx0) / BUCKET) + 1 : 0
+    const gh      = flat.length > 0 ? Math.floor((gy1 - gy0) / BUCKET) + 1 : 0
+    const buckets = new Map<number, number[]>()
+    flat.forEach((o, k) => {
+        for (let by = Math.floor((o[1] - gy0) / BUCKET); by <= Math.floor((o[3] - gy0) / BUCKET); by++)
+            for (let bx = Math.floor((o[0] - gx0) / BUCKET); bx <= Math.floor((o[2] - gx0) / BUCKET); bx++) {
+                const bucket = buckets.get(by * gw + bx)
+                if (bucket === undefined)
+                    buckets.set(by * gw + bx, [ k ])
+                else
+                    bucket.push(k)
+            }
+    })
+    const stamps = new Uint32Array(flat.length)
+    let   stamp  = 0
+
     /*  claim the candidate box colliding with the fewest occupied
         areas and, among those, with the fewest edge lines (earlier
         candidates win ties, so the first collision-free one is taken),
@@ -136,11 +172,46 @@ const labelPlacer = (
         "dodge" unset weighs the lines not at all, as its candidates are
         ordered by a proximity which matters more than a crossed line,
         which the halo of the label keeps readable anyway  */
-    const collisions = (boxes: Box[], box: Box): number =>
-        boxes.filter((o) => box[0] < o[2] && box[2] > o[0] && box[1] < o[3] && box[3] > o[1]).length
-    const crossings = (box: Box, edge: number): number => {
-        const near: Box = [ box[0] - LINE_GAP, box[1] - LINE_GAP, box[2] + LINE_GAP, box[3] + LINE_GAP ]
-        return lines.reduce((n, boxes, i) => n + collisions(boxes, i === edge ? box : near), 0)
+    const hit = (o: Box, x1: number, y1: number, x2: number, y2: number): boolean =>
+        x1 < o[2] && x2 > o[0] && y1 < o[3] && y2 > o[1]
+    const collisions = (boxes: Box[], box: Box): number => {
+        let n = 0
+        for (const o of boxes)
+            if (hit(o, box[0], box[1], box[2], box[3]))
+                n++
+        return n
+    }
+
+    /*  count the edge line boxes a candidate box crosses, but stop
+        counting once the given limit is reached, as the candidate then
+        cannot win anymore (the own lines are tested against the box
+        itself, the foreign ones against the box grown by the clearance,
+        which hence also bounds the buckets to visit)  */
+    const crossings = (box: Box, edge: number, limit: number): number => {
+        const [ x1, y1, x2, y2 ] = [ box[0] - LINE_GAP, box[1] - LINE_GAP, box[2] + LINE_GAP, box[3] + LINE_GAP ]
+        const bx1 = Math.max(Math.floor((x1 - gx0) / BUCKET), 0)
+        const by1 = Math.max(Math.floor((y1 - gy0) / BUCKET), 0)
+        const bx2 = Math.min(Math.floor((x2 - gx0) / BUCKET), gw - 1)
+        const by2 = Math.min(Math.floor((y2 - gy0) / BUCKET), gh - 1)
+        let n = 0
+        stamp++
+        for (let by = by1; by <= by2; by++) {
+            for (let bx = bx1; bx <= bx2; bx++) {
+                const bucket = buckets.get(by * gw + bx)
+                if (bucket === undefined)
+                    continue
+                for (const k of bucket) {
+                    if (stamps[k] === stamp)
+                        continue
+                    stamps[k] = stamp
+                    if (owner[k] === edge ?
+                        hit(flat[k], box[0], box[1], box[2], box[3]) : hit(flat[k], x1, y1, x2, y2))
+                        if (++n >= limit)
+                            return n
+                }
+            }
+        }
+        return n
     }
     const reserved: Box[] = []
     const reserve = (box: Box) => {
@@ -161,8 +232,14 @@ const labelPlacer = (
         let box    = candidates[0]
         let lowest = Infinity
         for (const c of candidates) {
-            const score = (collisions(occupied, c) + collisions(reserved, c)) * (lineCount + 1) +
-                (dodge ? crossings(c, edge) : 0)
+            /*  a candidate whose collisions alone already reach the lowest
+                score is skipped, as its line crossings, of which there are
+                at most "lineCount", can never let it win anymore  */
+            let score = (collisions(occupied, c) + collisions(reserved, c)) * (lineCount + 1)
+            if (score >= lowest)
+                continue
+            if (dodge)
+                score += crossings(c, edge, lowest - score)
             if (score < lowest) {
                 box    = c
                 lowest = score
