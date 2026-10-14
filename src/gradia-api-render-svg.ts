@@ -43,6 +43,23 @@ const NS_GRADIA = new UUID(5, "ns:URL", "https://github.com/rse/gradia").format(
 const idPrefix = (seed: string): string =>
     `gradia-${new UUID(5, NS_GRADIA, seed).format("b16").toLowerCase().slice(0, 12)}`
 
+/*  the CSS class names, derived from the UUID v5 of their declarations
+    (see "classOf" below), cached across the rendered documents, as the
+    very same declarations recur in nearly every document (bounded, as
+    a long-running process may see arbitrarily many configurations)  */
+const CLASS_CACHE_MAX = 4096
+const classNames = new Map<string, string>()
+const classNameOf = (decls: string): string => {
+    let name = classNames.get(decls)
+    if (name === undefined) {
+        name = `gradia-${new UUID(5, NS_GRADIA, decls).format("b16").toLowerCase().slice(0, 8)}`
+        if (classNames.size >= CLASS_CACHE_MAX)
+            classNames.clear()
+        classNames.set(decls, name)
+    }
+    return name
+}
+
 /*  the styling of the rendered elements: instead of repeating the very
     same lengthy style on every element, the elements reference CSS
     classes, which the document declares once. A class is named after
@@ -495,7 +512,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     const classOf = (decls: string): string => {
         let name = rules.get(decls)
         if (name === undefined) {
-            name = `gradia-${new UUID(5, NS_GRADIA, decls).format("b16").toLowerCase().slice(0, 8)}`
+            name = classNameOf(decls)
             rules.set(decls, name)
         }
         return name
