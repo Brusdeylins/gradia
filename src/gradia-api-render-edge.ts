@@ -280,6 +280,18 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
                 trackCrossings(seed[i], seed[j], farsOf[i], nearsOf[j])) * n * n + (i > j ? 1 : 0)
     let order: number[]
     if (n <= TRACK_EXACT_MAX) {
+        /*  the cost of placing all users of a subset before a user u:
+            col[s * n + u] is derived from the subset without its lowest
+            user, so all subsets take linear instead of quadratic effort
+            (all costs are small integers, so the sums are exact,
+            whatever their summation order)  */
+        const col = new Float64Array((1 << n) * n)
+        for (let s = 1; s < (1 << n); s++) {
+            const low  = (31 - Math.clz32(s & -s)) * n
+            const prev = (s & (s - 1)) * n
+            for (let u = 0; u < n; u++)
+                col[s * n + u] = col[prev + u] + cost[low + u]
+        }
         const best = new Float64Array(1 << n).fill(Infinity)
         const last = new Int8Array(1 << n)
         best[0] = 0
@@ -287,11 +299,8 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
             for (let u = 0; u < n; u++) {
                 if ((s & (1 << u)) === 0)
                     continue
-                const rest = s & ~(1 << u)
-                let total = best[rest]
-                for (let v = 0; v < n; v++)
-                    if ((rest & (1 << v)) !== 0)
-                        total += cost[v * n + u]
+                const rest  = s & ~(1 << u)
+                const total = best[rest] + col[rest * n + u]
                 if (total < best[s]) {
                     best[s] = total
                     last[s] = u
