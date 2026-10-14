@@ -47,6 +47,12 @@ const parseTypeDirective = (input: string): DiagramType | undefined => {
     return type
 }
 
+/*  the configuration options which enter the identifier seed of an SVG
+    document only once they deviate from their default value, as they
+    were introduced after the seed scheme, and the identifiers of all
+    diagrams not using them shall stay stable  */
+const seedLate = new Set<string>([ "size-edge-track-gap-min" ])
+
 /*  the supported output formats  */
 export const diagramFormats = [ "svg:standalone", "svg:embedded", "url:xml", "url:base64" ] as const
 export type DiagramFormat = typeof diagramFormats[number]
@@ -122,10 +128,12 @@ export class Gradia {
             configured options enter as their sorted key list only, as
             their values are already part of the layered configuration and
             merely their presence decides between a hard-coded CSS value
-            and a CSS custom property lookup)  */
+            and a CSS custom property lookup, and the late options only
+            once they deviate from their default value)  */
         const seed = JSON.stringify({
             type,
-            config,
+            config:   Object.fromEntries(Object.entries(config).filter(([ key, val ]) =>
+                !seedLate.has(key) || val !== configDefaults[key as keyof Config])),
             explicit: Object.keys(explicit).sort(),
             nodes:    Array.from(graph.nodes.values()),
             edges:    graph.edges

@@ -313,30 +313,30 @@ color-node-regular-name    #336699      size-node-height-scale     2.25
 color-node-regular-box     #e0f0ff      size-edge-corner-radius    20
 color-node-regular-border  #c0d0e0      size-edge-hop-radius       8
 color-node-primary-name    #ffffff      size-edge-track-gap        12
-color-node-primary-box     #336699      size-edge-port-gap         24
-color-node-primary-border  #003366      group-box-padding          30
-color-node-ghost-name      #666666      group-box-gap              40
-color-node-ghost-box       #f0f0f0      container-box-padding      30
-color-node-ghost-border    #a0a0a0      graph-columns-max          4
-color-node-self-name       #444444      graph-channel-width-max    140
-color-node-self-box        #e0e0e0      graph-channel-width-min    24
-color-node-self-border     #707070      graph-gutter-height-max    90
-color-group-name           #6699cc      graph-gutter-height-min    20
-color-group-box            #f4f8fc      graph-node-separation      30
-color-group-border         #c0d0e0      graph-rank-separation      60
-color-container-name       #666666      graph-node-degree-max      3
-color-container-box        #f6f6f6      hub-channel-width-max      340
-color-container-border     #a0a0a0      hub-channel-width-min      240
-color-edge-line            #999999      hub-node-gap               20
-color-edge-name            #333333      hub-node-degree-max        3
-color-edge-arity           #333333      hub-node-count-max         0
-color-edge-halo            #ffffff      grid-columns-max           4
-size-font-node             30           grid-columns-min           3
-size-font-type             16           grid-gap-horizontal        40
-size-font-prop             22           grid-gap-vertical          20
-size-font-edge             16           grid-node-width-equal      true
-size-font-arity            16           grid-node-height-equal     true
-size-canvas-margin         40
+color-node-primary-box     #336699      size-edge-track-gap-min    8
+color-node-primary-border  #003366      size-edge-port-gap         24
+color-node-ghost-name      #666666      group-box-padding          30
+color-node-ghost-box       #f0f0f0      group-box-gap              40
+color-node-ghost-border    #a0a0a0      container-box-padding      30
+color-node-self-name       #444444      graph-columns-max          4
+color-node-self-box        #e0e0e0      graph-channel-width-max    140
+color-node-self-border     #707070      graph-channel-width-min    24
+color-group-name           #6699cc      graph-gutter-height-max    90
+color-group-box            #f4f8fc      graph-gutter-height-min    20
+color-group-border         #c0d0e0      graph-node-separation      30
+color-container-name       #666666      graph-rank-separation      60
+color-container-box        #f6f6f6      graph-node-degree-max      3
+color-container-border     #a0a0a0      hub-channel-width-max      340
+color-edge-line            #999999      hub-channel-width-min      240
+color-edge-name            #333333      hub-node-gap               20
+color-edge-arity           #333333      hub-node-degree-max        3
+color-edge-halo            #ffffff      hub-node-count-max         0
+size-font-node             30           grid-columns-max           4
+size-font-type             16           grid-columns-min           3
+size-font-prop             22           grid-gap-horizontal        40
+size-font-edge             16           grid-gap-vertical          20
+size-font-arity            16           grid-node-width-equal      true
+size-canvas-margin         40           grid-node-height-equal     true
 ```
 
 The `size-*`, `group-*`, `container-*`, `graph-*`, `hub-*`, and
@@ -390,7 +390,25 @@ from its arrow head), a gutter by one text line per edge name placed
 along its run. The `-min` options raise the result, so that even an
 unlabeled diagram can be spaced out, while the `-max` options cap it, so
 that neither many parallel edges nor a long label can push the nodes
-apart without bound.
+apart without bound (except for the crowded channels and gutters, see
+below).
+
+The `size-edge-track-gap` option controls the distance of the parallel
+edge tracks within a channel or gutter. A channel or gutter whose tracks
+do not fit at this distance into its capped width or height (by
+`graph-channel-width-max` and `graph-gutter-height-max` in a `graph`
+diagram, and by `hub-channel-width-max` in a `hub` diagram) is crowded
+and bundles its edges: the edges leading to the same node side (or else
+coming from the same node side) share one common track, which their
+individual stubs join and leave at junctions marked by a dot. The
+remaining tracks are spread at the `size-edge-track-gap` distance where
+they fit, but never closer than the `size-edge-track-gap-min` distance,
+so the parallel edge lines always stay visibly apart. Hence, a crowded
+channel or gutter of a `graph` diagram is sized by its bundled tracks
+instead of by its edge count, which may exceed its `-max` option, and a
+crowded channel of a `hub` diagram grows beyond `hub-channel-width-max`
+if its bundled tracks do not fit even at the minimum distance. All
+channels and gutters which are not crowded stay unaffected.
 
 In a `graph` diagram (a `graph` container level, too) whose nodes end up
 in a single column, the container boxes are widened to the widest one,

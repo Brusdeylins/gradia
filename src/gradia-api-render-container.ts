@@ -256,15 +256,17 @@ export const renderContained = async (
             the edges of this level, each stitched together with the
             partial routes inside the containers it leaves or enters
             (an edge crossing the boundary of this level stays partial)  */
-        const edges:   Edge[] = []
-        const polys:   Poly[] = []
-        const partial         = new Map<number, Poly>()
+        const edges:   Edge[]    = []
+        const polys:   Poly[]    = []
+        const bundled: boolean[] = []
+        const partial            = new Map<number, Poly>()
         parts.forEach((part, k) => {
             if (k === 0)
                 return
             part.layout.edges.forEach((edge, ei) => {
                 edges.push(edge)
                 polys.push(shift(part.layout.polys[ei], k))
+                bundled.push(part.layout.bundled?.[ei] ?? false)
             })
         })
         levelEdges.forEach((edge, li) => {
@@ -281,6 +283,7 @@ export const renderContained = async (
             else {
                 edges.push(graph.edges[i])
                 polys.push(poly)
+                bundled.push(layout.bundled?.[li] ?? false)
             }
         })
 
@@ -301,7 +304,10 @@ export const renderContained = async (
             contentH:   merge((layout) => layout.contentH),
             polys,
             styleOf:    (node) => (parts[partOf.get(node.id)!].layout.styleOf ?? defaultStyleOf)(node),
-            containers: [ ...boxes, ...innerBoxes ]
+            containers: [ ...boxes, ...innerBoxes ],
+            bundled,
+            junctions:  parts.flatMap((part, k) => shift(part.layout.junctions ?? [], k)),
+            crowded:    parts.some((part) => part.layout.crowded === true)
         }
         return { layout: composed, bounds: boundsOf(composed, Array.from(partial.values())), partial }
     }

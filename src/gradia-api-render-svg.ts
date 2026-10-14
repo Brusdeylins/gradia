@@ -15,7 +15,7 @@ import { Node, Edge }                                       from "./gradia-api-m
 import { Config, ConfigEmbedded, ConfigFontSize, resolveFont, cssValueOf, cssSizeOf }
     from "./gradia-api-config.js"
 import { Poly, NodeStyle, Layout, GroupBox, ContainerBox,
-    FS_GROUP, ARITY_OFF, ARITY_PAD, arityHeight, textWidth, escapeXML }
+    FS_GROUP, ARITY_OFF, ARITY_PAD, ARITY_GAP, arityHeight, textWidth, escapeXML }
     from "./gradia-api-render-base.js"
 import { linesOfNode, urlOf, typeOf, defaultStyleOf, containerHead,
     MIN_H, NAME_H, ATTR_H, ATTR_P, TYPE_H, TYPE_D, HEAD_H }
@@ -111,6 +111,16 @@ const TAG_DY = 12  /*  top offset of the group tag   */
 
 /*  the half width of the box an edge line segment occupies  */
 const LINE_PAD = 2
+
+/*  the radius of the dot marking a junction of bundled edges, where an
+    edge joins or leaves the track it shares with the other edges of its
+    bundle (clearly wider than an edge line, but far below an arrow head)  */
+const JUNCTION_R = 5
+
+/*  the gap a name label on the stub of a bundled edge keeps in front of
+    the shared track, clear of the junction dot there and of the
+    clearance a label keeps from the foreign lines of that track  */
+const STUB_GAP = 16
 
 /*  the clearance a label keeps from a foreign edge line, as a label
     merely not overlapping such a line still reads as its annotation  */
@@ -210,7 +220,7 @@ const labelPlacer = (
     hopRadius: number,
     config:    Config
 ): {
-    claim:    (candidates: Box[], edge: number, dodge?: boolean, own?: Box) => Box,
+    claim:    (candidates: Box[], edge: number, dodge?: boolean, own?: Box, mates?: Set<number>) => Box,
     reserve:  (box: Box) => void,
     occupied: Box[]
 } => {
@@ -266,7 +276,9 @@ const labelPlacer = (
         line loses against one staying with its own edge. A claim with
         "dodge" unset weighs the lines not at all, as its candidates are
         ordered by a proximity which matters more than a crossed line,
-        which the halo of the label keeps readable anyway  */
+        which the halo of the label keeps readable anyway (the lines of
+        the "mates" of the edge, the other edges of a group labeled once,
+        count as own lines, as they run on top of the own line)  */
     const hit = (o: Box, x1: number, y1: number, x2: number, y2: number): boolean =>
         x1 < o[2] && x2 > o[0] && y1 < o[3] && y2 > o[1]
     const collisions = (grid: AreaGrid, box: Box): number => {
@@ -284,11 +296,12 @@ const labelPlacer = (
         cannot win anymore (the own lines are tested against the box
         itself, the foreign ones against the box grown by the clearance,
         which hence also bounds the buckets to visit)  */
-    const crossings = (box: Box, edge: number, limit: number): number => {
+    const crossings = (box: Box, edge: number, limit: number, mates?: Set<number>): number => {
         const [ x1, y1, x2, y2 ] = [ box[0] - LINE_GAP, box[1] - LINE_GAP, box[2] + LINE_GAP, box[3] + LINE_GAP ]
         let n = 0
         lineGrid.visit(x1, y1, x2, y2, (id, o) => {
-            if (owner[id] === edge ? hit(o, box[0], box[1], box[2], box[3]) : hit(o, x1, y1, x2, y2))
+            if (owner[id] === edge || mates?.has(owner[id]) === true ?
+                hit(o, box[0], box[1], box[2], box[3]) : hit(o, x1, y1, x2, y2))
                 n++
             return n >= limit
         })
@@ -312,7 +325,7 @@ const labelPlacer = (
         later one depends upon wherever it has an alternative of its
         own, while the "own" reservation of the claiming label is
         released, as that is the very area it is about to take  */
-    const claim = (candidates: Box[], edge: number, dodge = true, own?: Box): Box => {
+    const claim = (candidates: Box[], edge: number, dodge = true, own?: Box, mates?: Set<number>): Box => {
         if (own !== undefined) {
             const id = reserved.get(own)?.shift()
             if (id !== undefined)
@@ -328,7 +341,7 @@ const labelPlacer = (
             if (score >= lowest)
                 continue
             if (dodge)
-                score += crossings(c, edge, lowest - score)
+                score += crossings(c, edge, lowest - score, mates)
             if (score < lowest) {
                 box    = c
                 lowest = score
@@ -464,11 +477,119 @@ const renderEdgeArity = (edge: Edge, candidates: Box[], claim: (candidates: Box[
         `${escapeXML(edge.arity)}</text>` ]
 }
 
+/*  the preferred positions of the name labels of the bundled edges: on
+    the stub feeding the shared track of the edge (or else on the stub
+    leaving it), flush toward the track and above its line (or else, if
+    the stubs run too closely for this, below it), so the labels of all
+    stubs of a bundle line up in front of the track instead of
+    scattering along the stubs  */
+const stubLabels = (layout: Layout, config: Config): Map<number, Box[]> => {
+    const { edges, polys } = layout
+    const anchors = new Map<number, Box[]>()
+    const bundled = (i: number): boolean => layout.bundled?.[i] === true
+    if (!edges.some((edge, i) => bundled(i) && edge.name !== undefined))
+        return anchors
+
+    /*  index the owners of the vertical segments of the bundled edges by
+        their X position, to tell the segments on a shared track (even
+        where the segment of an edge does not overlap the others, as
+        its stub still belongs to the stubs of the bundle), and their
+        horizontal segments by their Y position, to tell a stub of its
+        own from a shared horizontal track  */
+    const verts = new Map<number, Set<number>>()
+    const horzs = new Map<number, { lo: number, hi: number, owner: number }[]>()
+    polys.forEach((poly, i) => {
+        if (!bundled(i))
+            return
+        for (let k = 0; k < poly.length - 1; k++) {
+            const [ a, b ] = [ poly[k], poly[k + 1] ]
+            if (a[0] === b[0]) {
+                const owners = verts.get(a[0])
+                if (owners === undefined)
+                    verts.set(a[0], new Set([ i ]))
+                else
+                    owners.add(i)
+            }
+            else {
+                const seg  = { lo: Math.min(a[0], b[0]), hi: Math.max(a[0], b[0]), owner: i }
+                const list = horzs.get(a[1])
+                if (list === undefined)
+                    horzs.set(a[1], [ seg ])
+                else
+                    list.push(seg)
+            }
+        }
+    })
+    const shared = (i: number, a: [ number, number ], b: [ number, number ]): boolean =>
+        a[0] === b[0] && Array.from(verts.get(a[0]) ?? []).some((owner) => owner !== i)
+    const own = (i: number, a: [ number, number ], b: [ number, number ]): boolean =>
+        !(horzs.get(a[1]) ?? []).some((seg) => seg.owner !== i
+            && Math.min(seg.hi, Math.max(a[0], b[0])) > Math.max(seg.lo, Math.min(a[0], b[0])))
+
+    /*  place the label of every bundled edge on its first horizontal
+        stub turning onto (or else coming from) a shared track, as far
+        as the stub is long enough to hold it  */
+    edges.forEach((edge, i) => {
+        if (!bundled(i) || edge.name === undefined)
+            return
+        const poly = polys[i]
+        const w    = textWidth(edge.name, config["size-font-edge"])
+        const h    = config["size-font-edge"] + 4
+        for (const feeding of [ true, false ]) {
+            for (let k = 0; k < poly.length - 1; k++) {
+                const [ a, b ] = [ poly[k], poly[k + 1] ]
+                if (a[1] !== b[1] || !own(i, a, b) || !(feeding ?
+                    k + 2 < poly.length && shared(i, b, poly[k + 2]) :
+                    k >= 1 && shared(i, poly[k - 1], a)))
+                    continue
+                const [ from, at ] = feeding ? [ a, b ] : [ b, a ]
+                if (Math.abs(at[0] - from[0]) < w + 2 * STUB_GAP)
+                    continue
+                const dir = Math.sign(at[0] - from[0])
+                const x2  = at[0] - dir * STUB_GAP
+                const x1  = x2 - dir * w
+                anchors.set(i, [
+                    [ Math.min(x1, x2), a[1] - 3 - h, Math.max(x1, x2), a[1] - 3     ],
+                    [ Math.min(x1, x2), a[1] + 3,     Math.max(x1, x2), a[1] + 3 + h ]
+                ])
+                return
+            }
+        }
+    })
+    return anchors
+}
+
+/*  the preferred positions of the one name label of a group of bundled
+    edges, whose ends were merged into one port, on the single stub
+    between their shared track and that port, above the line like the
+    arity: at the port they run into in front of the arity (or, without
+    one, flush with its setback), and at the port they run out of flush
+    with the box (or else below the line)  */
+const portLabels = (edge: Edge, poly: Poly, into: boolean, config: Config): Box[] => {
+    if (edge.name === undefined)
+        return []
+    const w = textWidth(edge.name, config["size-font-edge"])
+    const h = config["size-font-edge"] + 4
+    const [ a, b ] = into ? [ poly[poly.length - 2], poly[poly.length - 1] ] : [ poly[1], poly[0] ]
+    if (a[1] !== b[1])
+        return []
+    const dir   = Math.sign(b[0] - a[0])
+    const span  = (x2: number): [ number, number ] =>
+        [ Math.min(x2, x2 - dir * w), Math.max(x2, x2 - dir * w) ]
+    const below = (x2: number): Box => [ span(x2)[0], b[1] + 3, span(x2)[1], b[1] + 3 + h ]
+    const above = (x2: number): Box => [ span(x2)[0], b[1] - 3 - h, span(x2)[1], b[1] - 3 ]
+    if (!into)
+        return [ above(b[0] - dir * STUB_GAP), below(b[0] - dir * STUB_GAP) ]
+    const aw = edge.arity !== undefined ? textWidth(edge.arity, config["size-font-arity"]) + ARITY_GAP : 0
+    return [ above(b[0] - dir * (ARITY_OFF + aw)) ]
+}
+
 /*  generate the SVG fragment for the name label of a single edge,
     placed near the middle of the route (dodging into a collision-free
-    position through the "claim" of the label placer)  */
+    position through the "claim" of the label placer), or, for a
+    bundled edge, preferably at one of its given stub positions  */
 const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Box[], dodge?: boolean) => Box,
-    styler: Styler, config: Config): string[] => {
+    styler: Styler, config: Config, preferred: Box[] = []): string[] => {
     if (edge.name === undefined)
         return []
     const w = textWidth(edge.name, config["size-font-edge"])
@@ -514,6 +635,7 @@ const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Box[], dodge
         }
     }
     candidates.sort((a, b) => near(a) - near(b))
+    candidates.unshift(...preferred)
     const box = claim(candidates)
     return [ `<text x="${(box[0] + box[2]) / 2}" y="${box[3] - 3}" ` +
         `class="${styler.text("color-edge-name", "size-font-edge", { middle: true, halo: true })}">` +
@@ -611,11 +733,48 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     /*  prepare the collision-free placement of the edge labels  */
     const { claim, reserve, occupied } = labelPlacer(layout, hops, config["size-edge-hop-radius"], config)
 
-    /*  generate the SVG fragments for the edge paths  */
+    /*  generate the SVG fragments for the edge paths (sharply turning
+        at the junctions of bundled edges, and bridging the runs of
+        closely spaced crossings in a diagram with crowded channels or
+        gutters) and the dots marking those junctions on top of them,
+        where the bundled edges whose ends were merged into one port
+        form a group, standing for all of them, whose first edge alone
+        draws the arrow head and the arity at that port  */
+    const junctions  = layout.junctions ?? []
+    const junctionAt = new Set(junctions.map(([ x, y ]) => `${x}:${y}`))
+    const junction   = junctionAt.size > 0 ? (x: number, y: number) => junctionAt.has(`${x}:${y}`) : undefined
+    const groupsAt = (end: (poly: Poly) => [ number, number ]): Map<number, number[]> => {
+        const byPort = new Map<string, number[]>()
+        polys.forEach((poly, i) => {
+            if (layout.bundled?.[i] !== true)
+                return
+            const key  = `${end(poly)[0]}:${end(poly)[1]}`
+            const list = byPort.get(key)
+            if (list === undefined)
+                byPort.set(key, [ i ])
+            else
+                list.push(i)
+        })
+        const groups = new Map<number, number[]>()
+        for (const list of byPort.values())
+            if (list.length > 1)
+                groups.set(list[0], list)
+        return groups
+    }
+    const into    = groupsAt((poly) => poly[poly.length - 1])
+    const outOf   = groupsAt((poly) => poly[0])
+    const grouped = new Set([ ...into.values(), ...outOf.values() ].flat())
+    const repeat  = edges.map(() => false)
+    for (const list of into.values())
+        for (const i of list.slice(1))
+            repeat[i] = true
     const svgEdges = polys.map((poly, i) =>
         `<path d="${pathOf(poly, hops[i],
-            config["size-edge-corner-radius"], config["size-edge-hop-radius"])}" ` +
-        `class="${classEdge}" marker-end="url(#${idArrow})"/>`)
+            config["size-edge-corner-radius"], config["size-edge-hop-radius"], junction, layout.crowded === true)}" ` +
+        `class="${classEdge}"` +
+        (repeat[i] ? "/>" : ` marker-end="url(#${idArrow})"/>`))
+    const svgJunctions = junctions.map(([ x, y ]) =>
+        `<circle cx="${x}" cy="${y}" r="${JUNCTION_R}" class="${classArrow}"/>`)
 
     /*  reserve the position every arity label prefers -- the one beside
         its own arrow head -- before any name label is placed, as an
@@ -624,7 +783,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         has an alternative, and only a name left without one takes it
         and pushes its arity onto the next setback  */
     const arities = edges.map((edge, i) =>
-        edge.arity !== undefined ? arityBoxes(edge.arity, polys[i], config) : undefined)
+        edge.arity !== undefined && !repeat[i] ? arityBoxes(edge.arity, polys[i], config) : undefined)
     for (const candidates of arities)
         if (candidates !== undefined)
             reserve(candidates[0])
@@ -632,8 +791,18 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     /*  generate the SVG fragments for the edge labels (the names
         first, as their reservations keep the arity positions free)  */
     const svgLabels: string[] = []
+    const stubAt = stubLabels(layout, config)
     edges.forEach((edge, i) => {
-        svgLabels.push(...renderEdgeName(edge, polys[i], (c, dodge) => claim(c, i, dodge), styler, config))
+        const name = (preferred?: Box[], mates?: number[]) =>
+            svgLabels.push(...renderEdgeName(edge, polys[i],
+                (c, dodge) => claim(c, i, dodge, undefined, mates !== undefined ? new Set(mates) : undefined),
+                styler, config, preferred))
+        if (!grouped.has(i))
+            name(stubAt.get(i))
+        if (into.has(i))
+            name(portLabels(edge, polys[i], true, config), into.get(i))
+        if (outOf.has(i))
+            name(portLabels(edge, polys[i], false, config), outOf.get(i))
     })
     edges.forEach((edge, i) => {
         const candidates = arities[i]
@@ -681,6 +850,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         ...svgGroups,
         ...svgContainers,
         ...svgEdges,
+        ...svgJunctions,
         ...svgNodes,
         ...svgLabels,
         "</svg>",

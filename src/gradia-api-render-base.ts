@@ -23,6 +23,27 @@ export const ARITY_OFF = 24
 export const ARITY_PAD = 4
 export const ARROW_H   = 17
 
+/*  the straight run an edge keeps between its arrow head and a corner
+    or a hop in front of it (at its end and likewise at its start), and
+    hence the room an arrow head claims along its edge, so neither a
+    corner nor a hop ever touches the arrow head  */
+export const ARROW_AIR = 8
+export const arrowRoom = (config: Config): number =>
+    ARROW_H + config["size-edge-corner-radius"] + ARROW_AIR
+
+/*  the gap between the arity label and the name label of a bundle
+    placed side by side in front of its merged port  */
+export const ARITY_GAP = 8
+
+/*  the straight run a bundle entering (or leaving) its node through one
+    merged port keeps between its shared track and the node box: the
+    setback of the arity from the arrow head, the arity label and the
+    name label of the bundle (both placed once there, side by side above
+    the line), and the corner and some air in front  */
+export const mergedRoom = (edge: Edge, config: Config): number =>
+    ARITY_OFF + (edge.arity !== undefined ? textWidth(edge.arity, config["size-font-arity"]) + ARITY_GAP : 0) +
+    textWidth(edge.name ?? "", config["size-font-edge"]) + ARROW_AIR + config["size-edge-corner-radius"]
+
 /*  the height of the box an edge arity label occupies  */
 export const arityHeight = (config: Config): number =>
     Math.round(config["size-font-arity"] * 0.8)
@@ -93,7 +114,14 @@ export interface ContainerBox {
     h:    number
 }
 
-/*  the laid out graph handed over for SVG generation  */
+/*  the laid out graph handed over for SVG generation (the optional
+    "bundled" flags run parallel to the edges and the polylines and
+    mark the edges sharing a track with others, as flags compose by
+    concatenation exactly like the edges themselves, across groups and
+    containment levels alike, the optional "junctions" are the points
+    at which those edges join or leave the shared track, and the
+    optional "crowded" flag marks a layout with crowded channels or
+    gutters)  */
 export interface Layout {
     nodes:       Node[]
     edges:       Edge[]
@@ -106,5 +134,8 @@ export interface Layout {
     styleOf?:    (node: Node) => NodeStyle
     groups?:     GroupBox[]
     containers?: ContainerBox[]
+    bundled?:    boolean[]
+    junctions?:  Poly
+    crowded?:    boolean
 }
 
