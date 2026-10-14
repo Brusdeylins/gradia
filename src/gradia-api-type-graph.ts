@@ -601,12 +601,13 @@ const routePolys = (
 }
 
 /*  the routing of all edges: the attachment ports, the gutter track
-    positions, the polylines, and the number of crossings between them  */
+    positions, the polylines, and the number of crossings between them
+    (determined on demand only, as merely the node nudging needs it)  */
 interface Routing {
     portPos: Map<string, { x: number, y: number }>
     gutY:    (g: number, edge: number) => number
     polys:   Poly[]
-    hops:    number
+    hops:    () => number
 }
 
 /*  route every edge for the given node positions: distribute the
@@ -640,8 +641,12 @@ const routeEdges = (
             trackPre.gutY(plans[edge].guts[0], edge) : undefined, level.fixedPort)
     const { chanX, gutY } = assignTrackCoords(edges, plans, portPos, grid, config)
     const polys = routePolys(edges, plans, portPos, boxH, cy, chanX, gutY)
-    const hops  = computeHops(polys).reduce((sum, segs) =>
-        sum + Array.from(segs.values()).reduce((n, xs) => n + xs.length, 0), 0)
+    let   count: number | undefined
+    const hops  = (): number => {
+        count ??= computeHops(polys).reduce((sum, segs) =>
+            sum + Array.from(segs.values()).reduce((n, xs) => n + xs.length, 0), 0)
+        return count
+    }
     return { portPos, gutY, polys, hops }
 }
 
@@ -702,7 +707,7 @@ const nudgeNodes = (
         edges.filter((_, i) => direct[i]
             && routing.portPos.get(`${i}:s`)!.y !== routing.portPos.get(`${i}:t`)!.y).length
     const better = (a: Routing, b: Routing): boolean =>
-        a.hops < b.hops || (a.hops === b.hops && jogs(a) < jogs(b))
+        a.hops() < b.hops() || (a.hops() === b.hops() && jogs(a) < jogs(b))
 
     /*  try, in a few passes, for every node the shifts aligning one of
         its direct edges, and keep the best of the shifts improving the

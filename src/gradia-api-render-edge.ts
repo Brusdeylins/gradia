@@ -451,15 +451,21 @@ export const assignTracks = (users: TrackUser[], width: number, pad: number, gap
 export const computeHops = (polys: Poly[]): Map<number, number[]>[] => {
     /*  collect all vertical segments once, instead of re-scanning
         every polyline again for each single horizontal segment  */
-    const verts: { owner: number, x: number, y1: number, y2: number }[] = []
+    const verts: { idx: number, owner: number, x: number, y1: number, y2: number }[] = []
     polys.forEach((poly, j) => {
         for (let m = 0; m < poly.length - 1; m++) {
             const [ c, d ] = [ poly[m], poly[m + 1] ]
             if (c[0] !== d[0])
                 continue
-            verts.push({ owner: j, x: c[0], y1: Math.min(c[1], d[1]), y2: Math.max(c[1], d[1]) })
+            verts.push({ idx: verts.length, owner: j, x: c[0], y1: Math.min(c[1], d[1]), y2: Math.max(c[1], d[1]) })
         }
     })
+
+    /*  sweep the vertical segments ordered by their position, so every
+        horizontal segment only visits the ones within its own span (found
+        by a binary search), and report the crossing ones in their original
+        order of collection  */
+    const byX = verts.slice().sort((a, b) => a.x - b.x)
     return polys.map((poly, i) => {
         const result = new Map<number, number[]>()
         for (let k = 0; k < poly.length - 1; k++) {
@@ -467,14 +473,25 @@ export const computeHops = (polys: Poly[]): Map<number, number[]>[] => {
             if (a[1] !== b[1])
                 continue
             const hy  = a[1]
-            const hx1 = Math.min(a[0], b[0])
-            const hx2 = Math.max(a[0], b[0])
-            const xs: number[] = []
-            for (const v of verts)
-                if (v.owner !== i && v.x > hx1 + 1 && v.x < hx2 - 1 && hy > v.y1 + 1 && hy < v.y2 - 1)
-                    xs.push(v.x)
-            if (xs.length > 0)
-                result.set(k, xs)
+            const lo  = Math.min(a[0], b[0]) + 1
+            const hi  = Math.max(a[0], b[0]) - 1
+            let   l   = 0
+            let   h   = byX.length
+            while (l < h) {
+                const m = (l + h) >>> 1
+                if (byX[m].x > lo)
+                    h = m
+                else
+                    l = m + 1
+            }
+            const found: typeof verts = []
+            for (let m = l; m < byX.length && byX[m].x < hi; m++) {
+                const v = byX[m]
+                if (v.owner !== i && hy > v.y1 + 1 && hy < v.y2 - 1)
+                    found.push(v)
+            }
+            if (found.length > 0)
+                result.set(k, found.sort((a, b) => a.idx - b.idx).map((v) => v.x))
         }
         return result
     })
