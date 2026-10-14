@@ -172,6 +172,24 @@ const fontsBuiltIn: Record<string, { file: string, weight: string }> = {
     }
 }
 
+/*  read a font file as base64, cached per file path (and revalidated
+    by the modification time and the size of the file), as every
+    rendered document embeds the very same font (a missing file is
+    read uncached, so it raises the very error of the read)  */
+const fontCache = new Map<string, { stamp: string, data: string }>()
+const fontData = (file: string): string => {
+    const stat = fs.statSync(file, { throwIfNoEntry: false })
+    if (stat === undefined)
+        return fs.readFileSync(file).toString("base64")
+    const stamp = `${stat.mtimeMs}:${stat.size}`
+    let   entry = fontCache.get(file)
+    if (entry === undefined || entry.stamp !== stamp) {
+        entry = { stamp, data: fs.readFileSync(file).toString("base64") }
+        fontCache.set(file, entry)
+    }
+    return entry.data
+}
+
 /*  resolve the configured font family: either a built-in font family, a
     plain font family name, or a path to a WOFF2 file (the content of
     the built-in family or the WOFF2 file optionally embedded as base64,
@@ -182,7 +200,7 @@ export const resolveFont = (config: Config): { family: string, embed?: string, w
         const builtIn = fontsBuiltIn[spec]
         if (config["font-embed"]) {
             const file = url.fileURLToPath(import.meta.resolve(builtIn.file))
-            return { family: spec, embed: fs.readFileSync(file).toString("base64"), weight: builtIn.weight }
+            return { family: spec, embed: fontData(file), weight: builtIn.weight }
         }
         else
             return { family: spec }
@@ -190,7 +208,7 @@ export const resolveFont = (config: Config): { family: string, embed?: string, w
     else if (spec.endsWith(".woff2")) {
         const family = path.basename(spec, ".woff2")
         if (config["font-embed"])
-            return { family, embed: fs.readFileSync(spec).toString("base64") }
+            return { family, embed: fontData(spec) }
         else
             return { family }
     }
