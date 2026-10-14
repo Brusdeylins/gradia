@@ -55,13 +55,28 @@ const snapToGrid = (
     const colReps = cluster(nodes.map((node) => rawX.get(node.id)!), CLUSTX)
     const rowReps = cluster(nodes.map((node) => rawY.get(node.id)!), CLUSTY)
 
-    /*  determine the index of the representative nearest to a value  */
+    /*  determine the index of the representative nearest to a value
+        (the lowest one on a tie), by a binary search for the first
+        representative not below the value, as the representatives are
+        sorted and hence only it and the one before it can be nearest  */
     const nearestIndexOf = (reps: number[], v: number): number => {
-        let best = 0
-        for (let i = 1; i < reps.length; i++)
-            if (Math.abs(reps[i] - v) < Math.abs(reps[best] - v))
-                best = i
-        return best
+        let lo = 0
+        let hi = reps.length
+        while (lo < hi) {
+            const m = (lo + hi) >>> 1
+            if (reps[m] < v)
+                lo = m + 1
+            else
+                hi = m
+        }
+        let below = lo - 1
+        while (below > 0 && reps[below - 1] === reps[below])
+            below--
+        if (below < 0)
+            return 0
+        if (lo >= reps.length)
+            return below
+        return Math.abs(reps[below] - v) <= Math.abs(reps[lo] - v) ? below : lo
     }
 
     /*  assign every node to its nearest column and row  */
@@ -78,10 +93,10 @@ const snapToGrid = (
     for (;;) {
         for (const node of nodes)
             row.set(node.id, nearestIndexOf(rowReps, rawY.get(node.id)!))
-        const cells = new Map<string, Node>()
+        const cells = new Map<number, Node>()
         let   split: number | undefined
         for (const node of nodes) {
-            const cell  = `${col.get(node.id)}:${row.get(node.id)}`
+            const cell  = row.get(node.id)! * colReps.length + col.get(node.id)!
             const other = cells.get(cell)
             if (other === undefined) {
                 cells.set(cell, node)
@@ -123,9 +138,10 @@ const refineRows = (
     col:   Map<string, number>,
     row:   Map<string, number>
 ): void => {
-    const cells = new Set<string>()
+    const stride = nodes.reduce((max, node) => Math.max(max, col.get(node.id)! + 1), 1)
+    const cells  = new Set<number>()
     for (const node of nodes)
-        cells.add(`${col.get(node.id)}:${row.get(node.id)}`)
+        cells.add(row.get(node.id)! * stride + col.get(node.id)!)
     const neighborsOf = new Map<string, string[]>()
     for (const edge of edges) {
         if (edge.source === edge.target)
@@ -156,10 +172,11 @@ const refineRows = (
         }
         else
             target = cur + dir * Math.ceil(dist / 2)
+        const c = col.get(node.id)!
         for (let r = target; r !== cur; r -= dir) {
-            if (!cells.has(`${col.get(node.id)}:${r}`)) {
-                cells.delete(`${col.get(node.id)}:${cur}`)
-                cells.add(`${col.get(node.id)}:${r}`)
+            if (!cells.has(r * stride + c)) {
+                cells.delete(cur * stride + c)
+                cells.add(r * stride + c)
                 row.set(node.id, r)
                 break
             }
@@ -180,11 +197,14 @@ const compactRows = (
     col:   Map<string, number>,
     row:   Map<string, number>
 ): number => {
-    const cells = new Set<string>()
+    const stride = nodes.reduce((max, node) => Math.max(max, col.get(node.id)! + 1), 1)
+    const cells  = new Set<number>()
     for (const node of nodes)
-        cells.add(`${col.get(node.id)}:${row.get(node.id)}`)
+        cells.add(row.get(node.id)! * stride + col.get(node.id)!)
 
-    /*  lift every edge-less node into the topmost free cell of its column  */
+    /*  lift every edge-less node into the topmost free cell of its
+        column (tracked per column, as it only ever moves downwards:
+        a lifted node frees a cell below the one it takes)  */
     const linked = new Set<string>()
     for (const edge of edges) {
         linked.add(edge.source)
@@ -192,15 +212,24 @@ const compactRows = (
     }
     const isolated = nodes.filter((node) => !linked.has(node.id))
         .sort((a, b) => row.get(a.id)! - row.get(b.id)!)
+    const topFree = new Map<number, number>()
+    const freeFrom = (c: number, r: number): number => {
+        while (cells.has(r * stride + c))
+            r++
+        return r
+    }
     for (const node of isolated) {
-        const c = col.get(node.id)!
-        for (let r = 0; r < row.get(node.id)!; r++)
-            if (!cells.has(`${c}:${r}`)) {
-                cells.delete(`${c}:${row.get(node.id)}`)
-                cells.add(`${c}:${r}`)
-                row.set(node.id, r)
-                break
-            }
+        const c   = col.get(node.id)!
+        const cur = row.get(node.id)!
+        const r   = topFree.get(c) ?? freeFrom(c, 0)
+        if (r < cur) {
+            cells.delete(cur * stride + c)
+            cells.add(r * stride + c)
+            row.set(node.id, r)
+            topFree.set(c, freeFrom(c, r + 1))
+        }
+        else
+            topFree.set(c, r)
     }
 
     /*  merge every row into the row above it as long as no column is
@@ -510,12 +539,14 @@ const assignTrackCoords = (
                 pushTo(chanUsers, chans[1], { edge: i, posIn: gy,   posOut: tp.y, ...flags[1] })
         }
     })
-    const chanOff = new Map<string, number>()
+    /*  the unique numeric key of an edge within a channel or gutter  */
+    const keyOf   = (c: number, edge: number) => c * edges.length + edge
+    const chanOff = new Map<number, number>()
     for (const [ c, users ] of chanUsers)
         for (const [ edge, off ] of assignTracks(users, chanW[c], CHAN_PAD, config["size-edge-track-gap"]))
-            chanOff.set(`${c}:${edge}`, off)
+            chanOff.set(keyOf(c, edge), off)
     const chanX = (c: number, edge: number) => colCX[c] + colWidth[c] / 2 + chanW[c] / 2 +
-        chanOff.get(`${c}:${edge}`)!
+        chanOff.get(keyOf(c, edge))!
 
     /*  assign the horizontal tracks within the inter-row gutters (the
         run of a gutter-ending edge extends up to its gate, where its
@@ -534,11 +565,11 @@ const assignTrackCoords = (
             mirror: sp.y > gutBase(guts[0])
         })
     })
-    const gutOff = new Map<string, number>()
+    const gutOff = new Map<number, number>()
     for (const [ g, users ] of gutUsers)
         for (const [ edge, off ] of assignTracks(users, gutH[g], GUT_PAD, config["size-edge-track-gap"]))
-            gutOff.set(`${g}:${edge}`, off)
-    const gutY = (g: number, edge: number) => gutBase(g) + gutOff.get(`${g}:${edge}`)!
+            gutOff.set(keyOf(g, edge), off)
+    const gutY = (g: number, edge: number) => gutBase(g) + gutOff.get(keyOf(g, edge))!
     return { chanX, gutY }
 }
 
