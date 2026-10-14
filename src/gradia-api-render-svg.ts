@@ -18,7 +18,7 @@ import { Shape }                                            from "./gradia-api-r
 import { linesOfNode, urlOf, typeOf, defaultStyleOf, containerHead, shapeOf, badgeExtent,
     QUEUE_RX, STACK_OFF, BADGE_R, type NodeShape, MIN_H, NAME_H, ATTR_H, ATTR_P, TYPE_H, TYPE_D, HEAD_H }
     from "./gradia-api-render-node.js"
-import { computeHops, pathOf, pointAt, segmentsOf, junctionsOf }
+import { computeHops, piecesOf, pathOf, pointAt, segmentsOf, junctionsOf }
     from "./gradia-api-render-edge.js"
 
 /*  escape a string for use inside a CSS string literal (the XML escaping
@@ -802,7 +802,8 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     /*  generate the SVG fragments for the edge paths (sharply turning
         at the junctions of bundled edges) and the dots marking those
         junctions on top of them, where only the first edge of a group
-        merged into one port draws the arrow head and the arity there  */
+        merged into one port draws the arrow head and the arity there, and
+        the segments shared by bundled edges are drawn once (see "piecesOf")  */
     const junctions  = junctionsOf(polys, (i) => layout.bundled?.[i] === true)
     const junctionAt = new Set(junctions.map(([ x, y ]) => `${x}:${y}`))
     const junction   = junctionAt.size > 0 ? (x: number, y: number) => junctionAt.has(`${x}:${y}`) : undefined
@@ -832,11 +833,11 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         "stroke-width: 1.2; stroke-linejoin: round") : ""
     const classDash = polys.some((_, i) => dashed(i)) ?
         classOf(`fill: none; stroke: ${color("color-edge-line")}; stroke-width: 3; stroke-dasharray: 10 6`) : ""
-    const svgEdges = polys.map((poly, i) =>
-        `<path d="${pathOf(poly, hops[i],
-            config["size-edge-corner-radius"], config["size-edge-hop-radius"], junction, layout.crowded === true)}" ` +
+    const svgEdges = piecesOf(polys, layout.bundled).flatMap((pieces, i) => pieces.map((piece) =>
+        `<path d="${pathOf(polys[i], hops[i], config["size-edge-corner-radius"], config["size-edge-hop-radius"],
+            junction, layout.crowded === true, piece)}" ` +
         `class="${dashed(i) ? classDash : classEdge}"` +
-        (repeat.has(i) ? "/>" : ` marker-end="url(#${hollow(i) ? idOpen : idArrow})"/>`))
+        (repeat.has(i) || !piece.end ? "/>" : ` marker-end="url(#${hollow(i) ? idOpen : idArrow})"/>`)))
     const svgJunctions = junctions.map(([ x, y ]) =>
         `<circle cx="${x}" cy="${y}" r="${JUNCTION_R}" class="${classArrow}"/>`)
 
