@@ -8,13 +8,16 @@ import { defineConfig, Plugin } from "vite"
 
 /*  stub the Node-only built-ins in the browser bundle (they are only
     touched by the WOFF2 font file resolution, which is unreachable in
-    the browser, as "font-embed" is a command-line-only option)  */
+    the browser, as "font-embed" is a command-line-only option, and by
+    the native SHA-1 of the identifier derivation, which falls back to
+    pure-uuid in the browser)  */
 const stubs: Record<string, string> = {
-    "node:fs":   "export default {}",
-    "node:url":  "export default { fileURLToPath: (u) => u }",
-    "node:path": "export default { basename: (p, e) => { " +
-                 "const b = p.replace(/^.*\\//, \"\"); " +
-                 "return e !== undefined && b.endsWith(e) ? b.slice(0, b.length - e.length) : b } }"
+    "node:crypto": "export default {}",
+    "node:fs":     "export default {}",
+    "node:url":    "export default { fileURLToPath: (u) => u }",
+    "node:path":   "export default { basename: (p, e) => { " +
+                   "const b = p.replace(/^.*\\//, \"\"); " +
+                   "return e !== undefined && b.endsWith(e) ? b.slice(0, b.length - e.length) : b } }"
 }
 const nodeStubs = (): Plugin => ({
     name: "node-stubs",

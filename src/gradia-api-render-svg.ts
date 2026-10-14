@@ -4,6 +4,9 @@
 **  Distributed under MIT license <https://spdx.org/licenses/MIT.html>
 */
 
+/*  built-in dependencies  */
+import crypto                                               from "node:crypto"
+
 /*  external dependencies  */
 import UUID                                                 from "pure-uuid"
 
@@ -32,6 +35,32 @@ const escapeCSS = (text: string): string =>
     identifier prefixes are derived  */
 const NS_GRADIA = new UUID(5, "ns:URL", "https://github.com/rse/gradia").format()
 
+/*  the UUID v5 of a name within the namespace of Gradia, in lower-case
+    Base16 format: derived through the native SHA-1 of Node.js where
+    available, hashing the very octets pure-uuid hashes (the namespace
+    octets, followed by the low octet of every UTF-16 code unit of the
+    name, which is exactly the "latin1" encoding of Node.js), and else,
+    e.g. in the browser bundle with its stubbed built-ins, through
+    pure-uuid itself (whose SHA-1 in pure JavaScript is far slower)  */
+const sha1Native = (() => {
+    try {
+        if (typeof crypto.createHash !== "function")
+            return undefined
+        const ns = Buffer.from(NS_GRADIA.replace(/-/g, ""), "hex")
+        return (name: string): string => {
+            const hash = crypto.createHash("sha1").update(ns).update(name, "latin1").digest()
+            hash[6] = (hash[6] & 0x0F) | 0x50
+            hash[8] = (hash[8] & 0x3F) | 0x80
+            return hash.subarray(0, 16).toString("hex")
+        }
+    }
+    catch {
+        return undefined
+    }
+})()
+const uuidOf = (name: string): string =>
+    sha1Native !== undefined ? sha1Native(name) : new UUID(5, NS_GRADIA, name).format("b16").toLowerCase()
+
 /*  derive a per-document identifier prefix from a seed, as the SVG
     identifiers are DOM-global and would collide once multiple diagrams
     are embedded into the very same document. The prefix is derived from
@@ -41,7 +70,7 @@ const NS_GRADIA = new UUID(5, "ns:URL", "https://github.com/rse/gradia").format(
     keep the identifiers short, as every edge references one, while
     still making a collision among the diagrams of a document unlikely)  */
 const idPrefix = (seed: string): string =>
-    `gradia-${new UUID(5, NS_GRADIA, seed).format("b16").toLowerCase().slice(0, 12)}`
+    `gradia-${uuidOf(seed).slice(0, 12)}`
 
 /*  the CSS class names, derived from the UUID v5 of their declarations
     (see "classOf" below), cached across the rendered documents, as the
@@ -52,7 +81,7 @@ const classNames = new Map<string, string>()
 const classNameOf = (decls: string): string => {
     let name = classNames.get(decls)
     if (name === undefined) {
-        name = `gradia-${new UUID(5, NS_GRADIA, decls).format("b16").toLowerCase().slice(0, 8)}`
+        name = `gradia-${uuidOf(decls).slice(0, 8)}`
         if (classNames.size >= CLASS_CACHE_MAX)
             classNames.clear()
         classNames.set(decls, name)
