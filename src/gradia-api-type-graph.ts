@@ -190,15 +190,19 @@ const refineRows = (
 /*  compact the rows of the grid, as the layered layout and the column
     folding leave many sparsely occupied rows behind: first lift every
     edge-less node (bound by no ordering constraint at all) into the
-    topmost free cell of its column, then merge every row into the row
-    above it as long as no column is occupied in both (which keeps the
-    vertical order of all nodes and the row alignment of the nodes
-    sharing a row), and finally renumber the rows densely  */
+    topmost free cell of its column (unless the columns get packed
+    anyway, where a lift gains no room but merely interleaves the
+    edge-less nodes with the connected ones, so they stay below them),
+    then merge every row into the row above it as long as no column is
+    occupied in both (which keeps the vertical order of all nodes and the
+    row alignment of the nodes sharing a row), and finally renumber the
+    rows densely  */
 const compactRows = (
     nodes: Node[],
     edges: Edge[],
     col:   Map<string, number>,
-    row:   Map<string, number>
+    row:   Map<string, number>,
+    lift:  boolean
 ): number => {
     const stride = nodes.reduce((max, node) => Math.max(max, col.get(node.id)! + 1), 1)
     const cells  = new Set<number>()
@@ -213,7 +217,7 @@ const compactRows = (
         linked.add(edge.source)
         linked.add(edge.target)
     }
-    const isolated = nodes.filter((node) => !linked.has(node.id))
+    const isolated = !lift ? [] : nodes.filter((node) => !linked.has(node.id))
         .sort((a, b) => row.get(a.id)! - row.get(b.id)!)
     const topFree = new Map<number, number>()
     const freeFrom = (c: number, r: number): number => {
@@ -1252,6 +1256,11 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     let   ncols: number
     let   nrows: number
     const ordered = real.some((node) => orderOf(node) !== undefined)
+
+    /*  only the layered layout packs its columns (see packColumns), as
+        the rows of an explicitly ordered graph carry a meaning of their
+        own  */
+    const packed  = !ordered
     if (ordered) {
         /*  an explicitly ordered graph (at least one node carrying an
             "order" attribute) bypasses the layered layout: the distinct
@@ -1277,10 +1286,23 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         }
     }
     else {
-        /*  determine raw node positions with the AntV Dagre layout  */
-        const rawX = new Map<string, number>()
-        const rawY = new Map<string, number>()
-        if (real.length > 0) {
+        /*  determine raw node positions with the AntV Dagre layout, for
+            the nodes connected by an edge only, as the edge-less nodes
+            are bound by no ordering constraint at all and Dagre would
+            merely stack them into its first rank, too, where the row
+            compaction lifts them into the topmost free cells anyway
+            (or, for packed columns, keeps them below all connected
+            nodes)  */
+        const rawX   = new Map<string, number>()
+        const rawY   = new Map<string, number>()
+        const linked = new Set<string>()
+        for (const edge of realEdges) {
+            linked.add(edge.source)
+            linked.add(edge.target)
+        }
+        const connected = real.filter((node) =>  linked.has(node.id))
+        const isolated  = real.filter((node) => !linked.has(node.id))
+        if (connected.length > 0) {
             const layout = new DagreLayout({
                 rankdir:  "LR",
                 nodesep:  config["graph-node-separation"],
@@ -1288,7 +1310,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
                 nodeSize: (node) => (node as { size: [ number, number ] }).size
             })
             await layout.execute({
-                nodes: real.map((node) => ({ id: node.id, size: [ boxW.get(node.id)!, boxH.get(node.id)! ] })),
+                nodes: connected.map((node) => ({ id: node.id, size: [ boxW.get(node.id)!, boxH.get(node.id)! ] })),
                 edges: realEdges.map((edge, i) => ({ id: `e${i}`, source: edge.source, target: edge.target }))
             })
             layout.forEachNode((node) => {
@@ -1296,6 +1318,16 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
                 rawY.set(String(node.id), node.y)
             })
         }
+
+        /*  stack the edge-less nodes, in declaration order, into the
+            first rank below all connected nodes, each into a row of its
+            own (more than the row clustering threshold apart)  */
+        const firstX = connected.reduce((x, node) => Math.min(x, rawX.get(node.id)!), Infinity)
+        const lastY  = connected.reduce((y, node) => Math.max(y, rawY.get(node.id)!), -Infinity)
+        isolated.forEach((node, i) => {
+            rawX.set(node.id, Number.isFinite(firstX) ? firstX : 0)
+            rawY.set(node.id, (Number.isFinite(lastY) ? lastY : 0) + (i + 1) * (CLUSTY + 1))
+        })
 
         /*  snap the raw positions onto the discrete column/row grid  */
         const snapped = snapToGrid(real, rawX, rawY)
@@ -1311,18 +1343,21 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         /*  fold the grid columns: constrain the diagram width to at most
             the configured maximum of side-by-side nodes by wrapping excess
             columns into additional row bands below, so wide graphs grow in
-            height  */
+            height (where, for packed columns, the edge-less nodes move
+            into the last band, so they stay below all connected nodes)  */
         if (snapped.ncols > maxCols) {
+            const last = Math.floor((snapped.ncols - 1) / maxCols)
             for (const node of real) {
-                const c = col.get(node.id)!
+                const c    = col.get(node.id)!
+                const band = packed && !linked.has(node.id) ? last : Math.floor(c / maxCols)
                 col.set(node.id, c % maxCols)
-                row.set(node.id, row.get(node.id)! + Math.floor(c / maxCols) * snapped.nrows)
+                row.set(node.id, row.get(node.id)! + band * snapped.nrows)
             }
         }
 
         /*  compact the sparsely occupied grid rows into fewer, denser ones  */
         ncols = Math.min(snapped.ncols, maxCols)
-        nrows = compactRows(real, realEdges, col, row)
+        nrows = compactRows(real, realEdges, col, row, !packed)
     }
 
     /*  in a single-column layout, widen the container placeholders to
@@ -1365,11 +1400,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
 
     /*  determine grid cell sizes and node center positions (the nodes
         centered in their rows, or stacked in their packed columns, before
-        any vertical nudging), where only the layered layout packs its
-        columns, as the rows of an explicitly ordered graph carry a
-        meaning of their own  */
+        any vertical nudging)  */
     const need: Need = { chan: new Map<number, number>(), gut: new Map<number, number>() }
-    const packed     = !ordered
     const layoutGrid = () => {
         const grid = computeGrid(nodes, col, row, boxW, boxH, ncols, nrows,
             chanCnt, gutCnt, chanLbl, gutLbl, gutLoop, need, config)
