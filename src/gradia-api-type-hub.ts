@@ -7,7 +7,7 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }                       from "./gradia-api-model.js"
 import { Config }                                  from "./gradia-api-config.js"
-import { Poly, NodeStyle, Layout, ARITY_OFF, textWidth, arrowRoom, mergedRoom }
+import { Poly, NodeStyle, Layout, ARITY_OFF, ARROW_AIR, textWidth, arrowRoom, stubRoom }
     from "./gradia-api-render-base.js"
 import { isPrimary, measureNodes, defaultStyleOf } from "./gradia-api-render-node.js"
 import { LevelContext }                            from "./gradia-api-render-container.js"
@@ -197,7 +197,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             const cnt   = Math.max(portCnt.get(`w:${node.id}`) ?? 0, portCnt.get(`e:${node.id}`) ?? 0)
             const extra = Math.max(0, cnt - config["hub-node-degree-max"])
             boxH.set(node.id, Math.max(
-                sizedH.get(node.id)! + extra * portGap, cnt * portGap + PORT_PAD))
+                sizedH.get(node.id)! + extra * portGap(node.id), cnt * portGap(node.id) + PORT_PAD))
         }
 
         /*  a stack of more nodes than the configured maximum wraps into
@@ -229,7 +229,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         const laneOf = (id: string): number => {
             const cnt = Math.max(portCnt.get(`w:${id}`) ?? 0, portCnt.get(`e:${id}`) ?? 0)
             return level.fixedSize?.has(id) ? boxH.get(id)! / 2 :
-                Math.min(boxH.get(id)! / 2, (cnt - 1) * portGap / 2 + LANE_PAD)
+                Math.min(boxH.get(id)! / 2, (cnt - 1) * portGap(id) / 2 + LANE_PAD)
         }
 
         /*  fixed three-column layout: stack the input nodes in the first
@@ -322,6 +322,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         })
         const chanOff = new Map<string, number>()
         const bundled = new Map<number, string>()
+        const shift   = [ 0, 0 ]
         let   grown   = false
         let   crowded = false
         chanUsers.forEach((users, c) => {
@@ -330,7 +331,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
                 for the labels of the bundle placed there  */
             const frame  = Math.max(CHAN_W1, 2 * arrowRoom(config))
             const reach  = users.reduce((max, u) =>
-                u.unit !== undefined ? Math.max(max, 2 * mergedRoom(edges[u.edge], config)) : max, frame)
+                u.unit !== undefined ? Math.max(max, 2 * stubRoom(edges[u.edge], config)) : max, frame)
             const tracks = assignTracks(users, chanW[c], CHAN_PAD, config["size-edge-track-gap"],
                 config["size-edge-track-gap-min"], reach)
             for (const [ edge, off ] of tracks.offsets)
@@ -342,14 +343,43 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
                 chanW[c] = tracks.need
                 grown    = true
             }
+
+            /*  keep the stub of every edge arriving at its node right of
+                the channel (as every edge runs from the left toward the
+                right) long enough for its name and arity labels placed
+                there, side by side in front of its arrow head, by
+                shifting the tracks toward the nodes left of the channel
+                as far as needed, and by growing the channel beyond that,
+                while the stubs leaving those nodes keep the room of a
+                corner (or, for a bundle running out of its node through
+                one merged port, the room of its name label placed there),
+                where the bundled edges not merged into one port are
+                exempt, as their names are placed on the stubs feeding
+                their shared track  */
+            if (users.length === 0)
+                return
+            const offs   = users.map((u) => tracks.offsets.get(u.edge)!)
+            const [ lo, hi ] = [ Math.min(...offs), Math.max(...offs) ]
+            const arrive = users.reduce((max, u) => edges[u.edge].name !== undefined
+                && (!tracks.bundled.has(u.edge) || merged?.(u.edge, "t") !== undefined) ?
+                Math.max(max, stubRoom(edges[u.edge], config)) : max, arrowRoom(config))
+            const depart = users.reduce((max, u) => merged?.(u.edge, "s") !== undefined ?
+                Math.max(max, stubRoom(edges[u.edge], config)) : max, config["size-edge-corner-radius"] + ARROW_AIR)
+            if (depart + hi - lo + arrive > chanW[c]) {
+                chanW[c] = depart + hi - lo + arrive
+                grown    = true
+            }
+            shift[c] = Math.min(0, chanW[c] / 2 - arrive - hi)
         })
 
         /*  grow a crowded channel whose bundled tracks do not fit even at
-            the minimum track gap beyond its configured maximum (but never
-            shrink it, as the edge names placed along the short stubs
-            between its tracks and the primary node need its room), which
-            shifts the columns right of it and hence the ports there (but
-            none of the vertical port positions the tracks were assigned by)  */
+            the minimum track gap, and a channel whose tracks do not leave
+            the room of the labels on the stubs arriving at its nodes,
+            beyond its configured maximum (but never shrink it, as the
+            edge names placed along the short stubs between its tracks
+            and the primary node need its room), which shifts the columns
+            right of it and hence the ports there (but none of the
+            vertical port positions the tracks were assigned by)  */
         if (grown) {
             placeColumns()
             portPos = assignPorts(edges, sides, cx, cy, boxW, boxH, portGap,
@@ -357,7 +387,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         }
 
         /*  determine the X position of an edge's assigned track within a channel  */
-        const chanX = (c: number, edge: number): number => colLX[c] + colWidth[c] + chanW[c] / 2 +
+        const chanX = (c: number, edge: number): number => colLX[c] + colWidth[c] + chanW[c] / 2 + shift[c] +
             chanOff.get(`${c}:${edge}`)!
 
         /*  route every edge as an orthogonal polyline through its channel  */

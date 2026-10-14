@@ -31,16 +31,16 @@ export const ARROW_AIR = 8
 export const arrowRoom = (config: Config): number =>
     ARROW_H + config["size-edge-corner-radius"] + ARROW_AIR
 
-/*  the gap between the arity label and the name label of a bundle
-    placed side by side in front of its merged port  */
+/*  the gap between the arity label and the name label of an edge
+    placed side by side in front of its arrow head  */
 export const ARITY_GAP = 8
 
-/*  the straight run a bundle entering (or leaving) its node through one
-    merged port keeps between its shared track and the node box: the
-    setback of the arity from the arrow head, the arity label and the
-    name label of the bundle (both placed once there, side by side above
-    the line), and the corner and some air in front  */
-export const mergedRoom = (edge: Edge, config: Config): number =>
+/*  the straight run an edge entering its node (or a bundle entering or
+    leaving its node through one merged port) keeps between its track
+    and the node box: the setback of the arity from the arrow head, the
+    arity label and the name label of the edge (both placed there, side
+    by side above the line), and the corner and some air in front  */
+export const stubRoom = (edge: Edge, config: Config): number =>
     ARITY_OFF + (edge.arity !== undefined ? textWidth(edge.arity, config["size-font-arity"]) + ARITY_GAP : 0) +
     textWidth(edge.name ?? "", config["size-font-edge"]) + ARROW_AIR + config["size-edge-corner-radius"]
 

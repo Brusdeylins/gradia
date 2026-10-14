@@ -10,7 +10,7 @@ import { DagreLayout } from "@antv/layout"
 /*  internal dependencies  */
 import { Graph, Node, Edge }                 from "./gradia-api-model.js"
 import { Config }                            from "./gradia-api-config.js"
-import { Poly, ARITY_OFF, textWidth, arrowRoom, mergedRoom, Layout }
+import { Poly, ARITY_OFF, textWidth, arrowRoom, stubRoom, Layout }
     from "./gradia-api-render-base.js"
 import { measureNodes, orderOf }             from "./gradia-api-render-node.js"
 import { LevelContext, GateSide }            from "./gradia-api-render-container.js"
@@ -345,6 +345,17 @@ interface RoutePlan {
 const trackChans = (plan: RoutePlan): number[] =>
     plan.gate === "t" ? [ plan.chans[0] ] : plan.gate === "s" ? [ plan.chans[1] ] : plan.chans
 
+/*  the channel an edge finally runs its stub out of into its target
+    node, and whether that node lies right of the channel, i.e., the
+    channel the name label of the edge lands in, on that stub (a
+    self-loop and a gutter-ending edge end in no such stub)  */
+const arrivalOf = (edge: Edge, plan: RoutePlan): { chan: number, right: boolean } | undefined => {
+    if (edge.source === edge.target || plan.gate !== undefined)
+        return undefined
+    const flag = plan.flags[plan.flags.length - 1]
+    return { chan: plan.chans[plan.chans.length - 1], right: flag.mirror === flag.hairpin }
+}
+
 /*  plan the coarse route of every edge: which inter-column channels
     and inter-row gutters it occupies (based on the grid indices and
     the attachment sides only): the source stub reaches the channel
@@ -389,16 +400,21 @@ const planRoutes = (
     })
 
     /*  count the edges occupying each channel and gutter and determine
-        the room the edge labels need there: a name is placed in the
-        single channel of its edge, or, for a two-channel edge, along
-        its gutter run, costing one label line there; an arity is always
-        placed in the channel through which its edge finally approaches
-        the target node, set back from the arrow head (the labels of a
-        self-loop land on its detour above the box and need no room)  */
+        the room the edge labels need there: a name is placed on the
+        stub its edge finally runs out of its channel into the target
+        node, beside its arity (see "stubRoom"), so that channel keeps
+        the stubs on both of its sides long enough for the widest labels
+        arriving there, beside all of its tracks, or else, for an edge
+        ending in a gutter, the name is placed along its gutter run,
+        costing one label line there; an arity is always placed in the
+        channel through which its edge finally approaches the target
+        node, set back from the arrow head (the labels of a self-loop
+        land on its detour above the box and need no room)  */
     const chanCnt  = new Map<number, number>()
     const gutCnt   = new Map<number, number>()
     const chanLbl  = new Map<number, number>()
     const gutLbl   = new Map<number, number>()
+    const chanArr  = new Map<number, [ number, number ]>()
     const chanNeed = (c: number, width: number) =>
         chanLbl.set(c, Math.max(chanLbl.get(c) ?? 0, width))
     plans.forEach((plan, i) => {
@@ -410,14 +426,21 @@ const planRoutes = (
         const { name, arity, source, target } = edges[i]
         if (source === target)
             return
-        if (name !== undefined && plan.chans.length === 1)
-            chanNeed(plan.chans[0], textWidth(name, config["size-font-edge"]) + 2 * CHAN_LBL)
+        const arrival = arrivalOf(edges[i], plan)
+        if (name !== undefined && arrival !== undefined) {
+            const room = chanArr.get(arrival.chan) ?? [ 0, 0 ]
+            room[arrival.right ? 1 : 0] = Math.max(room[arrival.right ? 1 : 0], stubRoom(edges[i], config))
+            chanArr.set(arrival.chan, room)
+        }
         else if (name !== undefined && plan.guts.length > 0)
             gutLbl.set(plan.guts[0], (gutLbl.get(plan.guts[0]) ?? 0) + 1)
         if (arity !== undefined)
             chanNeed(chans[chans.length - 1],
                 ARITY_OFF + textWidth(arity, config["size-font-arity"]) + CHAN_LBL)
     })
+    for (const [ c, [ left, right ] ] of chanArr)
+        chanNeed(c, Math.max(left, arrowRoom(config)) + Math.max(right, arrowRoom(config)) +
+            ((chanCnt.get(c) ?? 1) - 1) * config["size-edge-track-gap"])
 
     /*  count the self-loops of every node, as their detours stack up
         above its box and have to fit into the gutter above its row
@@ -609,13 +632,14 @@ const assignTrackCoords = (
     /*  the unique numeric key of an edge within a channel or gutter  */
     const keyOf   = (c: number, edge: number) => c * edges.length + edge
     const chanOff = new Map<number, number>()
+    const shift   = new Map<number, number>()
     const frame   = Math.max(CHAN_W1, 2 * arrowRoom(config))
     for (const [ c, users ] of chanUsers) {
         /*  a channel holding a bundle which runs into (or out of) its
             node through one merged port keeps that run long enough for
             the labels of the bundle placed there  */
         const reach  = users.reduce((max, u) =>
-            u.unit !== undefined ? Math.max(max, 2 * mergedRoom(edges[u.edge], config)) : max, frame)
+            u.unit !== undefined ? Math.max(max, 2 * stubRoom(edges[u.edge], config)) : max, frame)
         const tracks = assignTracks(users, chanCap[c], CHAN_PAD, gap, gapMin, reach)
         for (const [ edge, off ] of tracks.offsets)
             chanOff.set(keyOf(c, edge), off)
@@ -625,9 +649,42 @@ const assignTrackCoords = (
             bundled.add(edge)
             keys.set(`${c}:${edge}`, key)
         }
+
+        /*  keep the stubs of the edges arriving at the nodes beside the
+            channel long enough for their name and arity labels placed
+            there, side by side in front of the arrow head, by shifting
+            the tracks away from the side lacking that room, as far as
+            the other side keeps its own room (or, if both sides lack it,
+            as the channel is capped by its configured maximum, by
+            splitting the lack between them, but never by pushing a track
+            out of the arrow room of either side, i.e., into the boxes
+            beside the channel), where the stubs of a bundle
+            running out of its node through one merged port keep the room
+            of its name label placed there, too, but the bundled edges
+            not merged into one port are exempt, as their names are
+            placed on the stubs feeding their shared track  */
+        const room: [ number, number ] = [ arrowRoom(config), arrowRoom(config) ]
+        for (const u of users) {
+            const edge    = edges[u.edge]
+            const arrival = arrivalOf(edge, plans[u.edge])
+            if (edge.name === undefined)
+                continue
+            if (arrival?.chan === c && (!tracks.bundled.has(u.edge) || merged?.(u.edge, "t") !== undefined))
+                room[arrival.right ? 1 : 0] = Math.max(room[arrival.right ? 1 : 0], stubRoom(edge, config))
+            if (plans[u.edge].chans[0] === c && merged?.(u.edge, "s") !== undefined)
+                room[plans[u.edge].flags[0].mirror ? 1 : 0] =
+                    Math.max(room[plans[u.edge].flags[0].mirror ? 1 : 0], stubRoom(edge, config))
+        }
+        const offs = users.map((u) => tracks.offsets.get(u.edge)!)
+        const lo   = room[0] - chanW[c] / 2 - Math.min(...offs)
+        const hi   = chanW[c] / 2 - room[1] - Math.max(...offs)
+        const min  = arrowRoom(config) - chanW[c] / 2 - Math.min(...offs)
+        const max  = chanW[c] / 2 - arrowRoom(config) - Math.max(...offs)
+        shift.set(c, lo <= hi ? Math.min(Math.max(0, lo), hi) :
+            min <= max ? Math.min(Math.max((lo + hi) / 2, min), max) : (min + max) / 2)
     }
     const chanX = (c: number, edge: number) => colCX[c] + colWidth[c] / 2 + chanW[c] / 2 +
-        chanOff.get(keyOf(c, edge))!
+        shift.get(c)! + chanOff.get(keyOf(c, edge))!
 
     /*  assign the horizontal tracks within the inter-row gutters (the
         run of a gutter-ending edge extends up to its gate, where its
@@ -954,7 +1011,7 @@ const growBoxes = (
         const cnt   = Math.max(portCnt.get(`w:${node.id}`) ?? 0, portCnt.get(`e:${node.id}`) ?? 0)
         const extra = Math.max(0, cnt - config["graph-node-degree-max"])
         boxH.set(node.id, Math.max(
-            boxH.get(node.id)! + extra * portGap, cnt * portGap + PORT_PAD))
+            boxH.get(node.id)! + extra * portGap(node.id), cnt * portGap(node.id) + PORT_PAD))
     }
 }
 

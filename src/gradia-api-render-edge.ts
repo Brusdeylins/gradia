@@ -13,17 +13,20 @@ import { Poly, ARITY_PAD, ARROW_H, arityHeight }
 /*  edge attachment port geometry  */
 export const PORT_PAD = 10  /*  padding of the port band inside the box  */
 
-/*  the separation of the adjacent ports of a node side: the configured
-    one, raised to what the arity labels demand once any edge carries
-    one, as such a label sits ARITY_PAD below the line of the port above
-    it, whose arrow head reaches down by half its height, and needs two
-    more ARITY_PAD of air between the two, so it stays attributable to
-    its own arrow instead of drifting into the neighboring one, and
-    raised likewise to what the name labels demand once the edge ends of
-    named bundles are merged into one port, as their one name label then
-    sits beside that port the same way  */
+/*  the separation of the adjacent ports of the sides of a node: the
+    configured one, raised to what the arity labels demand once any edge
+    carries one, as such a label sits ARITY_PAD below the line of the
+    port above it, whose arrow head reaches down by half its height, and
+    needs two more ARITY_PAD of air between the two, so it stays
+    attributable to its own arrow instead of drifting into the
+    neighboring one, raised likewise to what the name labels demand once
+    the edge ends of named bundles are merged into one port, as their
+    one name label then sits beside that port the same way, and, for a
+    node a named edge runs into, raised to what its name label demands,
+    as it sits beside the stub of its edge the same way, but set back
+    behind the arrow head  */
 export const portGapOf = (edges: Edge[], config: Config,
-    merged?: (edge: number, role: "s" | "t") => string | undefined): number => {
+    merged?: (edge: number, role: "s" | "t") => string | undefined): (id: string) => number => {
     let gap = edges.some((edge) => edge.arity !== undefined) ?
         Math.max(config["size-edge-port-gap"],
             Math.ceil(3 * ARITY_PAD + arityHeight(config) + ARROW_H / 2)) :
@@ -31,7 +34,10 @@ export const portGapOf = (edges: Edge[], config: Config,
     if (merged !== undefined && edges.some((edge, i) =>
         edge.name !== undefined && (merged(i, "s") !== undefined || merged(i, "t") !== undefined)))
         gap = Math.max(gap, Math.ceil(3 * ARITY_PAD + config["size-font-edge"] + 4 + ARROW_H / 2))
-    return gap
+    const named = new Set(edges.filter((edge) => edge.name !== undefined && edge.source !== edge.target)
+        .map((edge) => edge.target))
+    const gapNamed = Math.max(gap, 3 * ARITY_PAD + config["size-font-edge"] + 4)
+    return (id) => named.has(id) ? gapNamed : gap
 }
 
 /*  drop duplicate and collinear intermediate points of a polyline  */
@@ -70,14 +76,14 @@ interface PortRef {
 /*  distribute the edge attachment ports along each node side, ordered
     by the vertical position the edge approaches from (the approachY
     override where given, the opposite endpoint center otherwise) and
-    separated by at most portGap (less, if the node box is too small
-    to hold them all). A port with a fixed vertical offset from the
-    box center (fixedY, the edge ends attaching to a container box at
-    the position of the inner gate node) is placed exactly there and
-    the distributed ports of the same side are dealt into the gaps
-    around it. The edge ends merged into one port (merged, the edge
-    ends of a bundle running into its node as one) take the place of a
-    single port, ordered by the mean of their approaches  */
+    separated by at most the portGap of their node (less, if the node
+    box is too small to hold them all). A port with a fixed vertical
+    offset from the box center (fixedY, the edge ends attaching to a
+    container box at the position of the inner gate node) is placed
+    exactly there and the distributed ports of the same side are dealt
+    into the gaps around it. The edge ends merged into one port (merged,
+    the edge ends of a bundle running into its node as one) take the
+    place of a single port, ordered by the mean of their approaches  */
 export const assignPorts = (
     edges:      Edge[],
     sides:      { s: Side, t: Side }[],
@@ -85,7 +91,7 @@ export const assignPorts = (
     cy:         (id: string) => number,
     boxW:       Map<string, number>,
     boxH:       Map<string, number>,
-    portGap:    number,
+    portGap:    (id: string) => number,
     approachY?: (edge: number) => number | undefined,
     fixedY?:    (edge: number, role: "s" | "t") => number | undefined,
     merged?:    (edge: number, role: "s" | "t") => string | undefined
@@ -140,7 +146,7 @@ export const assignPorts = (
             attaches closest to the top-right box corner  */
         if (side === "n") {
             group.sort((a, b) => b.edge - a.edge)
-            const spacing = Math.min(portGap, (boxW.get(id)! - PORT_PAD) / group.length)
+            const spacing = Math.min(portGap(id), (boxW.get(id)! - PORT_PAD) / group.length)
             group.forEach((p, idx) => {
                 portPos.set(`${p.edge}:${p.role}`, {
                     x: cx(id) + (idx - (group.length - 1) / 2) * spacing,
@@ -179,7 +185,7 @@ export const assignPorts = (
         }
         free.sort((a, b) => (keyOf(a) - keyOf(b)) || (a.edge - b.edge))
         const n       = free.length + taken.length
-        const spacing = Math.min(portGap, (boxH.get(id)! - PORT_PAD) / n)
+        const spacing = Math.min(portGap(id), (boxH.get(id)! - PORT_PAD) / n)
         if (taken.length === 0) {
             free.forEach((p, idx) => place(p, cy(id) + (idx - (n - 1) / 2) * spacing))
             continue
