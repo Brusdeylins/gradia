@@ -373,15 +373,27 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
             }
             return order.map((i) => seed[i])
         }
+        /*  restarting search for smaller user sets: the cost change of
+            passing a block over a user is the difference of two prefix
+            sums over the current order, determined anew after every move
+            (all costs are integers far below 2^53 for at most
+            "TRACK_SEARCH_MAX" users, so these differences are exact)  */
+        const w      = n + 1
+        const ahead  = new Float64Array(n * w)
+        const behind = new Float64Array(n * w)
         for (let improved = true; improved;) {
             improved = false
+            for (let k = 0; k < n; k++) {
+                for (let p = 0; p < n; p++) {
+                    ahead[k * w + p + 1]  = ahead[k * w + p]  + diff[order[k] * n + order[p]]
+                    behind[k * w + p + 1] = behind[k * w + p] + diff[order[p] * n + order[k]]
+                }
+            }
             for (let len = 1; len < n && !improved; len++) {
                 for (let i = 0; i + len <= n && !improved; i++) {
                     let delta = 0
                     for (let k = i + len; k < n && !improved; k++) {
-                        const row = order[k] * n
-                        for (let b = i; b < i + len; b++)
-                            delta += diff[row + order[b]]
+                        delta += ahead[k * w + i + len] - ahead[k * w + i]
                         if (delta < 0) {
                             order.splice(k - len + 1, 0, ...order.splice(i, len))
                             improved = true
@@ -389,9 +401,7 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
                     }
                     delta = 0
                     for (let k = i - 1; k >= 0 && !improved; k--) {
-                        const other = order[k]
-                        for (let b = i; b < i + len; b++)
-                            delta += diff[order[b] * n + other]
+                        delta += behind[k * w + i + len] - behind[k * w + i]
                         if (delta < 0) {
                             order.splice(k, 0, ...order.splice(i, len))
                             improved = true
