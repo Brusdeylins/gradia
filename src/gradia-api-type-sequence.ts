@@ -330,7 +330,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     })
 
     /*  hand over the participants, the messages (except the self
-        destructions, drawn as their crosses only), and the lifelines  */
+        destructions, drawn as their crosses only, and with their names
+        centered on them), and the lifelines  */
     return { nodes, edges, cx: (id) => xOf.get(id)!, cy: (id) => cyOf.get(id)!,
-        boxW, boxH, contentH, polys, shapes }
+        boxW, boxH, contentH, polys, shapes, centered: true }
 }

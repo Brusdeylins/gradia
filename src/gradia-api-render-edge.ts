@@ -24,7 +24,9 @@ const TRACK_GAP_MIN = 8
     more ARITY_PAD of air between the two, so it stays attributable to
     its own arrow instead of drifting into the neighboring one, and
     likewise to what a name label demands on a node side holding a
-    merged port of a named bundle, as the label then sits beside it  */
+    merged port of a named bundle, as the label then sits beside it, and
+    on a node side a named edge runs into, as its name label sits beside
+    the stub of its edge the same way, set back behind the arrow head  */
 export const portGapOf = (edges: Edge[], sides: { s: Side, t: Side }[], config: Config,
     merged?: (edge: number, role: "s" | "t") => string | undefined): (id: string, side: Side) => number => {
     const gap    = edges.some((edge) => edge.arity !== undefined) ?
@@ -43,7 +45,11 @@ export const portGapOf = (edges: Edge[], sides: { s: Side, t: Side }[], config: 
                 raised.add(`${edge.target}:${sides[i].t}`)
         })
     }
-    return (id, side) => raised.has(`${id}:${side}`) ? named : gap
+    const arrival = Math.max(gap, 3 * ARITY_PAD + config["size-font-edge"] + 4)
+    const arrived = new Set(edges.flatMap((edge, i) => edge.name !== undefined && edge.source !== edge.target ?
+        [ `${edge.target}:${sides[i].t}` ] : []))
+    return (id, side) => Math.max(raised.has(`${id}:${side}`) ? named : gap,
+        arrived.has(`${id}:${side}`) ? arrival : gap)
 }
 
 /*  drop duplicate and collinear intermediate points of a polyline  */

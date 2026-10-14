@@ -7,7 +7,7 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }                       from "./gradia-api-model.js"
 import { Config }                                  from "./gradia-api-config.js"
-import { Poly, NodeStyle, Layout, ARITY_OFF, textWidth, arrowRoom, stubRoom, extentOf }
+import { Poly, NodeStyle, Layout, ARITY_OFF, ARROW_AIR, textWidth, arrowRoom, stubRoom, extentOf }
     from "./gradia-api-render-base.js"
 import { isPrimary, measureNodes, defaultStyleOf } from "./gradia-api-render-node.js"
 import { LevelContext }                            from "./gradia-api-render-container.js"
@@ -309,6 +309,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const chanOff = new Map<string, number>()
     const bundled = new Map<number, string>()
     const frame   = Math.max(CHAN_W1, 2 * arrowRoom(config))
+    const shift   = [ 0, 0 ]
     let   grown   = false
     let   crowded = false
     chanUsers.forEach((users, c) => {
@@ -326,6 +327,27 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             chanW[c] = tracks.need
             grown    = true
         }
+
+        /*  keep the stub of every edge arriving right of the channel long
+            enough for its name and arity labels (see "stubRoom") by
+            shifting the tracks left and growing the channel beyond that,
+            while the departing stubs keep the room of a corner (or of the
+            name label of a bundle merged into one port); bundled edges not
+            merged are exempt, as their names sit on their feeding stubs  */
+        if (users.length === 0)
+            return
+        const offs   = users.map((u) => tracks.offsets.get(u.edge)!)
+        const [ lo, hi ] = [ Math.min(...offs), Math.max(...offs) ]
+        const arrive = users.reduce((max, u) => edges[u.edge].name !== undefined
+            && (!tracks.bundled.has(u.edge) || merged?.(u.edge, "t") !== undefined) ?
+            Math.max(max, stubRoom(edges[u.edge], config)) : max, arrowRoom(config))
+        const depart = users.reduce((max, u) => merged?.(u.edge, "s") !== undefined ?
+            Math.max(max, stubRoom(edges[u.edge], config)) : max, config["size-edge-corner-radius"] + ARROW_AIR)
+        if (depart + hi - lo + arrive > chanW[c]) {
+            chanW[c] = depart + hi - lo + arrive
+            grown    = true
+        }
+        shift[c] = Math.min(0, chanW[c] / 2 - arrive - hi)
     })
 
     /*  grow a crowded channel to the need of its bundled tracks (but never
@@ -338,7 +360,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     }
 
     /*  determine the X position of an edge's assigned track within a channel  */
-    const chanX = (c: number, edge: number): number => colLX[c] + colWidth[c] + chanW[c] / 2 +
+    const chanX = (c: number, edge: number): number => colLX[c] + colWidth[c] + chanW[c] / 2 + shift[c] +
         chanOff.get(`${c}:${edge}`)!
 
     /*  route every edge as an orthogonal polyline through its channel  */

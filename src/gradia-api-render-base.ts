@@ -34,8 +34,9 @@ export const arrowRoom = (config: Config): number =>
     placed side by side in front of its arrow head  */
 export const ARITY_GAP = 8
 
-/*  the straight run a bundle entering (or leaving) its node through one
-    merged port keeps between its track and the node box: the setback of
+/*  the straight run an edge entering its node (or a bundle entering or
+    leaving it through one merged port) keeps between its track and the
+    node box: the setback of
     the arity from the arrow head, the arity and name labels side by side
     above the line, and the corner and some air in front  */
 export const stubRoom = (edge: Edge, config: Config): number =>
@@ -114,8 +115,10 @@ export interface ContainerBox {
 
 /*  the laid out graph handed over for SVG generation (the optional
     "bundled" flags run parallel to the edges and mark the ones sharing
-    a track, composing by concatenation exactly like the edges, and the
-    optional "crowded" flag marks a layout with crowded channels/gutters)  */
+    a track, composing by concatenation exactly like the edges, the
+    optional "crowded" flag marks a layout with crowded channels/gutters,
+    and the optional "centered" flag one keeping its edge names centered
+    on their routes instead of in front of their arrow heads)  */
 export interface Layout {
     nodes:       Node[]
     edges:       Edge[]
@@ -131,6 +134,7 @@ export interface Layout {
     shapes?:     Shape[]
     bundled?:    boolean[]
     crowded?:    boolean
+    centered?:   boolean
 }
 
 /*  the area of the bounding box of the node boxes and edge lines of a

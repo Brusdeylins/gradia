@@ -123,7 +123,8 @@ export const composeGroups = (parts: GroupPart[], layouts: Layout[], config: Con
         shapes:     layouts.flatMap((layout, i) => (layout.shapes ?? []).map((shape) =>
             shiftShape(shape, dxs[i], dys[i]))),
         bundled:    layouts.flatMap((layout) => layout.edges.map((_, i) => layout.bundled?.[i] ?? false)),
-        crowded:    layouts.some((layout) => layout.crowded === true)
+        crowded:    layouts.some((layout) => layout.crowded === true),
+        centered:   layouts.some((layout) => layout.centered === true)
     }
 }
 
