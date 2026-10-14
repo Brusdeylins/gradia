@@ -969,16 +969,17 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
 
     /*  generate the SVG fragments for the edge labels (the names
         first, as their reservations keep the arity positions free),
-        where the name of every edge not bundled with others first
-        takes its anchor on the stub arriving at the target (see
-        "arrivalLabels"), all of them before any name searches a
-        position of its own, so no searched position takes the anchor of
-        another name, and only a name whose anchor is missing or not
-        free searches its position along the route  */
+        where the name of every edge not bundled with others (in a
+        layout not keeping its names centered) first takes its anchor on
+        the stub arriving at the target (see "arrivalLabels"), all of
+        them before any name searches a position of its own, so no
+        searched position takes the anchor of another name, and only a
+        name whose anchor is missing or not free searches its position
+        along the route  */
     const svgLabels: string[] = []
     const stubAt = stubLabels(layout, config)
     const placed = edges.map((edge, i) => {
-        if (layout.bundled?.[i] === true)
+        if (layout.bundled?.[i] === true || layout.centered === true)
             return false
         const anchor = arrivalLabels(edge, polys[i], config).find((box) => seize(box, i))
         if (anchor === undefined)

@@ -147,8 +147,11 @@ export type Area = [ number, number, number, number ]
     levels alike, the optional "bundled" flags run parallel to them,
     too, and mark the edges sharing a track with others, the optional
     "junctions" are the points at which those edges join or leave the
-    shared track, and the optional "crowded" flag marks a layout with
-    crowded channels or gutters)  */
+    shared track, the optional "crowded" flag marks a layout with
+    crowded channels or gutters, and the optional "centered" flag marks
+    a layout whose edge names stay centered on their routes, e.g. the
+    messages of a sequence diagram, instead of being placed in front of
+    their arrow heads)  */
 export interface Layout {
     nodes:       Node[]
     edges:       Edge[]
@@ -166,4 +169,5 @@ export interface Layout {
     bundled?:    boolean[]
     junctions?:  Poly
     crowded?:    boolean
+    centered?:   boolean
 }

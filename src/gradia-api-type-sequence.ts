@@ -74,7 +74,8 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const shapes: Shape[] = nodes.map((node) =>
         pathShape(xOf.get(node.id)!, top, `v ${end - top}`, [ -1, 0, 1, end - top ], "color-group-border", 2, "8 6"))
 
-    /*  hand over the participants, the messages, and the lifelines  */
+    /*  hand over the participants, the messages (with their names
+        centered on them), and the lifelines  */
     return { nodes, edges: graph.edges, cx: (id) => xOf.get(id)!, cy: () => cy,
-        boxW, boxH, contentH, polys, shapes }
+        boxW, boxH, contentH, polys, shapes, centered: true }
 }
