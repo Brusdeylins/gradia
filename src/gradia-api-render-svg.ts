@@ -121,13 +121,81 @@ const LINE_GAP = 12
 const ARITY_STEP = 8
 const ARITY_BACK = 3
 
-/*  the edge length of the uniform grid buckets indexing the edge lines  */
-const BUCKET = 64
-
 /*  the maximum number of steps a name label is slid along a single
     segment of its route, as a long segment would otherwise offer far
     more candidate positions than a placement can ever need  */
 const SLIDE_MAX = 16
+
+/*  a uniform grid of buckets indexing areas, so a query only visits
+    the areas of the buckets it covers instead of all areas (an area
+    spanning several buckets is visited once only, as every visit
+    stamps it, and the bucket indices are clamped, so even far-off
+    areas stay indexed, merely sharing the outermost buckets)  */
+const BUCKET    = 64
+const GRID_OFF  = 1 << 20
+const GRID_SPAN = 2 * GRID_OFF
+interface AreaGrid {
+    add:    (area: Box) => number
+    remove: (id: number) => void
+    visit:  (x1: number, y1: number, x2: number, y2: number, fn: (id: number, area: Box) => boolean) => void
+}
+const areaGrid = (): AreaGrid => {
+    const areas:   (Box | undefined)[] = []
+    const buckets = new Map<number, number[]>()
+    let   stamps  = new Uint32Array(0)
+    let   stamp   = 0
+    const bucketOf = (v: number): number =>
+        Math.max(-GRID_OFF, Math.min(GRID_OFF - 1, Math.floor(v / BUCKET)))
+
+    /*  index an area and return its identifier  */
+    const add = (area: Box): number => {
+        const id = areas.length
+        areas.push(area)
+        for (let by = bucketOf(area[1]); by <= bucketOf(area[3]); by++) {
+            for (let bx = bucketOf(area[0]); bx <= bucketOf(area[2]); bx++) {
+                const bucket = buckets.get(bx * GRID_SPAN + by)
+                if (bucket === undefined)
+                    buckets.set(bx * GRID_SPAN + by, [ id ])
+                else
+                    bucket.push(id)
+            }
+        }
+        return id
+    }
+
+    /*  drop an indexed area  */
+    const remove = (id: number): void => {
+        areas[id] = undefined
+    }
+
+    /*  visit every indexed area sharing a bucket with the queried area
+        once, until the visiting function signals to stop  */
+    const visit = (x1: number, y1: number, x2: number, y2: number,
+        fn: (id: number, area: Box) => boolean): void => {
+        if (stamps.length < areas.length) {
+            const grown = new Uint32Array(Math.max(areas.length, 2 * stamps.length))
+            grown.set(stamps)
+            stamps = grown
+        }
+        stamp++
+        for (let by = bucketOf(y1); by <= bucketOf(y2); by++) {
+            for (let bx = bucketOf(x1); bx <= bucketOf(x2); bx++) {
+                const bucket = buckets.get(bx * GRID_SPAN + by)
+                if (bucket === undefined)
+                    continue
+                for (const id of bucket) {
+                    if (stamps[id] === stamp)
+                        continue
+                    stamps[id] = stamp
+                    const area = areas[id]
+                    if (area !== undefined && fn(id, area))
+                        return
+                }
+            }
+        }
+    }
+    return { add, remove, visit }
+}
 
 /*  track occupied areas (node boxes and already placed labels) to
     let subsequent labels dodge into a collision-free position, plus the
@@ -175,38 +243,19 @@ const labelPlacer = (
     })
     const lineCount = lines.reduce((n, boxes) => n + boxes.length, 0)
 
-    /*  index the edge line boxes in a uniform grid of buckets, so a
-        candidate box only visits the line boxes of the buckets it
-        covers instead of all of them (a line box spanning several
-        buckets is visited once only, as every visit stamps it)  */
-    const owner = new Int32Array(lineCount)
-    const flat: Box[] = []
-    let [ gx0, gy0, gx1, gy1 ] = [ Infinity, Infinity, -Infinity, -Infinity ]
+    /*  index the edge line boxes, the occupied areas, and the
+        reserved areas, as the placement of every label queries them
+        for all of its candidate boxes  */
+    const lineGrid = areaGrid()
+    const owner: number[] = []
     lines.forEach((boxes, i) => {
-        for (const o of boxes) {
-            owner[flat.length] = i
-            flat.push(o)
-            gx0 = Math.min(gx0, o[0])
-            gy0 = Math.min(gy0, o[1])
-            gx1 = Math.max(gx1, o[2])
-            gy1 = Math.max(gy1, o[3])
-        }
+        for (const o of boxes)
+            owner[lineGrid.add(o)] = i
     })
-    const gw      = flat.length > 0 ? Math.floor((gx1 - gx0) / BUCKET) + 1 : 0
-    const gh      = flat.length > 0 ? Math.floor((gy1 - gy0) / BUCKET) + 1 : 0
-    const buckets = new Map<number, number[]>()
-    flat.forEach((o, k) => {
-        for (let by = Math.floor((o[1] - gy0) / BUCKET); by <= Math.floor((o[3] - gy0) / BUCKET); by++)
-            for (let bx = Math.floor((o[0] - gx0) / BUCKET); bx <= Math.floor((o[2] - gx0) / BUCKET); bx++) {
-                const bucket = buckets.get(by * gw + bx)
-                if (bucket === undefined)
-                    buckets.set(by * gw + bx, [ k ])
-                else
-                    bucket.push(k)
-            }
-    })
-    const stamps = new Uint32Array(flat.length)
-    let   stamp  = 0
+    const occupiedGrid = areaGrid()
+    for (const o of occupied)
+        occupiedGrid.add(o)
+    const reservedGrid = areaGrid()
 
     /*  claim the candidate box colliding with the fewest occupied
         areas and, among those, with the fewest edge lines (earlier
@@ -220,11 +269,13 @@ const labelPlacer = (
         which the halo of the label keeps readable anyway  */
     const hit = (o: Box, x1: number, y1: number, x2: number, y2: number): boolean =>
         x1 < o[2] && x2 > o[0] && y1 < o[3] && y2 > o[1]
-    const collisions = (boxes: Box[], box: Box): number => {
+    const collisions = (grid: AreaGrid, box: Box): number => {
         let n = 0
-        for (const o of boxes)
+        grid.visit(box[0], box[1], box[2], box[3], (_, o) => {
             if (hit(o, box[0], box[1], box[2], box[3]))
                 n++
+            return false
+        })
         return n
     }
 
@@ -235,33 +286,25 @@ const labelPlacer = (
         which hence also bounds the buckets to visit)  */
     const crossings = (box: Box, edge: number, limit: number): number => {
         const [ x1, y1, x2, y2 ] = [ box[0] - LINE_GAP, box[1] - LINE_GAP, box[2] + LINE_GAP, box[3] + LINE_GAP ]
-        const bx1 = Math.max(Math.floor((x1 - gx0) / BUCKET), 0)
-        const by1 = Math.max(Math.floor((y1 - gy0) / BUCKET), 0)
-        const bx2 = Math.min(Math.floor((x2 - gx0) / BUCKET), gw - 1)
-        const by2 = Math.min(Math.floor((y2 - gy0) / BUCKET), gh - 1)
         let n = 0
-        stamp++
-        for (let by = by1; by <= by2; by++) {
-            for (let bx = bx1; bx <= bx2; bx++) {
-                const bucket = buckets.get(by * gw + bx)
-                if (bucket === undefined)
-                    continue
-                for (const k of bucket) {
-                    if (stamps[k] === stamp)
-                        continue
-                    stamps[k] = stamp
-                    if (owner[k] === edge ?
-                        hit(flat[k], box[0], box[1], box[2], box[3]) : hit(flat[k], x1, y1, x2, y2))
-                        if (++n >= limit)
-                            return n
-                }
-            }
-        }
+        lineGrid.visit(x1, y1, x2, y2, (id, o) => {
+            if (owner[id] === edge ? hit(o, box[0], box[1], box[2], box[3]) : hit(o, x1, y1, x2, y2))
+                n++
+            return n >= limit
+        })
         return n
     }
-    const reserved: Box[] = []
+
+    /*  reserve an area, indexed under its very object, so the claim of
+        the label it is reserved for can release it again  */
+    const reserved = new Map<Box, number[]>()
     const reserve = (box: Box) => {
-        reserved.push(box)
+        const id  = reservedGrid.add(box)
+        const ids = reserved.get(box)
+        if (ids === undefined)
+            reserved.set(box, [ id ])
+        else
+            ids.push(id)
     }
 
     /*  a claim counts the areas reserved for the labels still to come
@@ -271,9 +314,9 @@ const labelPlacer = (
         released, as that is the very area it is about to take  */
     const claim = (candidates: Box[], edge: number, dodge = true, own?: Box): Box => {
         if (own !== undefined) {
-            const k = reserved.indexOf(own)
-            if (k >= 0)
-                reserved.splice(k, 1)
+            const id = reserved.get(own)?.shift()
+            if (id !== undefined)
+                reservedGrid.remove(id)
         }
         let box    = candidates[0]
         let lowest = Infinity
@@ -281,7 +324,7 @@ const labelPlacer = (
             /*  a candidate whose collisions alone already reach the lowest
                 score is skipped, as its line crossings, of which there are
                 at most "lineCount", can never let it win anymore  */
-            let score = (collisions(occupied, c) + collisions(reserved, c)) * (lineCount + 1)
+            let score = (collisions(occupiedGrid, c) + collisions(reservedGrid, c)) * (lineCount + 1)
             if (score >= lowest)
                 continue
             if (dodge)
@@ -294,6 +337,7 @@ const labelPlacer = (
                 break
         }
         occupied.push(box)
+        occupiedGrid.add(box)
         return box
     }
     return { claim, reserve, occupied }
