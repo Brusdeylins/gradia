@@ -304,7 +304,8 @@ export const renderContained = async (
             polys,
             styleOf:    (node) => (parts[partOf.get(node.id)!].layout.styleOf ?? defaultStyleOf)(node),
             containers: [ ...boxes, ...innerBoxes ],
-            bundled
+            bundled,
+            crowded:    parts.some((part) => part.layout.crowded === true)
         }
         return { layout: composed, bounds: boundsOf(composed, Array.from(partial.values())), partial }
     }

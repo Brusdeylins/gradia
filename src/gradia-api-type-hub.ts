@@ -310,6 +310,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const bundled = new Map<number, string>()
     const frame   = Math.max(CHAN_W1, 2 * arrowRoom(config))
     let   grown   = false
+    let   crowded = false
     chanUsers.forEach((users, c) => {
         /*  a channel holding a bundle running through one merged port keeps
             that run long enough for the labels of the bundle placed there  */
@@ -320,6 +321,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             chanOff.set(`${c}:${edge}`, off)
         for (const [ edge, key ] of tracks.bundled)
             bundled.set(edge, key)
+        crowded ||= tracks.need > 0
         if (tracks.need > chanW[c]) {
             chanW[c] = tracks.need
             grown    = true
@@ -395,6 +397,6 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             dash:   "10 6"
         } : defaultStyleOf(node)
     return { nodes, edges, cx, cy, boxW, boxH, contentH, polys, styleOf,
-        bundled: edges.map((_, i) => bundled.has(i)) }
+        bundled: edges.map((_, i) => bundled.has(i)), crowded }
 }
 

@@ -119,7 +119,8 @@ export const composeGroups = (parts: GroupPart[], layouts: Layout[], config: Con
         groups,
         containers: layouts.flatMap((layout, i) => (layout.containers ?? []).map((c): ContainerBox =>
             ({ ...c, x: c.x + dxs[i], y: c.y + dys[i] }))),
-        bundled:    layouts.flatMap((layout) => layout.edges.map((_, i) => layout.bundled?.[i] ?? false))
+        bundled:    layouts.flatMap((layout) => layout.edges.map((_, i) => layout.bundled?.[i] ?? false)),
+        crowded:    layouts.some((layout) => layout.crowded === true)
     }
 }
 

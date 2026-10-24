@@ -1141,6 +1141,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
 
     /*  hand over the laid out graph for SVG rendering  */
     return { nodes, edges, cx, cy, boxW, boxH, contentH, polys: routing.polys,
-        bundled: edges.map((_, i) => routing.bundled.has(i)) }
+        bundled: edges.map((_, i) => routing.bundled.has(i)),
+        crowded: routing.need.chan.size > 0 || routing.need.gut.size > 0 }
 }
 
