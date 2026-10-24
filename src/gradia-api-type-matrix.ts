@@ -47,35 +47,58 @@ const cyclesOf = (ids: string[], edges: { source: string, target: string }[]): M
     return cycles
 }
 
+/*  the special "axis" annotation (a node of the value "column" being
+    a column of a traceability matrix)  */
+const isColumn = (node: Node): boolean =>
+    node.attrs.findLast((attr) => attr.key === "axis")?.val === "column"
+
+/*  the special "trace" annotation (a node of the value "indirect" being
+    related to the other side of a traceability matrix indirectly only)  */
+const isIndirect = (node: Node): boolean =>
+    node.attrs.findLast((attr) => attr.key === "trace")?.val === "indirect"
+
 /*  lay out a graph model as a dependency structure matrix (DSM): the
     nodes are both its rows and its columns (the members of a cycle
     moved together, so every cycle forms a block on the diagonal), and
-    the cell of row X and column Y counts the edges from X to Y  */
+    the cell of row X and column Y counts the edges from X to Y, or, if
+    a node carries the attribute "axis: column", as a traceability
+    matrix: those nodes are its columns, all others its rows, a cell
+    counts the edges in either direction, and a row or column without
+    any entry is marked as a gap  */
 export const render = async (graph: Graph, config: Config, level: LevelContext = {}): Promise<Layout> => {
     /*  ensure the graph carries no containers, as the rows are flat  */
     const sorted = Array.from(graph.nodes.values())
         .sort((a, b) => (orderOf(a) ?? Infinity) - (orderOf(b) ?? Infinity) || 0)
     rejectContainers("matrix", sorted, level)
+    const traced = sorted.some((node) => isColumn(node))
 
-    /*  determine the rows and columns: both are the nodes, with the
-        members of every cycle consecutive  */
-    const cycles = cyclesOf(sorted.map((node) => node.id), graph.edges)
+    /*  determine the rows and columns: in a DSM both are the nodes, with
+        the members of every cycle consecutive, in a traceability matrix
+        the two sets of nodes  */
+    const cycles = traced ? new Map<string, number>() : cyclesOf(sorted.map((node) => node.id), graph.edges)
     const nodes  = sorted.map((node, i) => ({ node, r: cycles.get(node.id) ?? i, i }))
         .sort((a, b) => a.r - b.r || a.i - b.i).map(({ node }) => node)
-    const rows   = nodes
-    const cols   = nodes
+    const rows   = traced ? nodes.filter((node) => !isColumn(node)) : nodes
+    const cols   = traced ? nodes.filter((node) =>  isColumn(node)) : nodes
     const rowOf  = new Map(rows.map((node, i) => [ node.id, i ]))
     const colOf  = new Map(cols.map((node, i) => [ node.id, i ]))
 
     /*  count the edges of every cell (summing the numeric arities, as a
-        derived edge may stand for several references)  */
+        derived edge may stand for several references), in a traceability
+        matrix regardless of their direction  */
     const counts = new Map<number, number>()
     const cellOf = (r: number, c: number) => r * cols.length + c
     for (const edge of graph.edges) {
-        const [ r, c ] = [ rowOf.get(edge.source)!, colOf.get(edge.target)! ]
+        let [ r, c ] = [ rowOf.get(edge.source), colOf.get(edge.target) ]
+        if (traced && (r === undefined || c === undefined))
+            [ r, c ] = [ rowOf.get(edge.target), colOf.get(edge.source) ]
+        if (r === undefined || c === undefined)
+            continue
         const arity = edge.arity !== undefined && /^\d+$/.test(edge.arity) ? Number(edge.arity) : 1
         counts.set(cellOf(r, c), (counts.get(cellOf(r, c)) ?? 0) + arity)
     }
+    const usedRows = new Set(Array.from(counts.keys(), (key) => Math.floor(key / cols.length)))
+    const usedCols = new Set(Array.from(counts.keys(), (key) => key % cols.length))
 
     /*  resolve the configurable rendering geometry  */
     const margin = config["size-canvas-margin"]
@@ -102,15 +125,26 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         labels running upwards) and the row headers (the very same boxes
         lying), both in the colors of the node boxes, and the cells  */
     const shapes: Shape[] = []
-    const header = (node: Node, x: number, y: number, w: number, h: number, upright: boolean) => {
+    const gaps:   Shape[] = []
+    const header = (node: Node, x: number, y: number, w: number, h: number, upright: boolean,
+        gap: "color-mark-violation" | "color-mark-warning" | undefined) => {
         const { fill, stroke, text } = defaultStyleOf(node)
         shapes.push(rectShape(x, y, w, h, stroke, 2, undefined, fill, 6))
+        if (gap !== undefined)
+            gaps.push(rectShape(x, y, w, h, gap, 2, "6 4", undefined, 6))
         const [ tx, ty ] = upright ? [ x + CELL / 2, y + h - HEAD_PAD ] : [ x + HEAD_PAD, y + CELL / 2 ]
         shapes.push(textShape(tx, ty, node.name, "start", textWidth(node.name, fsName, true), text, "size-font-prop",
             fsName, { bold: true, url: urlOf(node), halo: false, upright }))
     }
-    cols.forEach((node, c) => header(node, x0 + c * CELL, margin, CELL, colH, true))
-    rows.forEach((node, r) => header(node, margin, y0 + r * CELL, rowW, CELL, false))
+
+    /*  a row or column of a traceability matrix without any entry is a
+        gap, unless it is related to the other side indirectly  */
+    const markOf = (node: Node, used: boolean) =>
+        !traced || used ? undefined : isIndirect(node) ? "color-mark-warning" as const : "color-mark-violation" as const
+    const colMarks = cols.map((node, c) => markOf(node, usedCols.has(c)))
+    const rowMarks = rows.map((node, r) => markOf(node, usedRows.has(r)))
+    cols.forEach((node, c) => header(node, x0 + c * CELL, margin, CELL, colH, true,  colMarks[c]))
+    rows.forEach((node, r) => header(node, margin, y0 + r * CELL, rowW, CELL, false, rowMarks[r]))
 
     /*  the titles of the rows and the columns in the corner  */
     if (rowTitle !== undefined)
@@ -120,9 +154,13 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         shapes.push(textShape(margin + rowW - HEAD_PAD, margin + HEAD_PAD + fsNum * 0.65, colTitle, "end",
             textWidth(colTitle, fsNum, true), "color-container-name", "size-font-type", fsNum, { bold: true, halo: false }))
 
-    /*  the cells: the diagonal shaded, the cells with an entry in the
-        node box color, the numbers of the edges within a cycle in the
-        violation color  */
+    /*  the gap outlines lie above all headers, as the neighboring header
+        boxes would otherwise cover parts of them  */
+    shapes.push(...gaps)
+
+    /*  the cells: the diagonal of a DSM shaded, the cells with an entry
+        in the node box color, the numbers of the edges within a cycle in
+        the violation color  */
     for (let r = 0; r < rows.length; r++) {
         for (let c = 0; c < cols.length; c++) {
             const [ x, y ] = [ x0 + c * CELL, y0 + r * CELL ]
@@ -130,7 +168,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             const k        = cycles.get(rows[r].id)
             const feedback = count !== undefined && k !== undefined && k === cycles.get(cols[c].id)
             shapes.push(rectShape(x, y, CELL, CELL, "color-container-border", 1, undefined,
-                r === c ? "color-node-self-box" : count !== undefined ? "color-node-regular-box" : "color-container-box"))
+                !traced && r === c ? "color-node-self-box" : count !== undefined ? "color-node-regular-box" : "color-container-box"))
             if (count !== undefined)
                 shapes.push(textShape(x + CELL / 2, y + CELL / 2, String(count), "middle",
                     textWidth(String(count), fsNum, true), feedback ? "color-mark-violation" : "color-node-regular-name",

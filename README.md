@@ -377,6 +377,14 @@ and outlined as a dashed block on the diagonal, with the numbers of its
 edges in the `color-mark-violation` color. The type shared by all rows,
 and the one shared by all columns, become their titles in the corner.
 
+As soon as a node carries the attribute `axis: column`, the `matrix` is
+a traceability matrix instead: those nodes are its columns and all
+others its rows, a cell counts the edges between them in either
+direction, there is no diagonal and no cycle, and a row or column
+without any entry is marked as a gap by a header outlined dashed in the
+`color-mark-violation` color, or, if its node carries the attribute
+`trace: indirect`, in the `color-mark-warning` color.
+
 The diagram type `sequence` rejects the input with an error as soon as
 the graph contains a container. Its participants (the nodes) are ordered
 by declaration or by their `order` attributes (left-to-right in ascending
@@ -476,7 +484,7 @@ size-font-prop             22           grid-gap-vertical          20
 size-font-edge             16           grid-node-width-equal      true
 size-font-arity            16           grid-node-height-equal     true
 color-mark-violation       #cc3333      layout-row-cells           8
-                                        layout-cell-bits           8
+color-mark-warning         #e08a00      layout-cell-bits           8
                                         layer-numbered             false
 ```
 

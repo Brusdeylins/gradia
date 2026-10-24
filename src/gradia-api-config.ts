@@ -37,6 +37,7 @@ export const configDefaults = {
     "color-edge-arity":          "#333333",
     "color-edge-halo":           "#ffffff",
     "color-mark-violation":      "#cc3333",
+    "color-mark-warning":        "#e08a00",
     "size-font-node":            30,    /*  font size of node names                */
     "size-font-type":            16,    /*  font size of node types                */
     "size-font-prop":            22,    /*  font size of node properties           */

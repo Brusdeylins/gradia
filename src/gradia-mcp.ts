@@ -57,7 +57,12 @@ component relationships, data flows, dependency graphs, and similar structures.
 - "matrix": a dependency structure matrix: the nodes are both the rows and the
   columns, a cell counts the edges from its row to its column, and the cycles
   are outlined as blocks on the diagonal, their edge counts in the
-  "color-mark-violation" color. It rejects the input with an error if it
+  "color-mark-violation" color. As soon as a node carries the attribute
+  "axis: column", it is a traceability matrix instead: those nodes are the
+  columns, all others the rows, a cell counts the edges in either direction,
+  and a row or column without any entry is outlined in the
+  "color-mark-violation" color (or, with the attribute "trace: indirect", in
+  the "color-mark-warning" color). It rejects the input with an error if it
   contains a container.
 - "sequence": a sequence diagram: the nodes are the participants on top of
   their lifelines, left-to-right in declaration order or in ascending order of
