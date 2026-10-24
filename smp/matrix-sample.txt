@@ -1,0 +1,17 @@
+#type matrix
+
+web:     "Web Client" [ type: Component ]
+gateway: "API Gateway" [ type: Component ]
+orders:  "Order Service" [ type: Component ]
+billing: "Billing Service" [ type: Component ]
+model:   "Domain Model" [ type: Component ]
+store:   "Order Repository" [ type: Component ]
+
+web     --> gateway
+gateway --> orders
+gateway --> billing
+orders  --> model
+orders  -->[3] store
+billing --> model
+store   --> model
+model   --> orders

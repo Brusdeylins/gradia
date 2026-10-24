@@ -54,6 +54,11 @@ component relationships, data flows, dependency graphs, and similar structures.
   outermost first), drawn as columns left of the bands, and the option
   "layer-numbered" numbers the layers. It rejects the input with an error if it
   contains a container.
+- "matrix": a dependency structure matrix: the nodes are both the rows and the
+  columns, a cell counts the edges from its row to its column, and the cycles
+  are outlined as blocks on the diagonal, their edge counts in the
+  "color-mark-violation" color. It rejects the input with an error if it
+  contains a container.
 - "sequence": a sequence diagram: the nodes are the participants on top of
   their lifelines, left-to-right in declaration order or in ascending order of
   their "order" attributes (the nodes without one following), and the edges
@@ -136,7 +141,7 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
     <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                        | "#type" <whitespace> { <whitespace> } <type>
     <option>         ::= <letter> { <letter> | <digit> | "-" }
-    <type>           ::= "graph" | "hub" | "grid" | "layout" | "layer" | "sequence"
+    <type>           ::= "graph" | "hub" | "grid" | "layout" | "layer" | "matrix" | "sequence"
     <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
     <newline>        ::= "\\n"
     <whitespace>     ::= " " | "\\t" | "\\r"

@@ -50,6 +50,8 @@ participants, their lifelines, and their messages).
         cells, ruler, braces, and labels of a binary structure, as shapes)
     -   `src/gradia-api-type-layer.ts`: the `layer` diagram type (a uniform
         `graph`, its layers drawn as bands and its violations marked)
+    -   `src/gradia-api-type-matrix.ts`: the `matrix` diagram type (the
+        headers and cells of a dependency structure matrix, as shapes)
     -   `src/gradia-api-type-sequence.ts`: the `sequence` diagram type
         (participants, messages, and lifelines)
 -   `etc/`: the tool configurations (`eslint.mjs`, `tsconfig.json`,

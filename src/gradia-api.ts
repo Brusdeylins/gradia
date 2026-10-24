@@ -18,6 +18,7 @@ import { render as renderHub }                     from "./gradia-api-type-hub.j
 import { render as renderGrid }                    from "./gradia-api-type-grid.js"
 import { render as renderLayout }                  from "./gradia-api-type-layout.js"
 import { render as renderLayer }                   from "./gradia-api-type-layer.js"
+import { render as renderMatrix }                  from "./gradia-api-type-matrix.js"
 import { render as renderSequence }                from "./gradia-api-type-sequence.js"
 
 /*  re-export the graph model and configuration companion types  */
@@ -35,6 +36,7 @@ const renderers = {
     grid:     { render: renderGrid,     nestable: true,  gated: false, kinds: false },
     layout:   { render: renderLayout,   nestable: false, gated: false, kinds: false },
     layer:    { render: renderLayer,    nestable: false, gated: false, kinds: false },
+    matrix:   { render: renderMatrix,   nestable: false, gated: false, kinds: false },
     sequence: { render: renderSequence, nestable: false, gated: false, kinds: true  }
 } satisfies Record<string, DiagramTypeSpec>
 export type DiagramType = keyof typeof renderers
