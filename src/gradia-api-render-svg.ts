@@ -730,7 +730,8 @@ const renderShape = (shape: Shape, styler: Styler): string => {
         return `<path d="M ${shape.x} ${shape.y} ${shape.d}" class="${shape.fill !== undefined ?
             styler.box(shape.fill, shape.stroke, shape.width) : styler.line(shape.stroke, shape.width)}"` +
             `${shape.dash !== undefined ? ` stroke-dasharray="${escapeXML(shape.dash)}"` : ""}/>`
-    const text = `<text x="${shape.x}" y="${shape.y}"${shape.anchor !== "start" ? ` text-anchor="${shape.anchor}"` : ""} ` +
+    const turn = shape.upright === true ? ` transform="rotate(-90 ${shape.x} ${shape.y})"` : ""
+    const text = `<text x="${shape.x}" y="${shape.y}"${turn}${shape.anchor !== "start" ? ` text-anchor="${shape.anchor}"` : ""} ` +
         `class="${styler.text(shape.fill, shape.size, { bold: shape.bold, halo: shape.halo !== false })}">` +
         `${escapeXML(shape.text)}</text>`
     return shape.url === undefined ? text :

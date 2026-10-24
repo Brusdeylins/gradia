@@ -73,7 +73,8 @@ export const configDefaults = {
     "grid-node-width-equal":     true,  /*  grid: force equal width of node boxes  */
     "grid-node-height-equal":    true,  /*  grid: force equal height of node boxes */
     "layout-row-cells":          8,     /*  layout: cells per row                  */
-    "layout-cell-bits":          8      /*  layout: bits per cell (1 or 8)         */
+    "layout-cell-bits":          8,     /*  layout: bits per cell (1 or 8)         */
+    "layer-numbered":            false  /*  layer: number the layers top-down      */
 }
 export type Config = typeof configDefaults
 

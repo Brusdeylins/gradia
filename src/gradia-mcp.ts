@@ -49,8 +49,11 @@ component relationships, data flows, dependency graphs, and similar structures.
   an edge or a container.
 - "layer": a layered architecture: the layers (the "layer: <name>" attribute of
   the nodes) stack top-down as bands, and an edge pointing upwards against the
-  layering is drawn dashed in the "color-mark-violation" color. It rejects the
-  input with an error if it contains a container.
+  layering is drawn dashed in the "color-mark-violation" color. The attribute
+  "layer-group: <path>" assigns the layer to nested groups ("/"-separated,
+  outermost first), drawn as columns left of the bands, and the option
+  "layer-numbered" numbers the layers. It rejects the input with an error if it
+  contains a container.
 - "sequence": a sequence diagram: the nodes are the participants on top of
   their lifelines, left-to-right in declaration order or in ascending order of
   their "order" attributes (the nodes without one following), and the edges

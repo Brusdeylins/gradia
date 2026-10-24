@@ -29,7 +29,8 @@ export interface ShapePath {
 
 /*  a free-standing single-line text, anchored at its origin on its
     baseline with its start, its middle, or its end, optionally bold,
-    linked, or without the halo  */
+    linked, without the halo, or "upright" (turned 90 degrees
+    counter-clockwise, so it runs upwards from its origin)  */
 export interface ShapeText {
     kind:     "text"
     x:        number
@@ -42,6 +43,7 @@ export interface ShapeText {
     bold?:    boolean
     url?:     string
     halo?:    boolean
+    upright?: boolean
 }
 export type Shape = ShapePath | ShapeText
 
@@ -52,10 +54,15 @@ export const pathShape = (x: number, y: number, d: string, [ x1, y1, x2, y2 ]: A
     ({ kind: "path", x, y, d, box: [ x + x1, y + y1, x + x2, y + y2 ], stroke, width, dash, fill })
 
 /*  create a text shape of the given width and font size, vertically
-    centered on its origin  */
+    centered on its origin (or, upright, horizontally centered on it)  */
 export const textShape = (x: number, y: number, text: string, anchor: "start" | "middle" | "end", w: number,
     fill: ConfigEmbedded, size: ConfigFontSize | number, fs: number,
-    options: Pick<ShapeText, "bold" | "url" | "halo"> = {}): ShapeText => {
+    options: Pick<ShapeText, "bold" | "url" | "halo" | "upright"> = {}): ShapeText => {
+    if (options.upright === true) {
+        const y1 = anchor === "start" ? y - w : anchor === "end" ? y : y - w / 2
+        return { kind: "text", x: x + fs * 0.35, y, text, anchor,
+            box: [ x - fs * 0.6, y1 - 2, x + fs * 0.6, y1 + w + 2 ], fill, size, ...options }
+    }
     const x1 = anchor === "start" ? x : anchor === "end" ? x - w : x - w / 2
     return { kind: "text", x, y: y + fs * 0.35, text, anchor,
         box: [ x1 - 2, y - fs * 0.6, x1 + w + 2, y + fs * 0.6 ], fill, size, ...options }
