@@ -385,6 +385,11 @@ without any entry is marked as a gap by a header outlined dashed in the
 `color-mark-violation` color, or, if its node carries the attribute
 `trace: indirect`, in the `color-mark-warning` color.
 
+The diagram types marking violations or gaps (`layer` and `matrix`)
+explain the marks actually shown in a legend below the diagram (plus,
+for a `matrix`, the meaning of its cell numbers, naming its rows and
+columns by their titles).
+
 The diagram type `sequence` rejects the input with an error as soon as
 the graph contains a container. Its participants (the nodes) are ordered
 by declaration or by their `order` attributes (left-to-right in ascending

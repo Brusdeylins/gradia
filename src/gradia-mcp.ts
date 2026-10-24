@@ -64,6 +64,8 @@ component relationships, data flows, dependency graphs, and similar structures.
   "color-mark-violation" color (or, with the attribute "trace: indirect", in
   the "color-mark-warning" color). It rejects the input with an error if it
   contains a container.
+- "layer" and "matrix" explain the marks they show in a legend below the
+  diagram.
 - "sequence": a sequence diagram: the nodes are the participants on top of
   their lifelines, left-to-right in declaration order or in ascending order of
   their "order" attributes (the nodes without one following), and the edges

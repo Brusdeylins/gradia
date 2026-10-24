@@ -9,18 +9,21 @@ import { Node, Edge, Graph }        from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
 import { Layout, FS_GROUP, textWidth }
     from "./gradia-api-render-base.js"
-import { Shape, textShape, rectShape } from "./gradia-api-render-shape.js"
+import { Shape, textShape, rectShape, legendShapes }
+    from "./gradia-api-render-shape.js"
 import { LevelContext, rejectContainers, boundsOf }
     from "./gradia-api-render-container.js"
 import { render as renderGraph }    from "./gradia-api-type-graph.js"
 
 /*  the gap between two neighboring layer bands, the margin of a band
-    around its node boxes, and the geometry of the groups and numbers  */
+    around its node boxes, and the geometry of the groups, the numbers,
+    and the legend  */
 const BAND_GAP    = 8
 const BAND_MARGIN = 20
 const GROUP_W     = 40   /*  width of a group column              */
 const GROUP_GAP   = 8    /*  gap between the group columns        */
 const NUMBER_R    = 13   /*  radius of the circle of a number     */
+const LEGEND_GAP  = 24   /*  gap between the bands and the legend  */
 
 /*  the special "layer" annotation (the name of the layer of a node)  */
 const layerOf = (node: Node): string | undefined =>
@@ -169,7 +172,14 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         }
     }
 
-    /*  hand over the laid out graph with the bands and the violations  */
+    /*  explain a visible violation in a legend below the bands  */
     const marked = layout.edges.map((edge) => violates(edge))
+    if (marked.includes(true)) {
+        const x     = left - depth * (GROUP_W + GROUP_GAP)
+        shapes.push(...legendShapes([ { swatch: "line", color: "color-mark-violation",
+            text: "dependency against the layering" } ], x, bounds.maxY + BAND_MARGIN + LEGEND_GAP, config))
+    }
+
+    /*  hand over the laid out graph with the bands and the violations  */
     return { ...layout, shapes, marked }
 }

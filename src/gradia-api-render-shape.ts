@@ -5,7 +5,8 @@
 */
 
 /*  internal dependencies  */
-import { ConfigEmbedded, ConfigFontSize } from "./gradia-api-config.js"
+import { Config, ConfigEmbedded, ConfigFontSize } from "./gradia-api-config.js"
+import { textWidth }                              from "./gradia-api-render-base.js"
 
 /*  a rectangular area, given by its top-left and bottom-right corners  */
 type Area = [ number, number, number, number ]
@@ -81,3 +82,47 @@ export const rectShape = (x: number, y: number, w: number, h: number,
 export const shiftShape = (shape: Shape, dx: number, dy: number): Shape =>
     ({ ...shape, x: shape.x + dx, y: shape.y + dy,
         box: [ shape.box[0] + dx, shape.box[1] + dy, shape.box[2] + dx, shape.box[3] + dy ] })
+
+/*  an entry of the legend below a diagram, explaining a mark by a
+    swatch drawn like it: a "cell" (a numbered cell), a "block" (a
+    dashed cell outline), a "box" (a dashed node box), or a "line"  */
+export interface LegendEntry {
+    swatch: "cell" | "block" | "box" | "line"
+    color:  ConfigEmbedded
+    text:   string
+}
+
+/*  create the shapes of a legend, one entry per line, from the given top-left corner on  */
+export const legendShapes = (entries: LegendEntry[], x: number, y: number, config: Config): Shape[] => {
+    const shapes: Shape[] = []
+    const fs = config["size-font-type"]
+    const lh = Math.round(fs * 1.9)  /*  line height of an entry                  */
+    const sh = Math.round(fs * 1.4)  /*  height of a swatch                       */
+    const sw = 40                    /*  width of a swatch                        */
+    const tg = 12                    /*  gap between a swatch and its text        */
+    const m  = 3                     /*  margin of a block outline around a cell  */
+    const ah = 10                    /*  length of the arrow head of a line       */
+    entries.forEach((entry, k) => {
+        const top = y + k * lh
+        const mid = top + sh / 2
+        if (entry.swatch === "cell" || entry.swatch === "block") {
+            shapes.push(rectShape(x, top, sh, sh, "color-container-border", 1, undefined, "color-node-regular-box"))
+            shapes.push(textShape(x + sh / 2, mid, "1", "middle", textWidth("1", fs, true), entry.color,
+                "size-font-type", fs, { bold: true, halo: false }))
+            if (entry.swatch === "block")
+                shapes.push(rectShape(x - m, top - m, sh + m * 2, sh + m * 2, entry.color, 2, "6 4"))
+        }
+        else if (entry.swatch === "box") {
+            shapes.push(rectShape(x, top, sw, sh, "color-node-regular-border", 2, undefined, "color-node-regular-box", 6))
+            shapes.push(rectShape(x, top, sw, sh, entry.color, 2, "6 4", undefined, 6))
+        }
+        else {
+            shapes.push(pathShape(x, mid, `h ${sw - 4}`, [ 0, -2, sw, 2 ], entry.color, 3, "10 6"))
+            shapes.push(pathShape(x + sw - ah, mid - ah * 0.6, `l ${ah} ${ah * 0.6} l ${-ah} ${ah * 0.6}`,
+                [ 0, 0, ah, ah * 1.2 ], entry.color, 3))
+        }
+        shapes.push(textShape(x + sw + tg, mid, entry.text, "start", textWidth(entry.text, fs), "color-edge-name",
+            "size-font-type", fs))
+    })
+    return shapes
+}

@@ -8,7 +8,8 @@
 import { Node, Graph }              from "./gradia-api-model.js"
 import { Config }                   from "./gradia-api-config.js"
 import { Layout, textWidth }        from "./gradia-api-render-base.js"
-import { Shape, textShape, rectShape } from "./gradia-api-render-shape.js"
+import { Shape, LegendEntry, textShape, rectShape, legendShapes }
+    from "./gradia-api-render-shape.js"
 import { LevelContext, rejectContainers }
     from "./gradia-api-render-container.js"
 import { defaultStyleOf, urlOf, orderOf, typeOf }
@@ -189,6 +190,22 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         const size     = members.length * CELL
         shapes.push(rectShape(x, y, size, size, "color-mark-violation", 3, "10 6"))
     }
+
+    /*  explain the visible marks in a legend below the matrix (naming the
+        rows and the columns by their titles, if any)  */
+    const legend: LegendEntry[] = []
+    const [ rowName, colName ] = [ rowTitle ?? "row", colTitle ?? "column" ]
+    if (counts.size > 0)
+        legend.push({ swatch: "cell",  color: "color-node-regular-name", text: traced ?
+            `references between ${rowName} and ${colName}` : `references from ${rowName} to ${colName}` })
+    if (blocks.size > 0)
+        legend.push({ swatch: "block", color: "color-mark-violation",    text: "cyclic dependency" })
+    for (const color of [ "color-mark-violation", "color-mark-warning" ] as const)
+        for (const [ marks, item, other ] of [ [ rowMarks, rowName, colName ], [ colMarks, colName, rowName ] ] as const)
+            if (marks.includes(color))
+                legend.push({ swatch: "box", color, text: color === "color-mark-warning" ?
+                    `${item} without a direct ${other}, covered indirectly` : `${item} without any ${other}` })
+    shapes.push(...legendShapes(legend, margin, y0 + rows.length * CELL + HEAD_GAP * 3, config))
 
     /*  hand over the shapes for SVG rendering (no node boxes and edges)  */
     return { nodes: [], edges: [], cx: () => 0, cy: () => 0,

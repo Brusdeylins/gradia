@@ -28,7 +28,8 @@ participants, their lifelines, and their messages).
     -   `src/gradia-api-render-base.ts`: shared rendering geometry/font
         constants, text width measurement, and text word-wrapping
     -   `src/gradia-api-render-shape.ts`: the free-standing `Shape`
-        primitives a diagram type draws beside its node boxes and edges
+        primitives a diagram type draws beside its node boxes and edges,
+        and the legend below a diagram explaining its marks
     -   `src/gradia-api-render-node.ts`: node box text line breaking,
         measurement, and styling helpers
     -   `src/gradia-api-render-edge.ts`: edge routing (port/track
