@@ -390,7 +390,8 @@ from its arrow head), a gutter by one text line per edge name placed
 along its run. The `-min` options raise the result, so that even an
 unlabeled diagram can be spaced out, while the `-max` options cap it, so
 that neither many parallel edges nor a long label can push the nodes
-apart without bound.
+apart without bound. Only a crowded channel or gutter, whose edges are
+bundled, grows beyond its `-max` cap as far as its bundled tracks need.
 
 In a `graph` diagram (a `graph` container level, too) whose nodes end up
 in a single column, the container boxes are widened to the widest one,

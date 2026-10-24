@@ -17,7 +17,7 @@ import { Poly, NodeStyle, Layout, GroupBox, ContainerBox,
 import { linesOfNode, urlOf, typeOf, defaultStyleOf, containerHead,
     MIN_H, NAME_H, ATTR_H, ATTR_P, TYPE_H, TYPE_D, HEAD_H }
     from "./gradia-api-render-node.js"
-import { computeHops, pathOf, pointAt }
+import { computeHops, pathOf, pointAt, segmentsOf, junctionsOf }
     from "./gradia-api-render-edge.js"
 
 /*  escape a string for use inside a CSS string literal (the XML escaping
@@ -65,6 +65,14 @@ const TAG_DY = 12  /*  top offset of the group tag   */
 
 /*  the half width of the box an edge line segment occupies  */
 const LINE_PAD = 2
+
+/*  the radius of the dot marking a junction of bundled edges (clearly
+    wider than an edge line, but far below an arrow head)  */
+const JUNCTION_R = 5
+
+/*  the gap a name label on the stub of a bundled edge keeps in front of
+    the shared track, clear of its junction dot and foreign lines  */
+const STUB_GAP = 16
 
 /*  the clearance a label keeps from a foreign edge line, as a label
     merely not overlapping such a line still reads as its annotation  */
@@ -418,11 +426,66 @@ const renderEdgeArity = (edge: Edge, candidates: Box[], claim: (candidates: Box[
         `${escapeXML(edge.arity)}</text>` ]
 }
 
+/*  the preferred positions of the name labels of the bundled edges: on
+    the stub feeding the shared track (or else leaving it), flush toward
+    the track, above (or else below) the line, so the labels of a bundle
+    line up in front of the track instead of scattering along the stubs  */
+const stubLabels = (layout: Layout, config: Config): Map<number, Box[]> => {
+    const { edges, polys } = layout
+    const anchors = new Map<number, Box[]>()
+    const bundled = (i: number): boolean => layout.bundled?.[i] === true
+    if (!edges.some((edge, i) => bundled(i) && edge.name !== undefined))
+        return anchors
+
+    /*  a vertical segment lies on a shared track if another bundled edge
+        runs on its X position, and a horizontal stub is an own one if
+        no other bundled edge overlaps it  */
+    const { verts, horzs } = segmentsOf(polys, bundled)
+    const shared = (i: number, a: [ number, number ], b: [ number, number ]): boolean =>
+        a[0] === b[0] && (verts.get(a[0]) ?? []).some((seg) => seg.owner !== i)
+    const own = (i: number, a: [ number, number ], b: [ number, number ]): boolean =>
+        !(horzs.get(a[1]) ?? []).some((seg) => seg.owner !== i
+            && Math.min(seg.hi, Math.max(a[0], b[0])) > Math.max(seg.lo, Math.min(a[0], b[0])))
+
+    /*  place the label of every bundled edge on its first horizontal
+        stub turning onto (or else coming from) a shared track, as far
+        as the stub is long enough to hold it  */
+    edges.forEach((edge, i) => {
+        if (!bundled(i) || edge.name === undefined)
+            return
+        const poly = polys[i]
+        const w    = textWidth(edge.name, config["size-font-edge"])
+        const h    = config["size-font-edge"] + 4
+        for (const feeding of [ true, false ]) {
+            for (let k = 0; k < poly.length - 1; k++) {
+                const [ a, b ] = [ poly[k], poly[k + 1] ]
+                if (a[1] !== b[1] || !own(i, a, b) || !(feeding ?
+                    k + 2 < poly.length && shared(i, b, poly[k + 2]) :
+                    k >= 1 && shared(i, poly[k - 1], a)))
+                    continue
+                const [ from, at ] = feeding ? [ a, b ] : [ b, a ]
+                if (Math.abs(at[0] - from[0]) < w + 2 * STUB_GAP)
+                    continue
+                const dir = Math.sign(at[0] - from[0])
+                const x2  = at[0] - dir * STUB_GAP
+                const x1  = x2 - dir * w
+                anchors.set(i, [
+                    [ Math.min(x1, x2), a[1] - 3 - h, Math.max(x1, x2), a[1] - 3     ],
+                    [ Math.min(x1, x2), a[1] + 3,     Math.max(x1, x2), a[1] + 3 + h ]
+                ])
+                return
+            }
+        }
+    })
+    return anchors
+}
+
 /*  generate the SVG fragment for the name label of a single edge,
     placed near the middle of the route (dodging into a collision-free
-    position through the "claim" of the label placer)  */
+    position through the "claim" of the label placer), or, for a
+    bundled edge, preferably at one of its given stub positions  */
 const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Box[], dodge?: boolean) => Box,
-    styler: Styler, config: Config): string[] => {
+    styler: Styler, config: Config, preferred: Box[] = []): string[] => {
     if (edge.name === undefined)
         return []
     const w = textWidth(edge.name, config["size-font-edge"])
@@ -468,6 +531,7 @@ const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Box[], dodge
         }
     }
     candidates.sort((a, b) => near(a) - near(b))
+    candidates.unshift(...preferred)
     const box = claim(candidates)
     return [ `<text x="${(box[0] + box[2]) / 2}" y="${box[3] - 3}" ` +
         `class="${styler.text("color-edge-name", "size-font-edge", { middle: true, halo: true })}">` +
@@ -565,11 +629,18 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     /*  prepare the collision-free placement of the edge labels  */
     const { claim, reserve, occupied } = labelPlacer(layout, hops, config["size-edge-hop-radius"], config)
 
-    /*  generate the SVG fragments for the edge paths  */
+    /*  generate the SVG fragments for the edge paths (sharply turning
+        at the junctions of bundled edges) and the dots marking those
+        junctions on top of them  */
+    const junctions  = junctionsOf(polys, (i) => layout.bundled?.[i] === true)
+    const junctionAt = new Set(junctions.map(([ x, y ]) => `${x}:${y}`))
+    const junction   = junctionAt.size > 0 ? (x: number, y: number) => junctionAt.has(`${x}:${y}`) : undefined
     const svgEdges = polys.map((poly, i) =>
         `<path d="${pathOf(poly, hops[i],
-            config["size-edge-corner-radius"], config["size-edge-hop-radius"])}" ` +
+            config["size-edge-corner-radius"], config["size-edge-hop-radius"], junction)}" ` +
         `class="${classEdge}" marker-end="url(#${idArrow})"/>`)
+    const svgJunctions = junctions.map(([ x, y ]) =>
+        `<circle cx="${x}" cy="${y}" r="${JUNCTION_R}" class="${classArrow}"/>`)
 
     /*  reserve the position every arity label prefers -- the one beside
         its own arrow head -- before any name label is placed, as an
@@ -586,8 +657,10 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     /*  generate the SVG fragments for the edge labels (the names
         first, as their reservations keep the arity positions free)  */
     const svgLabels: string[] = []
+    const stubAt = stubLabels(layout, config)
     edges.forEach((edge, i) => {
-        svgLabels.push(...renderEdgeName(edge, polys[i], (c, dodge) => claim(c, i, dodge), styler, config))
+        svgLabels.push(...renderEdgeName(edge, polys[i], (c, dodge) => claim(c, i, dodge), styler, config,
+            stubAt.get(i)))
     })
     edges.forEach((edge, i) => {
         const candidates = arities[i]
@@ -635,6 +708,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         ...svgGroups,
         ...svgContainers,
         ...svgEdges,
+        ...svgJunctions,
         ...svgNodes,
         ...svgLabels,
         "</svg>",

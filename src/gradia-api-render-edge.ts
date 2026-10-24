@@ -13,6 +13,10 @@ import { Poly, ARITY_PAD, ARROW_H, arityHeight }
 /*  edge attachment port geometry  */
 export const PORT_PAD = 10  /*  padding of the port band inside the box  */
 
+/*  the minimum offset between the parallel tracks of a crowded
+    channel/gutter, so its edge lines always stay visibly apart  */
+const TRACK_GAP_MIN = 8
+
 /*  the separation of the adjacent ports of a node side: the configured
     one, raised to what the arity labels demand once any edge carries
     one, as such a label sits ARITY_PAD below the line of the port above
@@ -184,13 +188,30 @@ export const assignPorts = (
 /*  a channel/gutter track user: an edge entering the channel/gutter at
     cross-axis position posIn and leaving it at posOut (mirrored users
     enter from the far instead of the near side, hairpin users leave
-    on the very side they entered from)  */
+    on the very side they entered from), with the keys of the bundles
+    it may join in a crowded channel/gutter (one per shared edge end)  */
 export interface TrackUser {
     edge:     number
     posIn:    number
     posOut:   number
     mirror:   boolean
     hairpin?: boolean
+    bundles?: string[]
+}
+
+/*  a track unit: one track user or a bundle of users sharing a track,
+    with its mean entry/exit positions, its cross-axis span, and the
+    near-side and far-side stub positions of all its users  */
+interface TrackUnit {
+    users:  TrackUser[]
+    key?:   string
+    posIn:  number
+    posOut: number
+    mirror: boolean
+    lo:     number
+    hi:     number
+    nears:  number[]
+    fars:   number[]
 }
 
 /*  the minimum cross-axis distance between the track-following segments
@@ -206,20 +227,31 @@ const nears = (u: TrackUser): number[] =>
 const fars  = (u: TrackUser): number[] =>
     u.hairpin ? (u.mirror ? [ u.posIn, u.posOut ] : []) : [ u.mirror ? u.posIn : u.posOut ]
 
-/*  the number of crossings caused by placing user a on a nearer track
-    than user b: the far-side stubs of a (its exiting segment, or its
+/*  the track unit of track users sharing one track  */
+const unitOf = (users: TrackUser[], key?: string): TrackUnit => ({
+    users,
+    key,
+    posIn:  users.reduce((sum, u) => sum + u.posIn,  0) / users.length,
+    posOut: users.reduce((sum, u) => sum + u.posOut, 0) / users.length,
+    mirror: users[0].mirror,
+    lo:     Math.min(...users.map((u) => Math.min(u.posIn, u.posOut))),
+    hi:     Math.max(...users.map((u) => Math.max(u.posIn, u.posOut))),
+    nears:  users.flatMap(nears),
+    fars:   users.flatMap(fars)
+})
+
+/*  the number of crossings caused by placing unit a on a nearer track
+    than unit b: the far-side stubs of a (its exiting segment, or its
     entering one if mirrored) cross the track-following segment of b,
     and the near-side stubs of b cross the one of a (a stub touching
     the end of a segment counts too, as it would overlap a corner)  */
-const trackCrossings = (a: TrackUser, b: TrackUser, farsA: number[], nearsB: number[]): number => {
-    const within = (u: TrackUser, pos: number): boolean =>
-        pos >= Math.min(u.posIn, u.posOut) && pos <= Math.max(u.posIn, u.posOut)
+const trackCrossings = (a: TrackUnit, b: TrackUnit): number => {
     let n = 0
-    for (const pos of farsA)
-        if (within(b, pos))
+    for (const pos of a.fars)
+        if (pos >= b.lo && pos <= b.hi)
             n++
-    for (const pos of nearsB)
-        if (within(a, pos))
+    for (const pos of b.nears)
+        if (pos >= a.lo && pos <= a.hi)
             n++
     return n
 }
@@ -253,32 +285,31 @@ const TRACK_SEARCH_MAX = 100
 const TRACK_BLOCK_MAX  = 8
 const TRACK_PASSES_MAX = 100
 
-/*  reorder the seeded track users to the order causing the fewest
+/*  reorder the seeded track units to the order causing the fewest
     overlaps and then the fewest crossings, with ties broken toward the
-    seed order: for small user sets exactly, by a dynamic programming
-    over the user subsets (the linear ordering problem), for larger
-    ones by a local search moving blocks of adjacent users while this
+    seed order: for small unit sets exactly, by a dynamic programming
+    over the unit subsets (the linear ordering problem), for larger
+    ones by a local search moving blocks of adjacent units while this
     reduces the overlaps/crossings  */
-const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
+const minimizeCrossings = (seed: TrackUnit[]): TrackUnit[] => {
     const n = seed.length
     if (n < 2)
         return seed
 
-    /*  the weighted cost of placing seed user i before seed user j: the
+    /*  the weighted cost of placing seed unit i before seed unit j: the
         overlaps dominate (one outweighs all crossings possible among the
-        users, at most three per pair), then the crossings, and finally
-        a seed order inversion breaks ties (the near-side and far-side
-        stubs of every user are determined once, as the matrix grows
-        quadratically with the users, and the flat matrix is a plain
-        array, so its mostly small integers stay unboxed, unlike in a
-        "Float64Array", whose doubles slow down the local search)  */
-    const nearsOf = seed.map(nears)
-    const farsOf  = seed.map(fars)
+        units, at most three per pair of single users, and at most the
+        stubs of both units per pair of bundles), then the crossings,
+        and finally a seed order inversion breaks ties (the flat matrix
+        is a plain array, so its mostly small integers stay unboxed,
+        unlike in a "Float64Array", whose doubles slow down the search)  */
+    const stubs   = seed.reduce((sum, u) => sum + u.nears.length + u.fars.length, 0)
+    const weight  = stubs > 2 * n ? 2 * stubs * stubs : 2 * n * n
     const cost: number[] = []
     for (let i = 0; i < n; i++)
         for (let j = 0; j < n; j++)
-            cost.push((trackOverlaps(farsOf[i], nearsOf[j]) * 2 * n * n +
-                trackCrossings(seed[i], seed[j], farsOf[i], nearsOf[j])) * n * n + (i > j ? 1 : 0))
+            cost.push((trackOverlaps(seed[i].fars, seed[j].nears) * weight +
+                trackCrossings(seed[i], seed[j])) * n * n + (i > j ? 1 : 0))
     let order: number[]
     if (n <= TRACK_EXACT_MAX) {
         const best = new Float64Array(1 << n).fill(Infinity)
@@ -380,17 +411,19 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
     return order.map((i) => seed[i])
 }
 
-/*  assign the parallel tracks within a channel or gutter: the users are
-    ordered by their entry/exit positions, so that a track-following
-    segment never has to cross the entering segment of a parallel
-    neighbor (back turners get near tracks entry-position-ordered,
-    forward turners far tracks, reversed for mirrored users which
-    enter the channel/gutter from the far side), and this seed order
-    is then refined to the one causing the fewest crossings; users
-    whose track-following segments occupy disjoint cross-axis spans
-    share a track, so fewer tracks are used and they stay centered  */
-export const assignTracks = (users: TrackUser[], width: number, pad: number, gap: number): Map<number, number> => {
-    const order = (list: TrackUser[], mirror: boolean): TrackUser[] => {
+/*  order the track units by their entry/exit positions, so that a
+    track-following segment never has to cross the entering segment of
+    a parallel neighbor (back turners get near tracks entry-position-
+    ordered, forward turners far tracks, reversed for mirrored units
+    which enter the channel/gutter from the far side), refine this seed
+    order to the one causing the fewest crossings, and pack the ordered
+    units onto tracks: overlapping units keep their relative
+    crossing-avoiding order by always taking a farther track than every
+    earlier overlapping unit, while span-disjoint units share a track
+    (their entry/exit segments lie outside each other's span, so
+    sharing can never introduce a crossing)  */
+const packTracks = (units: TrackUnit[]): { trackOf: Map<TrackUnit, number>, tracks: number } => {
+    const order = (list: TrackUnit[], mirror: boolean): TrackUnit[] => {
         const dir   = mirror ? -1 : +1
         const backs = list.filter((u) => u.posOut <  u.posIn)
             .sort((a, b) => dir * ((a.posIn - b.posIn) || (a.posOut - b.posOut)))
@@ -399,35 +432,121 @@ export const assignTracks = (users: TrackUser[], width: number, pad: number, gap
         return [ ...backs, ...fores ]
     }
     const ordered = minimizeCrossings([
-        ...order(users.filter((u) => !u.mirror), false),
-        ...order(users.filter((u) =>  u.mirror), true)
+        ...order(units.filter((u) => !u.mirror), false),
+        ...order(units.filter((u) =>  u.mirror), true)
     ])
-
-    /*  pack the ordered users onto tracks: overlapping users keep their
-        relative crossing-avoiding order by always taking a farther track
-        than every earlier overlapping user, while span-disjoint users
-        share a track (their entry/exit segments lie outside each other's
-        span, so sharing can never introduce a crossing)  */
-    const overlap = (a: TrackUser, b: TrackUser): boolean =>
-        Math.min(a.posIn, a.posOut) < Math.max(b.posIn, b.posOut) + TRACK_CLEARANCE
-        && Math.min(b.posIn, b.posOut) < Math.max(a.posIn, a.posOut) + TRACK_CLEARANCE
-    const trackOf = new Map<number, number>()
+    const overlap = (a: TrackUnit, b: TrackUnit): boolean =>
+        a.lo < b.hi + TRACK_CLEARANCE && b.lo < a.hi + TRACK_CLEARANCE
+    const trackOf = new Map<TrackUnit, number>()
     let   tracks  = 0
     ordered.forEach((u, idx) => {
         let t = 0
         for (let j = 0; j < idx; j++)
             if (overlap(ordered[j], u))
-                t = Math.max(t, trackOf.get(ordered[j].edge)! + 1)
-        trackOf.set(u.edge, t)
+                t = Math.max(t, trackOf.get(ordered[j])! + 1)
+        trackOf.set(u, t)
         tracks = Math.max(tracks, t + 1)
     })
+    return { trackOf, tracks }
+}
 
-    /*  spread the used tracks centered within the channel/gutter  */
-    const step    = Math.min(gap, (width - pad) / Math.max(tracks - 1, 1))
+/*  the maximum number of users whose spans (extended by the track
+    clearance, exactly as the track packing compares them) overlap at
+    one and the same position  */
+const overlapDepth = (users: TrackUser[]): number => {
+    const events: [ number, number ][] = []
+    for (const u of users) {
+        events.push([ Math.min(u.posIn, u.posOut), +1 ])
+        events.push([ Math.max(u.posIn, u.posOut) + TRACK_CLEARANCE, -1 ])
+    }
+    events.sort((a, b) => (a[0] - b[0]) || (a[1] - b[1]))
+    let depth = 0
+    let max   = 0
+    for (const [ , delta ] of events) {
+        depth += delta
+        max = Math.max(max, depth)
+    }
+    return max
+}
+
+/*  group the users of a crowded channel/gutter into bundles sharing a
+    track: the bundle keys (qualified by the sides the users enter and
+    leave on) are dealt out largest first, each to its users not yet
+    dealt out, if at least two; all other users stay single, except a
+    straight passing one, which needs no track and is dropped  */
+const bundleUnits = (users: TrackUser[]): TrackUnit[] => {
+    const members = new Map<string, TrackUser[]>()
+    const add     = (key: string, u: TrackUser) => {
+        const list = members.get(key)
+        if (list === undefined)
+            members.set(key, [ u ])
+        else
+            list.push(u)
+    }
+    for (const u of users)
+        for (const key of u.bundles ?? [])
+            add(`${u.mirror ? "m" : "-"}${u.hairpin ? "h" : "-"}:${key}`, u)
+    const keys  = Array.from(members.keys()).sort((a, b) =>
+        members.get(b)!.length - members.get(a)!.length)
+    const dealt = new Set<TrackUser>()
+    const units: TrackUnit[] = []
+    for (const key of keys) {
+        const list = members.get(key)!.filter((u) => !dealt.has(u))
+        if (list.length < 2)
+            continue
+        for (const u of list)
+            dealt.add(u)
+        units.push(unitOf(list, key.slice(key.indexOf(":") + 1)))
+    }
+    for (const u of users)
+        if (!dealt.has(u) && (u.hairpin || u.posIn !== u.posOut))
+            units.push(unitOf([ u ]))
+    return units
+}
+
+/*  the assigned tracks of a channel/gutter: the offset of every user
+    from its center, the size a crowded one needs (0 otherwise), and
+    the bundled edges with their bundle keys  */
+export interface TrackAssignment {
+    offsets: Map<number, number>
+    need:    number
+    bundled: Map<number, string>
+}
+
+/*  assign the parallel tracks within a channel or gutter (see packTracks)
+    and spread them centered within it. A crowded channel/gutter, whose
+    tracks do not fit at the full track gap, bundles its users sharing
+    an edge end onto one track each, spreads its tracks at least at the
+    minimum track gap, and reports the size they need within the frame  */
+export const assignTracks = (users: TrackUser[], width: number, pad: number, gap: number,
+    frame: number): TrackAssignment => {
+    /*  users overlapping at one position need own tracks in any order,
+        so a deep enough overlap proves a crowded channel/gutter without
+        determining its costly order  */
+    const depth   = overlapDepth(users)
+    const crowded = gap > 0 && depth > 1 && depth > 1 + (width - pad) / gap
+    let   { trackOf, tracks } = crowded ? { trackOf: new Map<TrackUnit, number>(), tracks: 0 } :
+        packTracks(users.map((u) => unitOf([ u ])))
+    let   step    = Math.min(gap, (width - pad) / Math.max(tracks - 1, 1))
+    let   need    = 0
+    const bundled = new Map<number, string>()
+    if (crowded || (tracks > 1 && step < gap)) {
+        ({ trackOf, tracks } = packTracks(bundleUnits(users)))
+        step = Math.max(Math.min(gap, (width - pad) / Math.max(tracks - 1, 1)), TRACK_GAP_MIN)
+        need = frame + (tracks - 1) * step
+        for (const unit of trackOf.keys())
+            if (unit.key !== undefined && unit.users.length > 1)
+                for (const u of unit.users)
+                    bundled.set(u.edge, unit.key)
+    }
     const offsets = new Map<number, number>()
-    for (const [ edge, t ] of trackOf)
-        offsets.set(edge, (t - (tracks - 1) / 2) * step)
-    return offsets
+    for (const [ unit, t ] of trackOf)
+        for (const u of unit.users)
+            offsets.set(u.edge, (t - (tracks - 1) / 2) * step)
+    for (const u of users)
+        if (!offsets.has(u.edge))
+            offsets.set(u.edge, 0)
+    return { offsets, need, bundled }
 }
 
 /*  detect edge crossings: for every horizontal segment determine the
@@ -482,15 +601,78 @@ export const computeHops = (polys: Poly[]): Map<number, number[]>[] => {
     })
 }
 
+/*  a straight polyline segment of an edge (its owner): its span along
+    the vertical/horizontal line at its X/Y position  */
+export interface Segment {
+    lo:    number
+    hi:    number
+    owner: number
+}
+
+/*  index the segments of the selected polylines: the vertical ones by
+    their X and the horizontal ones by their Y position  */
+export const segmentsOf = (polys: Poly[], selected: (i: number) => boolean) => {
+    const verts = new Map<number, Segment[]>()
+    const horzs = new Map<number, Segment[]>()
+    polys.forEach((poly, i) => {
+        if (!selected(i))
+            return
+        for (let k = 0; k < poly.length - 1; k++) {
+            const [ a, b ] = [ poly[k], poly[k + 1] ]
+            const [ map, at, p, q ] = a[0] === b[0] ?
+                [ verts, a[0], a[1], b[1] ] : [ horzs, a[1], a[0], b[0] ]
+            const seg  = { lo: Math.min(p, q), hi: Math.max(p, q), owner: i }
+            const list = map.get(at)
+            if (list === undefined)
+                map.set(at, [ seg ])
+            else
+                list.push(seg)
+        }
+    })
+    return { verts, horzs }
+}
+
+/*  the junctions of the selected polylines (of the bundled edges): the
+    bends where lines of at least three directions (up, down, left,
+    right) meet, as a stub joins or a shared track forks there (unlike
+    at a common corner, where all of them turn alike)  */
+export const junctionsOf = (polys: Poly[], selected: (i: number) => boolean): Poly => {
+    const { verts, horzs } = segmentsOf(polys, selected)
+    const seen = new Set<string>()
+    const out: Poly = []
+    for (const [ i, poly ] of polys.entries()) {
+        if (!selected(i))
+            continue
+        for (let k = 1; k < poly.length - 1; k++) {
+            const [ x, y ] = poly[k]
+            const key = `${x}:${y}`
+            if (seen.has(key))
+                continue
+            seen.add(key)
+            let dirs = 0
+            for (const { lo, hi } of verts.get(x) ?? [])
+                dirs |= (lo < y && y <= hi ? 1 : 0) | (lo <= y && y < hi ? 2 : 0)
+            for (const { lo, hi } of horzs.get(y) ?? [])
+                dirs |= (lo < x && x <= hi ? 4 : 0) | (lo <= x && x < hi ? 8 : 0)
+            if ((dirs & 1) + ((dirs >> 1) & 1) + ((dirs >> 2) & 1) + ((dirs >> 3) & 1) >= 3)
+                out.push([ x, y ])
+        }
+    }
+    return out
+}
+
 /*  the Manhattan length of an orthogonal polyline segment  */
 const len = (a: [ number, number ], b: [ number, number ]): number =>
     Math.abs(b[0] - a[0]) + Math.abs(b[1] - a[1])
 
 /*  convert an edge polyline into an SVG path with rounded corners
-    at the bends and semi-circular hops at the crossing points  */
-export const pathOf = (poly: Poly, hop: Map<number, number[]>, rounding: number, hopRadius: number): string => {
+    at the bends (except the bends at a junction of bundled edges,
+    where the edge turns sharply at the junction mark) and
+    semi-circular hops at the crossing points  */
+export const pathOf = (poly: Poly, hop: Map<number, number[]>, rounding: number, hopRadius: number,
+    junction?: (x: number, y: number) => boolean): string => {
     const radius = (k: number): number => {
-        if (k <= 0 || k >= poly.length - 1)
+        if (k <= 0 || k >= poly.length - 1 || junction?.(poly[k][0], poly[k][1]))
             return 0
         let r = Math.min(rounding, len(poly[k - 1], poly[k]) / 2, len(poly[k], poly[k + 1]) / 2)
 

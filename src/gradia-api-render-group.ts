@@ -118,7 +118,8 @@ export const composeGroups = (parts: GroupPart[], layouts: Layout[], config: Con
         styleOf:    (node) => (layouts[groupIdxOf(node.id)].styleOf ?? defaultStyleOf)(node),
         groups,
         containers: layouts.flatMap((layout, i) => (layout.containers ?? []).map((c): ContainerBox =>
-            ({ ...c, x: c.x + dxs[i], y: c.y + dys[i] })))
+            ({ ...c, x: c.x + dxs[i], y: c.y + dys[i] }))),
+        bundled:    layouts.flatMap((layout) => layout.edges.map((_, i) => layout.bundled?.[i] ?? false))
     }
 }
 
