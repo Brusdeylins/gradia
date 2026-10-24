@@ -172,7 +172,7 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
   with arbitrary texts. Only the "sequence" type renders them, while the other
   types reject a kind other than "sync", as well as a "duration" or "time",
   with an error. Any other key is rejected with an error, too.
-- Seven attribute keys are reserved and consumed by the renderer instead of
+- Eight attribute keys are reserved and consumed by the renderer instead of
   being displayed as a regular "<key>: <val>" line:
   - "url: <url>" renders the node box as a hyperlink. Only relative URLs and
     the schemes "http", "https", and "mailto" are honored; any other URL is
@@ -187,7 +187,11 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
   - "container: <type>" marks the node as a container whose members are laid
     out with the diagram type <type> ("graph", "hub", or "grid"), even if it
     has no members at all,
-  - "order: <number>" places the node explicitly (see below).
+  - "order: <number>" places the node explicitly (see below),
+  - "shape: <shape>" draws the node box with another outline: "box" (the
+    default), "database" (a cylinder), "queue" (a lying cylinder), "cloud",
+    "stack" (several instances), "person" (a person badge), or "device" (a
+    device badge), an unknown shape being ignored.
 - A "graph" (a "graph" container level, too) with at least one node carrying an
   "order" attribute is laid out in that explicit order instead of by the layered
   algorithm: the distinct order values become the rows, top-down in ascending

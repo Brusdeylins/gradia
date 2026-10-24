@@ -9,7 +9,7 @@ import { Node, Edge, Graph }                       from "./gradia-api-model.js"
 import { Config }                                  from "./gradia-api-config.js"
 import { Poly, FS_GROUP, textWidth, Layout, ContainerBox }
     from "./gradia-api-render-base.js"
-import { parentOf, containerTypeOf, containerHead, typeOf, defaultStyleOf }
+import { parentOf, containerTypeOf, containerHead, typeOf, defaultStyleOf, badgeExtent }
     from "./gradia-api-render-node.js"
 import { simplifyPoly }                            from "./gradia-api-render-edge.js"
 
@@ -133,7 +133,7 @@ export const boundsOf = (layout: Layout, extra: Poly[] = []): Bounds => {
     let [ minX, minY, maxX, maxY ] = [ Infinity, Infinity, -Infinity, -Infinity ]
     for (const node of nodes) {
         minX = Math.min(minX, cx(node.id) - boxW.get(node.id)! / 2)
-        minY = Math.min(minY, cy(node.id) - boxH.get(node.id)! / 2)
+        minY = Math.min(minY, cy(node.id) - boxH.get(node.id)! / 2 - badgeExtent(node))
         maxX = Math.max(maxX, cx(node.id) + boxW.get(node.id)! / 2)
         maxY = Math.max(maxY, cy(node.id) + boxH.get(node.id)! / 2)
     }

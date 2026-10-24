@@ -49,6 +49,10 @@ Here are examples of the graph diagram renderings:
 
   ![container-sample](smp/container-sample.svg)
 
+- [shape-sample](smp/shape-sample.txt) (node shapes):
+
+  ![shape-sample](smp/shape-sample.svg)
+
 - [layout-bits](smp/layout-bits.txt) (bit fields):
 
   ![layout-bits](smp/layout-bits.svg)
@@ -219,7 +223,7 @@ separated by `|`.
   reject a kind other than `sync`, as well as a `duration` or `time`,
   with an error. Any other key is rejected with an error, too.
 
-- Seven attribute keys are reserved and consumed by the renderer instead
+- Eight attribute keys are reserved and consumed by the renderer instead
   of being displayed as a regular `<key>: <val>` line:
 
     - `url: <url>` renders the node box as a hyperlink. Only relative URLs
@@ -236,7 +240,12 @@ separated by `|`.
     - `container: <type>` marks the node as a container whose members
       are laid out with the diagram type `<type>` (`graph`, `hub`, or
       `grid`), even if it has no members at all,
-    - `order: <number>` places the node explicitly (see below).
+    - `order: <number>` places the node explicitly (see below),
+    - `shape: <shape>` draws the node box with another outline, keeping
+      its colors and text and claiming the room it needs: `box` (the
+      default), `database` (a cylinder), `queue` (a lying cylinder),
+      `cloud`, `stack` (several instances), `person` or `device` (a box
+      with a person or device badge), an unknown shape being ignored.
 
 - A `graph` (a `graph` container level, too) with at least one node
   carrying an `order` attribute is laid out in that explicit order

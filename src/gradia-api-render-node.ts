@@ -57,7 +57,24 @@ export const orderOf = (node: Node): number | undefined => {
 
 /*  the special attributes consumed by the renderers instead of being
     rendered as node box text lines  */
-const ATTRS_SPECIAL = new Set([ "url", "type", "primary", "group", "parent", "container", "order" ])
+const ATTRS_SPECIAL = new Set([ "url", "type", "primary", "group", "parent", "container", "order", "shape" ])
+
+/*  the special "shape" annotation (the outline of the node box, keeping
+    its colors and text, an unknown value being ignored)  */
+const nodeShapes = [ "box", "database", "queue", "cloud", "stack", "person", "device" ] as const
+export type NodeShape = typeof nodeShapes[number]
+export const QUEUE_RX  = 16  /*  horizontal radius of the caps of a lying cylinder   */
+export const STACK_OFF = 12  /*  offset of the rearmost copy behind a stack front    */
+export const BADGE_R   = 13  /*  radius of the badge on the top border of a box      */
+export const shapeOf = (node: Node): NodeShape => {
+    const val = node.attrs.findLast((attr) => attr.key === "shape")?.val
+    return nodeShapes.find((shape) => shape === val) ?? "box"
+}
+
+/*  the extent a node occupies above its box: the upper half of the
+    badge of a "person" or "device" plus some clearance  */
+export const badgeExtent = (node: Node): number =>
+    [ "person", "device" ].includes(shapeOf(node)) ? BADGE_R + 2 : 0
 
 /*  split the attributes rendered as text lines from the special ones  */
 export const attrsOfNode = (node: Node): Attr[] =>
@@ -166,8 +183,17 @@ export const measureNodes = (
         const h = MIN_H(config) + (lines.name.length - 1) * NAME_H(config) +
             lines.type.length * TYPE_H(config) +
             (lines.attrs.length > 0 ? ATTR_P + (lines.attrs.length - 1) * ATTR_H(config) + ATTR_B : 0)
-        boxW.set(node.id, Math.max(config["size-node-width-min"], Math.ceil(w) + PAD_W * 2))
-        boxH.set(node.id, Math.max(h, Math.ceil(h * scaleOf(node))))
+        const bw = Math.max(config["size-node-width-min"], Math.ceil(w) + PAD_W * 2)
+        const bh = Math.max(h, Math.ceil(h * scaleOf(node)))
+
+        /*  an outline other than a box claims additional room around the
+            text: the caps of a cylinder, the bulges of a cloud, the
+            copies behind the front box of a stack  */
+        const shape = shapeOf(node)
+        boxW.set(node.id, shape === "queue" ? bw + QUEUE_RX * 2 + PAD_W :
+            shape === "cloud" ? Math.ceil(bw * 1.2) : shape === "stack" ? bw + STACK_OFF : bw)
+        boxH.set(node.id, shape === "database" ? Math.ceil(bh * 1.5) :
+            shape === "cloud" ? Math.ceil(bh * 1.4) : shape === "stack" ? bh + STACK_OFF : bh)
         contentH.set(node.id, h)
     }
     return { boxW, boxH, contentH }
