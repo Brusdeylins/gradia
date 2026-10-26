@@ -2,6 +2,12 @@
 ChangeLog
 =========
 
+1.4.3 (2026-10-10)
+------------------
+
+-   UPDATE [infr]: upgrade the "@modelcontextprotocol/sdk", "eslint", "typescript-eslint",
+    "neostandard", "globals", "@types/node", and "vite" dependencies to their latest versions
+
 1.4.2 (2026-09-20)
 ------------------
 
