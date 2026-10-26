@@ -3,7 +3,7 @@
     "description":                   "Object Graph Diagram Rendering",
     "keywords":                      [ "object", "graph", "diagram", "rendering", "svg", "layout", "api", "cli" ],
     "publishConfig":                 { "access": "public" },
-    "version":                       "1.4.3",
+    "version":                       "1.4.4",
     "license":                       "MIT",
     "author": {
         "name":                      "Dr. Ralf S. Engelschall",
