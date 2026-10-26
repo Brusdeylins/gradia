@@ -211,11 +211,17 @@ const fars  = (u: TrackUser): number[] =>
     entering one if mirrored) cross the track-following segment of b,
     and the near-side stubs of b cross the one of a (a stub touching
     the end of a segment counts too, as it would overlap a corner)  */
-const trackCrossings = (a: TrackUser, b: TrackUser): number => {
+const trackCrossings = (a: TrackUser, b: TrackUser, farsA: number[], nearsB: number[]): number => {
     const within = (u: TrackUser, pos: number): boolean =>
         pos >= Math.min(u.posIn, u.posOut) && pos <= Math.max(u.posIn, u.posOut)
-    return fars(a).filter((pos) => within(b, pos)).length +
-        nears(b).filter((pos) => within(a, pos)).length
+    let n = 0
+    for (const pos of farsA)
+        if (within(b, pos))
+            n++
+    for (const pos of nearsB)
+        if (within(a, pos))
+            n++
+    return n
 }
 
 /*  the number of collinear overlaps caused by placing user a on a
@@ -223,8 +229,16 @@ const trackCrossings = (a: TrackUser, b: TrackUser): number => {
     of b at the very same cross-axis position run on top of each other
     between the two tracks (unlike a crossing, which is still readable
     through its hop, an overlap merges the two edges visually)  */
-const trackOverlaps = (a: TrackUser, b: TrackUser): number =>
-    fars(a).filter((pos) => nears(b).includes(pos)).length
+const trackOverlaps = (farsA: number[], nearsB: number[]): number => {
+    let n = 0
+    for (const pos of farsA)
+        for (const near of nearsB)
+            if (near === pos) {
+                n++
+                break
+            }
+    return n
+}
 
 /*  the maximum number of users for which the crossing-minimal track
     order is determined exactly (the effort doubles with every user)  */
@@ -253,9 +267,18 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
     /*  the weighted cost of placing seed user i before seed user j: the
         overlaps dominate (one outweighs all crossings possible among the
         users, at most three per pair), then the crossings, and finally
-        a seed order inversion breaks ties  */
-    const cost = seed.map((a, i) => seed.map((b, j) =>
-        (trackOverlaps(a, b) * 2 * n * n + trackCrossings(a, b)) * n * n + (i > j ? 1 : 0)))
+        a seed order inversion breaks ties (the near-side and far-side
+        stubs of every user are determined once, as the matrix grows
+        quadratically with the users, and the flat matrix is a plain
+        array, so its mostly small integers stay unboxed, unlike in a
+        "Float64Array", whose doubles slow down the local search)  */
+    const nearsOf = seed.map(nears)
+    const farsOf  = seed.map(fars)
+    const cost: number[] = []
+    for (let i = 0; i < n; i++)
+        for (let j = 0; j < n; j++)
+            cost.push((trackOverlaps(farsOf[i], nearsOf[j]) * 2 * n * n +
+                trackCrossings(seed[i], seed[j], farsOf[i], nearsOf[j])) * n * n + (i > j ? 1 : 0))
     let order: number[]
     if (n <= TRACK_EXACT_MAX) {
         const best = new Float64Array(1 << n).fill(Infinity)
@@ -269,7 +292,7 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
                 let total = best[rest]
                 for (let v = 0; v < n; v++)
                     if ((rest & (1 << v)) !== 0)
-                        total += cost[v][u]
+                        total += cost[v * n + u]
                 if (total < best[s]) {
                     best[s] = total
                     last[s] = u
@@ -293,6 +316,14 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
             behind and ahead of it is applied, and the search continues
             with the next block instead of restarting  */
         order = seed.map((_, i) => i)
+
+        /*  precompute the cost change of swapping two users once:
+            diff[a * n + b] is the cost of placing user a before user b
+            minus the cost of the reverse placement  */
+        const diff: number[] = []
+        for (let a = 0; a < n; a++)
+            for (let b = 0; b < n; b++)
+                diff.push(cost[a * n + b] - cost[b * n + a])
         const bounded = n > TRACK_SEARCH_MAX
         const maxLen  = bounded ? Math.min(n - 1, TRACK_BLOCK_MAX) : n - 1
         const passes  = bounded ? TRACK_PASSES_MAX : Infinity
@@ -305,8 +336,9 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
                     let forward = true
                     let delta   = 0
                     for (let k = i + len; k < n; k++) {
+                        const row = order[k] * n
                         for (let b = i; b < i + len; b++)
-                            delta += cost[order[k]][order[b]] - cost[order[b]][order[k]]
+                            delta += diff[row + order[b]]
                         if (delta < best) {
                             best    = delta
                             target  = k
@@ -319,8 +351,9 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
                     for (let k = i - 1; k >= 0; k--) {
                         if (target >= 0 && !bounded)
                             break
+                        const other = order[k]
                         for (let b = i; b < i + len; b++)
-                            delta += cost[order[b]][order[k]] - cost[order[k]][order[b]]
+                            delta += diff[order[b] * n + other]
                         if (delta < best) {
                             best    = delta
                             target  = k
@@ -403,15 +436,21 @@ export const assignTracks = (users: TrackUser[], width: number, pad: number, gap
 export const computeHops = (polys: Poly[]): Map<number, number[]>[] => {
     /*  collect all vertical segments once, instead of re-scanning
         every polyline again for each single horizontal segment  */
-    const verts: { owner: number, x: number, y1: number, y2: number }[] = []
+    const verts: { idx: number, owner: number, x: number, y1: number, y2: number }[] = []
     polys.forEach((poly, j) => {
         for (let m = 0; m < poly.length - 1; m++) {
             const [ c, d ] = [ poly[m], poly[m + 1] ]
             if (c[0] !== d[0])
                 continue
-            verts.push({ owner: j, x: c[0], y1: Math.min(c[1], d[1]), y2: Math.max(c[1], d[1]) })
+            verts.push({ idx: verts.length, owner: j, x: c[0], y1: Math.min(c[1], d[1]), y2: Math.max(c[1], d[1]) })
         }
     })
+
+    /*  sweep the vertical segments ordered by their position, so every
+        horizontal segment only visits the ones within its own span (found
+        by a binary search), and report the crossing ones in their original
+        order of collection  */
+    const byX = verts.slice().sort((a, b) => a.x - b.x)
     return polys.map((poly, i) => {
         const result = new Map<number, number[]>()
         for (let k = 0; k < poly.length - 1; k++) {
@@ -419,14 +458,25 @@ export const computeHops = (polys: Poly[]): Map<number, number[]>[] => {
             if (a[1] !== b[1])
                 continue
             const hy  = a[1]
-            const hx1 = Math.min(a[0], b[0])
-            const hx2 = Math.max(a[0], b[0])
-            const xs: number[] = []
-            for (const v of verts)
-                if (v.owner !== i && v.x > hx1 + 1 && v.x < hx2 - 1 && hy > v.y1 + 1 && hy < v.y2 - 1)
-                    xs.push(v.x)
-            if (xs.length > 0)
-                result.set(k, xs)
+            const lo  = Math.min(a[0], b[0]) + 1
+            const hi  = Math.max(a[0], b[0]) - 1
+            let   l   = 0
+            let   h   = byX.length
+            while (l < h) {
+                const m = (l + h) >>> 1
+                if (byX[m].x > lo)
+                    h = m
+                else
+                    l = m + 1
+            }
+            const found: typeof verts = []
+            for (let m = l; m < byX.length && byX[m].x < hi; m++) {
+                const v = byX[m]
+                if (v.owner !== i && hy > v.y1 + 1 && hy < v.y2 - 1)
+                    found.push(v)
+            }
+            if (found.length > 0)
+                result.set(k, found.sort((a, b) => a.idx - b.idx).map((v) => v.x))
         }
         return result
     })

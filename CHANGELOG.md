@@ -8,7 +8,12 @@ ChangeLog
 -   IMPROVEMENT [code]: speed up the rendering of very large "graph" and "hub" diagrams by bounding
     the local search of the track crossing minimization for more than 100 track users per channel
     or gutter (blocks of at most 8 users, best move per block, at most 100 passes) and by skipping
-    the node nudging for more than 300 edges (contributed by Matthias Brusdeylins)
+    the node nudging for more than 300 edges.
+
+-   IMPROVEMENT [code]: further speed up the rendering of large "graph" and "hub" diagrams, with
+    byte-identical output, by precomputing the track order cost changes once, by sweeping the
+    vertical segments when detecting edge crossings, and by indexing the edge lines and label
+    areas in a bucket grid for the label placement.
 
 1.4.3 (2026-10-10)
 ------------------
