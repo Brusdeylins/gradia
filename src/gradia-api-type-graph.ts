@@ -34,6 +34,7 @@ const LOOP_TOP = 52  /*  detour of a self-loop above its node box    */
 /*  node nudging constants  */
 const NUDGE_GAP    = 24  /*  min port distance of a nudged node from its gutter tracks  */
 const NUDGE_PASSES = 3   /*  max number of node nudging passes                          */
+const NUDGE_EDGES  = 300 /*  max number of edges for which nodes are nudged at all      */
 
 /*  snap raw node positions onto a discrete grid by clustering the
     distinct X coordinates into columns and Y coordinates into rows  */
@@ -708,6 +709,12 @@ const nudgeNodes = (
         routing (all shifts are relative to the current position, which
         already includes the shifts of the previous passes)  */
     let current = route()
+
+    /*  skip the nudging on large graphs, as every tried shift re-routes
+        all edges, so its effort grows with the node count times the
+        edge count, while it only straightens a few direct edges  */
+    if (edges.length > NUDGE_EDGES)
+        return current
     for (let pass = 0; pass < NUDGE_PASSES; pass++) {
         let changed = false
         for (const node of nodes) {

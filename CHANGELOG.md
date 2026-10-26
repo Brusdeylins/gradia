@@ -2,6 +2,14 @@
 ChangeLog
 =========
 
+1.4.4 (2026-10-XX)
+------------------
+
+-   IMPROVEMENT [code]: speed up the rendering of very large "graph" and "hub" diagrams by bounding
+    the local search of the track crossing minimization for more than 100 track users per channel
+    or gutter (blocks of at most 8 users, best move per block, at most 100 passes) and by skipping
+    the node nudging for more than 300 edges (contributed by Matthias Brusdeylins)
+
 1.4.3 (2026-10-10)
 ------------------
 

@@ -230,6 +230,15 @@ const trackOverlaps = (a: TrackUser, b: TrackUser): number =>
     order is determined exactly (the effort doubles with every user)  */
 const TRACK_EXACT_MAX = 14
 
+/*  the maximum number of users for which the local search tries blocks
+    of any length and restarts after every improving move (beyond it,
+    the search is bounded to blocks of at most TRACK_BLOCK_MAX users and
+    at most TRACK_PASSES_MAX passes, as the restarting search grows too
+    fast with hundreds of users)  */
+const TRACK_SEARCH_MAX = 100
+const TRACK_BLOCK_MAX  = 8
+const TRACK_PASSES_MAX = 100
+
 /*  reorder the seeded track users to the order causing the fewest
     overlaps and then the fewest crossings, with ties broken toward the
     seed order: for small user sets exactly, by a dynamic programming
@@ -279,31 +288,59 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
             run), until no such move remains (a single-user move is
             the block move of length one, while the longer blocks let
             groups of users pass an obstacle which none of its users
-            could pass on its own)  */
+            could pass on its own); for large user sets the search is
+            bounded instead: per block, the best move over the runs
+            behind and ahead of it is applied, and the search continues
+            with the next block instead of restarting  */
         order = seed.map((_, i) => i)
-        for (let improved = true; improved;) {
+        const bounded = n > TRACK_SEARCH_MAX
+        const maxLen  = bounded ? Math.min(n - 1, TRACK_BLOCK_MAX) : n - 1
+        const passes  = bounded ? TRACK_PASSES_MAX : Infinity
+        for (let improved = true, pass = 0; improved && pass < passes; pass++) {
             improved = false
-            for (let len = 1; len < n && !improved; len++) {
-                for (let i = 0; i + len <= n && !improved; i++) {
-                    let delta = 0
-                    for (let k = i + len; k < n && !improved; k++) {
+            for (let len = 1; len <= maxLen; len++) {
+                for (let i = 0; i + len <= n; i++) {
+                    let best    = 0
+                    let target  = -1
+                    let forward = true
+                    let delta   = 0
+                    for (let k = i + len; k < n; k++) {
                         for (let b = i; b < i + len; b++)
                             delta += cost[order[k]][order[b]] - cost[order[b]][order[k]]
-                        if (delta < 0) {
-                            order.splice(k - len + 1, 0, ...order.splice(i, len))
-                            improved = true
+                        if (delta < best) {
+                            best    = delta
+                            target  = k
+                            forward = true
+                            if (!bounded)
+                                break
                         }
                     }
                     delta = 0
-                    for (let k = i - 1; k >= 0 && !improved; k--) {
+                    for (let k = i - 1; k >= 0; k--) {
+                        if (target >= 0 && !bounded)
+                            break
                         for (let b = i; b < i + len; b++)
                             delta += cost[order[b]][order[k]] - cost[order[k]][order[b]]
-                        if (delta < 0) {
-                            order.splice(k, 0, ...order.splice(i, len))
-                            improved = true
+                        if (delta < best) {
+                            best    = delta
+                            target  = k
+                            forward = false
+                            if (!bounded)
+                                break
                         }
                     }
+                    if (target >= 0) {
+                        if (forward)
+                            order.splice(target - len + 1, 0, ...order.splice(i, len))
+                        else
+                            order.splice(target, 0, ...order.splice(i, len))
+                        improved = true
+                        if (!bounded)
+                            break
+                    }
                 }
+                if (improved && !bounded)
+                    break
             }
         }
     }
