@@ -2,7 +2,7 @@
 ChangeLog
 =========
 
-1.4.4 (2026-10-XX)
+1.4.4 (2026-10-27)
 ------------------
 
 -   IMPROVEMENT [code]: speed up the rendering of very large "graph" and "hub" diagrams by bounding
@@ -14,6 +14,8 @@ ChangeLog
     byte-identical output, by precomputing the track order cost changes once, by sweeping the
     vertical segments when detecting edge crossings, and by indexing the edge lines and label
     areas in a bucket grid for the label placement.
+
+-   UPDATE [infr]: upgrade the NPM dependencies.
 
 1.4.3 (2026-10-10)
 ------------------
