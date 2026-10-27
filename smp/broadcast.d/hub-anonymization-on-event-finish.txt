@@ -1,0 +1,73 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DR.RULE-anonymize: "Anonymization on Event Finish" [ url: "#REQS-DR.RULE-anonymize", type: RULE, primary: true ]
+REQS-DG.TERM-event: Event [ url: "#REQS-DG.TERM-event", type: TERM ]
+REQS-DG.TERM-user: User [ url: "#REQS-DG.TERM-user", type: TERM ]
+REQS-DG.TERM-manager: Manager [ url: "#REQS-DG.TERM-manager", type: TERM ]
+REQS-DG.TERM-moderator: Moderator [ url: "#REQS-DG.TERM-moderator", type: TERM ]
+REQS-DG.TERM-role: Role [ url: "#REQS-DG.TERM-role", type: TERM ]
+REQS-DG.TERM-message: Message [ url: "#REQS-DG.TERM-message", type: TERM ]
+REQS-DG.TERM-question: Question [ url: "#REQS-DG.TERM-question", type: TERM ]
+REQS-DG.TERM-chat: Chat [ url: "#REQS-DG.TERM-chat", type: TERM ]
+REQS-DG.TERM-like: Like [ url: "#REQS-DG.TERM-like", type: TERM ]
+REQS-DG.TERM-authtoken: "Authorization Token" [ url: "#REQS-DG.TERM-authtoken", type: TERM ]
+REQS-DG.TERM-sessiontoken: "Session Token" [ url: "#REQS-DG.TERM-sessiontoken", type: TERM ]
+REQS-DG.TERM-accesslist: "Access List" [ url: "#REQS-DG.TERM-accesslist", type: TERM ]
+REQS-DG.TERM-anonymization: Anonymization [ url: "#REQS-DG.TERM-anonymization", type: TERM ]
+REQS-FR.REQUIREMENT-gdpr-eu: "GDPR-Compliant EU Processing" [ url: "#REQS-FR.REQUIREMENT-gdpr-eu", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-user-consent: "Explicit User Consent" [ url: "#REQS-FR.REQUIREMENT-user-consent", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-user-stats: "User Statistics" [ url: "#REQS-FR.REQUIREMENT-user-stats", type: REQUIREMENT ]
+REQS-SP.PREMISE-message-personal-data: "Message Texts Contain Personal Data" [ url: "#REQS-SP.PREMISE-message-personal-data", type: PREMISE ]
+REQS-DW.WORKFLOW-run-broadcast-event.HANDOFF-hand-over: hand-over [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.HANDOFF-hand-over", type: HANDOFF ]
+REQS-UC.USE-CASE-moderate: "Moderate and Forward Messages" [ url: "#REQS-UC.USE-CASE-moderate", type: USE-CASE ]
+REQS-UC.USE-CASE-publish-start-finish: "Publish, Start, and Finish Event" [ url: "#REQS-UC.USE-CASE-publish-start-finish", type: USE-CASE ]
+REQS-UC.USE-CASE-export-data: "Export Anonymized Event Data" [ url: "#REQS-UC.USE-CASE-export-data", type: USE-CASE ]
+DATA-SM.LIFECYCLE-event.TRANSITION-finish: finish [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-finish", type: TRANSITION ]
+DATA-SM.LIFECYCLE-userstatistic.TRANSITION-unlink: unlink [ url: "#DATA-SM.LIFECYCLE-userstatistic.TRANSITION-unlink", type: TRANSITION ]
+DATA-AM.PERMISSION-moderator-enter-event: "Enter the Event" [ url: "#DATA-AM.PERMISSION-moderator-enter-event", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-run-event: "Run the Event" [ url: "#DATA-AM.PERMISSION-manager-run-event", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-roles: "Grant Event Roles" [ url: "#DATA-AM.PERMISSION-manager-roles", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-events: "Administer Every Event" [ url: "#DATA-AM.PERMISSION-administrator-events", type: PERMISSION ]
+TEST-TC.TEST-CASE-anonymize: "Anonymization Removes Personal Data" [ url: "#TEST-TC.TEST-CASE-anonymize", type: TEST-CASE ]
+
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-anonymization
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-message
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-chat
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-question
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-like
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-authtoken
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-sessiontoken
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-accesslist
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-user
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-role
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-moderator
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-manager
+REQS-DR.RULE-anonymize --(constrains)--> REQS-FR.REQUIREMENT-user-consent
+REQS-DR.RULE-anonymize --(constrains)--> REQS-FR.REQUIREMENT-gdpr-eu
+REQS-DR.RULE-anonymize --(constrains)--> REQS-FR.REQUIREMENT-user-stats
+REQS-DR.RULE-anonymize --(premises)--> REQS-SP.PREMISE-message-personal-data
+REQS-DW.WORKFLOW-run-broadcast-event.HANDOFF-hand-over --(rules)--> REQS-DR.RULE-anonymize
+REQS-UC.USE-CASE-moderate --(rules)--> REQS-DR.RULE-anonymize
+REQS-UC.USE-CASE-publish-start-finish --(rules)--> REQS-DR.RULE-anonymize
+REQS-UC.USE-CASE-export-data --(rules)--> REQS-DR.RULE-anonymize
+DATA-SM.LIFECYCLE-event.TRANSITION-finish --(rules)--> REQS-DR.RULE-anonymize
+DATA-SM.LIFECYCLE-userstatistic.TRANSITION-unlink --(rules)--> REQS-DR.RULE-anonymize
+DATA-AM.PERMISSION-moderator-enter-event --(rules)--> REQS-DR.RULE-anonymize
+DATA-AM.PERMISSION-manager-run-event --(rules)--> REQS-DR.RULE-anonymize
+DATA-AM.PERMISSION-manager-roles --(rules)--> REQS-DR.RULE-anonymize
+DATA-AM.PERMISSION-administrator-events --(rules)--> REQS-DR.RULE-anonymize
+TEST-TC.TEST-CASE-anonymize --(verifies)--> REQS-DR.RULE-anonymize

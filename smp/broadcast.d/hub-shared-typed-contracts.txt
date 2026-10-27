@@ -1,0 +1,45 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-QP.TACTIC-typed-contracts: "Shared Typed Contracts" [ url: "#ARCH-QP.TACTIC-typed-contracts", type: TACTIC, primary: true, QUALITY: Maintainability ]
+REQS-NR.REQUIREMENT-contract-safety: "Compile-Time Contract Safety" [ url: "#REQS-NR.REQUIREMENT-contract-safety", type: REQUIREMENT ]
+ARCH-AT.PRINCIPLE-shared-contracts: "Shared Contracts in Code" [ url: "#ARCH-AT.PRINCIPLE-shared-contracts", type: PRINCIPLE ]
+ARCH-AP.PATTERN-shared-kernel: "Shared Kernel" [ url: "#ARCH-AP.PATTERN-shared-kernel", type: PATTERN ]
+ARCH-FV.COMPONENT-client: "Web Client" [ url: "#ARCH-FV.COMPONENT-client", type: COMPONENT ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT ]
+ARCH-DA.ASPECT-module-split: "Client/Common/Server Split" [ url: "#ARCH-DA.ASPECT-module-split", type: ASPECT ]
+ARCH-DA.ASPECT-typescript: "TypeScript Everywhere" [ url: "#ARCH-DA.ASPECT-typescript", type: ASPECT ]
+ARCH-DA.ASPECT-linting: "Layered Linting" [ url: "#ARCH-DA.ASPECT-linting", type: ASPECT ]
+ARCH-DA.ASPECT-dependency-layering: "Dependency Layering" [ url: "#ARCH-DA.ASPECT-dependency-layering", type: ASPECT ]
+ARCH-DA.ASPECT-identifier-naming: "Identifier Naming" [ url: "#ARCH-DA.ASPECT-identifier-naming", type: ASPECT ]
+ARCH-DD.DECISION-typed-common: "TypeScript with a shared common module across client and server" [ url: "#ARCH-DD.DECISION-typed-common", type: DECISION ]
+ARCH-TS.TIER-common.COMPONENT-language: Language [ url: "#ARCH-TS.TIER-common.COMPONENT-language", type: COMPONENT ]
+ARCH-TS.TIER-common.COMPONENT-linting: Linting [ url: "#ARCH-TS.TIER-common.COMPONENT-linting", type: COMPONENT ]
+ARCH-CP.CODE-PATTERN-dao-per-entity: "DAO per Entity" [ url: "#ARCH-CP.CODE-PATTERN-dao-per-entity", type: CODE-PATTERN ]
+
+ARCH-QP.TACTIC-typed-contracts --(addresses)--> REQS-NR.REQUIREMENT-contract-safety
+ARCH-QP.TACTIC-typed-contracts --(guided-by)--> ARCH-AT.PRINCIPLE-shared-contracts
+ARCH-QP.TACTIC-typed-contracts --(patterns)--> ARCH-AP.PATTERN-shared-kernel
+ARCH-QP.TACTIC-typed-contracts --(affects)--> ARCH-FV.COMPONENT-client
+ARCH-QP.TACTIC-typed-contracts --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-QP.TACTIC-typed-contracts --(affects)--> ARCH-DA.ASPECT-module-split
+ARCH-QP.TACTIC-typed-contracts --(affects)--> ARCH-DA.ASPECT-typescript
+ARCH-QP.TACTIC-typed-contracts --(affects)--> ARCH-DA.ASPECT-dependency-layering
+ARCH-QP.TACTIC-typed-contracts --(affects)--> ARCH-DA.ASPECT-linting
+ARCH-QP.TACTIC-typed-contracts --(affects)--> ARCH-DA.ASPECT-identifier-naming
+ARCH-QP.TACTIC-typed-contracts --(tools)--> ARCH-TS.TIER-common.COMPONENT-language
+ARCH-QP.TACTIC-typed-contracts --(tools)--> ARCH-TS.TIER-common.COMPONENT-linting
+ARCH-DD.DECISION-typed-common --(decides)--> ARCH-QP.TACTIC-typed-contracts
+ARCH-CP.CODE-PATTERN-dao-per-entity --(realizes)--> ARCH-QP.TACTIC-typed-contracts

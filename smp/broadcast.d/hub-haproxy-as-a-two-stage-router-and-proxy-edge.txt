@@ -1,0 +1,41 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-DD.DECISION-haproxy-edge: "HAProxy as a two-stage router and proxy edge" [ url: "#ARCH-DD.DECISION-haproxy-edge", type: DECISION, primary: true, STATUS: Accepted ]
+REQS-NR.REQUIREMENT-scalability: "Horizontal Scalability" [ url: "#REQS-NR.REQUIREMENT-scalability", type: REQUIREMENT ]
+REQS-NR.REQUIREMENT-data-isolation: "Isolated Persistence Node" [ url: "#REQS-NR.REQUIREMENT-data-isolation", type: REQUIREMENT ]
+ARCH-AT.MAXIM-scale-out: "Scale Out over Scale Up" [ url: "#ARCH-AT.MAXIM-scale-out", type: MAXIM ]
+ARCH-AP.PATTERN-reverse-proxy-edge: "Reverse Proxy Edge" [ url: "#ARCH-AP.PATTERN-reverse-proxy-edge", type: PATTERN ]
+ARCH-FV.COMPONENT-router: Router [ url: "#ARCH-FV.COMPONENT-router", type: COMPONENT ]
+ARCH-FV.COMPONENT-proxy: Proxy [ url: "#ARCH-FV.COMPONENT-proxy", type: COMPONENT ]
+ARCH-CO.UNIT-router: "Router Process" [ url: "#ARCH-CO.UNIT-router", type: UNIT ]
+ARCH-CO.UNIT-proxy-pool: "Proxy Pool" [ url: "#ARCH-CO.UNIT-proxy-pool", type: UNIT ]
+ARCH-DV.TIER-middleware-tier: Middleware [ url: "#ARCH-DV.TIER-middleware-tier", type: TIER ]
+ARCH-DV.NODE-router: "Edge Router" [ url: "#ARCH-DV.NODE-router", type: NODE ]
+ARCH-DV.NODE-proxy: "Proxy Servers" [ url: "#ARCH-DV.NODE-proxy", type: NODE ]
+ARCH-TS.TIER-middleware.COMPONENT-reverse-proxy: "Reverse Proxy" [ url: "#ARCH-TS.TIER-middleware.COMPONENT-reverse-proxy", type: COMPONENT ]
+
+ARCH-DD.DECISION-haproxy-edge --(driven-by)--> REQS-NR.REQUIREMENT-scalability
+ARCH-DD.DECISION-haproxy-edge --(driven-by)--> REQS-NR.REQUIREMENT-data-isolation
+ARCH-DD.DECISION-haproxy-edge --(guided-by)--> ARCH-AT.MAXIM-scale-out
+ARCH-DD.DECISION-haproxy-edge --(affects)--> ARCH-FV.COMPONENT-router
+ARCH-DD.DECISION-haproxy-edge --(affects)--> ARCH-FV.COMPONENT-proxy
+ARCH-DD.DECISION-haproxy-edge --(affects)--> ARCH-CO.UNIT-router
+ARCH-DD.DECISION-haproxy-edge --(affects)--> ARCH-CO.UNIT-proxy-pool
+ARCH-DD.DECISION-haproxy-edge --(affects)--> ARCH-DV.TIER-middleware-tier
+ARCH-DD.DECISION-haproxy-edge --(affects)--> ARCH-DV.NODE-router
+ARCH-DD.DECISION-haproxy-edge --(affects)--> ARCH-DV.NODE-proxy
+ARCH-DD.DECISION-haproxy-edge --(decides)--> ARCH-AP.PATTERN-reverse-proxy-edge
+ARCH-DD.DECISION-haproxy-edge --(decides)--> ARCH-TS.TIER-middleware.COMPONENT-reverse-proxy

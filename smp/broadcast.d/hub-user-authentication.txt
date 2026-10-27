@@ -1,0 +1,53 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-FR.GROUP-access: "Event Access" [ url: "#REQS-FR.GROUP-access", type: GROUP ]
+REQS-FR.REQUIREMENT-authentication: "User Authentication" [ url: "#REQS-FR.REQUIREMENT-authentication", type: REQUIREMENT, primary: true ]
+REQS-FR.REQUIREMENT-parallel-access: "Limit Parallel Access" [ url: "#REQS-FR.REQUIREMENT-parallel-access", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-individual-url: "Individual Event Access URL" [ url: "#REQS-FR.REQUIREMENT-individual-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-user-consent: "Explicit User Consent" [ url: "#REQS-FR.REQUIREMENT-user-consent", type: REQUIREMENT ]
+REQS-SP.PREMISE-email-at-hand: "Attendees Read Their Email While Logging In" [ url: "#REQS-SP.PREMISE-email-at-hand", type: PREMISE ]
+REQS-SP.PREMISE-email-delivery: "Email Gateway Delivers Tokens Within Minutes" [ url: "#REQS-SP.PREMISE-email-delivery", type: PREMISE ]
+REQS-SP.PREMISE-start-surge: "Connection Surge at Event Start" [ url: "#REQS-SP.PREMISE-start-surge", type: PREMISE ]
+REQS-DR.RULE-access-grant: "Access Requires List or Pattern Match" [ url: "#REQS-DR.RULE-access-grant", type: RULE ]
+REQS-DR.RULE-administrator-access: "Administrator Bypasses the Access List" [ url: "#REQS-DR.RULE-administrator-access", type: RULE ]
+REQS-UC.USE-CASE-join-event: "Join Event and Watch Stream" [ url: "#REQS-UC.USE-CASE-join-event", type: USE-CASE ]
+REQS-UC.USE-CASE-authenticate: "Authenticate via Email Token" [ url: "#REQS-UC.USE-CASE-authenticate", type: USE-CASE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-DM.ENTITY-authorizationtoken: AuthorizationToken [ url: "#DATA-DM.ENTITY-authorizationtoken", type: ENTITY ]
+DATA-DM.ENTITY-sessiontoken: SessionToken [ url: "#DATA-DM.ENTITY-sessiontoken", type: ENTITY ]
+ARCH-FV.COMPONENT-auth: "Authentication Service" [ url: "#ARCH-FV.COMPONENT-auth", type: COMPONENT ]
+TEST-TC.TEST-CASE-valid-token: "Valid Token Grants Access" [ url: "#TEST-TC.TEST-CASE-valid-token", type: TEST-CASE ]
+TEST-TC.TEST-CASE-unauthorized: "Unauthorized Email Rejected" [ url: "#TEST-TC.TEST-CASE-unauthorized", type: TEST-CASE ]
+
+REQS-FR.REQUIREMENT-authentication --(group)--> REQS-FR.GROUP-access
+REQS-FR.REQUIREMENT-authentication --(premises)--> REQS-SP.PREMISE-email-at-hand
+REQS-FR.REQUIREMENT-authentication --(premises)--> REQS-SP.PREMISE-email-delivery
+REQS-FR.REQUIREMENT-authentication --(premises)--> REQS-SP.PREMISE-start-surge
+REQS-FR.REQUIREMENT-parallel-access --(depends-on)--> REQS-FR.REQUIREMENT-authentication
+REQS-FR.REQUIREMENT-individual-url --(depends-on)--> REQS-FR.REQUIREMENT-authentication
+REQS-FR.REQUIREMENT-user-consent --(depends-on)--> REQS-FR.REQUIREMENT-authentication
+REQS-DR.RULE-access-grant --(constrains)--> REQS-FR.REQUIREMENT-authentication
+REQS-DR.RULE-administrator-access --(constrains)--> REQS-FR.REQUIREMENT-authentication
+REQS-UC.USE-CASE-join-event --(requirements)--> REQS-FR.REQUIREMENT-authentication
+REQS-UC.USE-CASE-authenticate --(requirements)--> REQS-FR.REQUIREMENT-authentication
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-authentication
+DATA-DM.ENTITY-user --(requirements)--> REQS-FR.REQUIREMENT-authentication
+DATA-DM.ENTITY-authorizationtoken --(requirements)--> REQS-FR.REQUIREMENT-authentication
+DATA-DM.ENTITY-sessiontoken --(requirements)--> REQS-FR.REQUIREMENT-authentication
+ARCH-FV.COMPONENT-auth --(realizes)--> REQS-FR.REQUIREMENT-authentication
+TEST-TC.TEST-CASE-valid-token --(verifies)--> REQS-FR.REQUIREMENT-authentication
+TEST-TC.TEST-CASE-unauthorized --(verifies)--> REQS-FR.REQUIREMENT-authentication

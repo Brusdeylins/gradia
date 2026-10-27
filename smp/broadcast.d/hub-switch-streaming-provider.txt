@@ -1,0 +1,53 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-switch-provider: "Switch Streaming Provider" [ url: "#REQS-UC.USE-CASE-switch-provider", type: USE-CASE, primary: true ]
+REQS-UP.ROLE-manager: Manager [ url: "#REQS-UP.ROLE-manager", type: ROLE ]
+REQS-UJ.JOURNEY-operate.STEP-configure: "Configure and run the event" [ url: "#REQS-UJ.JOURNEY-operate.STEP-configure", type: STEP ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live: "Start Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live", type: ACTIVITY ]
+REQS-FR.REQUIREMENT-multi-provider: "Multiple Streaming Providers" [ url: "#REQS-FR.REQUIREMENT-multi-provider", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-provider-switch: "Live Provider Switching" [ url: "#REQS-FR.REQUIREMENT-provider-switch", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-config-propagation: "Live Configuration Propagation" [ url: "#REQS-FR.REQUIREMENT-config-propagation", type: REQUIREMENT ]
+REQS-DR.RULE-single-channel: "Single Active Channel" [ url: "#REQS-DR.RULE-single-channel", type: RULE ]
+REQS-DR.RULE-single-resource: "Single Active Resource per Channel" [ url: "#REQS-DR.RULE-single-resource", type: RULE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-channel: Channel [ url: "#DATA-DM.ENTITY-channel", type: ENTITY ]
+DATA-DM.ENTITY-resource: Resource [ url: "#DATA-DM.ENTITY-resource", type: ENTITY ]
+DATA-DM.ENTITY-resourceproviderparam: ResourceProviderParam [ url: "#DATA-DM.ENTITY-resourceproviderparam", type: ENTITY ]
+DATA-AM.PERMISSION-attendee-watch-channel: "Watch the Active Channel" [ url: "#DATA-AM.PERMISSION-attendee-watch-channel", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-resources: "Switch the Resource" [ url: "#DATA-AM.PERMISSION-manager-resources", type: PERMISSION ]
+UXUI-IC.PRINCIPLE-live-reactivity: "Live Reactivity" [ url: "#UXUI-IC.PRINCIPLE-live-reactivity", type: PRINCIPLE ]
+UXUI-DS.STORYBOARD-switch-provider: "Manager Switches Provider Live" [ url: "#UXUI-DS.STORYBOARD-switch-provider", type: STORYBOARD ]
+ARCH-CV.ENTITY-operator: "Event Operator" [ url: "#ARCH-CV.ENTITY-operator", type: ENTITY ]
+ARCH-CV.ENTITY-provider: "Streaming Provider" [ url: "#ARCH-CV.ENTITY-provider", type: ENTITY ]
+
+REQS-UC.USE-CASE-switch-provider --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-switch-provider --(journeys)--> REQS-UJ.JOURNEY-operate.STEP-configure
+REQS-UC.USE-CASE-switch-provider --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live
+REQS-UC.USE-CASE-switch-provider --(requirements)--> REQS-FR.REQUIREMENT-multi-provider
+REQS-UC.USE-CASE-switch-provider --(requirements)--> REQS-FR.REQUIREMENT-provider-switch
+REQS-UC.USE-CASE-switch-provider --(requirements)--> REQS-FR.REQUIREMENT-config-propagation
+REQS-UC.USE-CASE-switch-provider --(rules)--> REQS-DR.RULE-single-channel
+REQS-UC.USE-CASE-switch-provider --(rules)--> REQS-DR.RULE-single-resource
+DATA-DM.ENTITY-event --(use-cases)--> REQS-UC.USE-CASE-switch-provider
+DATA-DM.ENTITY-channel --(use-cases)--> REQS-UC.USE-CASE-switch-provider
+DATA-DM.ENTITY-resource --(use-cases)--> REQS-UC.USE-CASE-switch-provider
+DATA-DM.ENTITY-resourceproviderparam --(use-cases)--> REQS-UC.USE-CASE-switch-provider
+DATA-AM.PERMISSION-attendee-watch-channel --(use-cases)--> REQS-UC.USE-CASE-switch-provider
+DATA-AM.PERMISSION-manager-resources --(use-cases)--> REQS-UC.USE-CASE-switch-provider
+UXUI-IC.PRINCIPLE-live-reactivity --(use-cases)--> REQS-UC.USE-CASE-switch-provider
+UXUI-DS.STORYBOARD-switch-provider --(scenario)--> REQS-UC.USE-CASE-switch-provider
+ARCH-CV.ENTITY-operator --(use-cases)--> REQS-UC.USE-CASE-switch-provider
+ARCH-CV.ENTITY-provider --(use-cases)--> REQS-UC.USE-CASE-switch-provider

@@ -1,0 +1,89 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-FV.COMPONENT-relay: Relay [ url: "#ARCH-FV.COMPONENT-relay", type: COMPONENT, KIND: Connector ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT, primary: true, KIND: Service ]
+ARCH-FV.COMPONENT-auth: "Authentication Service" [ url: "#ARCH-FV.COMPONENT-auth", type: COMPONENT, KIND: Module ]
+ARCH-FV.COMPONENT-translation: "Translation Service" [ url: "#ARCH-FV.COMPONENT-translation", type: COMPONENT, KIND: Module ]
+ARCH-FV.COMPONENT-statistics: "Statistics Service" [ url: "#ARCH-FV.COMPONENT-statistics", type: COMPONENT, KIND: Module ]
+ARCH-FV.COMPONENT-database: Database [ url: "#ARCH-FV.COMPONENT-database", type: COMPONENT, KIND: Component ]
+REQS-FR.REQUIREMENT-questions: "Ask Questions" [ url: "#REQS-FR.REQUIREMENT-questions", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-chat: "Chat Messages" [ url: "#REQS-FR.REQUIREMENT-chat", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-moderation: "Moderate Chat and Questions" [ url: "#REQS-FR.REQUIREMENT-moderation", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-forward-presenter: "Forward Inputs to Presenter" [ url: "#REQS-FR.REQUIREMENT-forward-presenter", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-config-propagation: "Live Configuration Propagation" [ url: "#REQS-FR.REQUIREMENT-config-propagation", type: REQUIREMENT ]
+ARCH-AP.PATTERN-modular-monolith: "Modular Monolith" [ url: "#ARCH-AP.PATTERN-modular-monolith", type: PATTERN ]
+APIS-IM.INTERFACE-server-cli: "Server Command Line" [ url: "#APIS-IM.INTERFACE-server-cli", type: INTERFACE, KIND: CLI ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-agendapoint: AgendaPoint [ url: "#DATA-DM.ENTITY-agendapoint", type: ENTITY ]
+DATA-DM.ENTITY-channel: Channel [ url: "#DATA-DM.ENTITY-channel", type: ENTITY ]
+DATA-DM.ENTITY-resource: Resource [ url: "#DATA-DM.ENTITY-resource", type: ENTITY ]
+DATA-DM.ENTITY-resourceproviderparam: ResourceProviderParam [ url: "#DATA-DM.ENTITY-resourceproviderparam", type: ENTITY ]
+DATA-DM.ENTITY-role: Role [ url: "#DATA-DM.ENTITY-role", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-DM.ENTITY-messagetext: MessageText [ url: "#DATA-DM.ENTITY-messagetext", type: ENTITY ]
+DATA-DM.ENTITY-questiontag: QuestionTag [ url: "#DATA-DM.ENTITY-questiontag", type: ENTITY ]
+ARCH-CO.UNIT-service-loop: "Service Event Loop" [ url: "#ARCH-CO.UNIT-service-loop", type: UNIT, KIND: EventLoop ]
+ARCH-OV.CONCERN-config-provisioning: "Config-File Provisioning" [ url: "#ARCH-OV.CONCERN-config-provisioning", type: CONCERN ]
+ARCH-QP.TACTIC-failover: "Live Failover Continuity" [ url: "#ARCH-QP.TACTIC-failover", type: TACTIC ]
+ARCH-QP.TACTIC-privacy: "Privacy by Design" [ url: "#ARCH-QP.TACTIC-privacy", type: TACTIC ]
+ARCH-QP.TACTIC-reactivity: "Real-Time Reactivity" [ url: "#ARCH-QP.TACTIC-reactivity", type: TACTIC ]
+ARCH-QP.TACTIC-abuse-resistance: "Abuse Resistance" [ url: "#ARCH-QP.TACTIC-abuse-resistance", type: TACTIC ]
+ARCH-QP.TACTIC-typed-contracts: "Shared Typed Contracts" [ url: "#ARCH-QP.TACTIC-typed-contracts", type: TACTIC ]
+ARCH-DD.DECISION-mqtt-transport: "Use MQTT over WebSockets as the live transport" [ url: "#ARCH-DD.DECISION-mqtt-transport", type: DECISION ]
+ARCH-DD.DECISION-no-accounts: "Privacy by design with no permanent user accounts" [ url: "#ARCH-DD.DECISION-no-accounts", type: DECISION ]
+ARCH-DD.DECISION-channel-resource: "Decouple logical Channels from physical provider Resources" [ url: "#ARCH-DD.DECISION-channel-resource", type: DECISION ]
+ARCH-DD.DECISION-modular-service: "One modular service process instead of microservices" [ url: "#ARCH-DD.DECISION-modular-service", type: DECISION ]
+ARCH-DD.DECISION-typed-sql: "Typed SQL builder instead of a full ORM" [ url: "#ARCH-DD.DECISION-typed-sql", type: DECISION ]
+ARCH-CP.CODE-PATTERN-permission-check: "Declarative Permission Check" [ url: "#ARCH-CP.CODE-PATTERN-permission-check", type: CODE-PATTERN ]
+ARCH-CP.CODE-PATTERN-dao-per-entity: "DAO per Entity" [ url: "#ARCH-CP.CODE-PATTERN-dao-per-entity", type: CODE-PATTERN ]
+ARCH-CP.CODE-PATTERN-versioned-write: "Version-Checked Write" [ url: "#ARCH-CP.CODE-PATTERN-versioned-write", type: CODE-PATTERN ]
+
+ARCH-FV.COMPONENT-relay --(depends-on)--> ARCH-FV.COMPONENT-service
+ARCH-FV.COMPONENT-service --(realizes)--> REQS-FR.REQUIREMENT-questions
+ARCH-FV.COMPONENT-service --(realizes)--> REQS-FR.REQUIREMENT-chat
+ARCH-FV.COMPONENT-service --(realizes)--> REQS-FR.REQUIREMENT-moderation
+ARCH-FV.COMPONENT-service --(realizes)--> REQS-FR.REQUIREMENT-forward-presenter
+ARCH-FV.COMPONENT-service --(realizes)--> REQS-FR.REQUIREMENT-config-propagation
+ARCH-FV.COMPONENT-service --(patterns)--> ARCH-AP.PATTERN-modular-monolith
+ARCH-FV.COMPONENT-service --(owns)--> DATA-DM.ENTITY-event
+ARCH-FV.COMPONENT-service --(owns)--> DATA-DM.ENTITY-agendapoint
+ARCH-FV.COMPONENT-service --(owns)--> DATA-DM.ENTITY-channel
+ARCH-FV.COMPONENT-service --(owns)--> DATA-DM.ENTITY-resource
+ARCH-FV.COMPONENT-service --(owns)--> DATA-DM.ENTITY-resourceproviderparam
+ARCH-FV.COMPONENT-service --(owns)--> DATA-DM.ENTITY-role
+ARCH-FV.COMPONENT-service --(owns)--> DATA-DM.ENTITY-message
+ARCH-FV.COMPONENT-service --(owns)--> DATA-DM.ENTITY-messagetext
+ARCH-FV.COMPONENT-service --(owns)--> DATA-DM.ENTITY-questiontag
+ARCH-FV.COMPONENT-service --(provides)--> APIS-IM.INTERFACE-server-cli
+ARCH-FV.COMPONENT-service --(depends-on)--> ARCH-FV.COMPONENT-database
+ARCH-FV.COMPONENT-auth --(part-of)--> ARCH-FV.COMPONENT-service
+ARCH-FV.COMPONENT-translation --(part-of)--> ARCH-FV.COMPONENT-service
+ARCH-FV.COMPONENT-statistics --(part-of)--> ARCH-FV.COMPONENT-service
+ARCH-CO.UNIT-service-loop --(hosts)--> ARCH-FV.COMPONENT-service
+ARCH-OV.CONCERN-config-provisioning --(elements)--> ARCH-FV.COMPONENT-service
+ARCH-QP.TACTIC-failover --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-QP.TACTIC-privacy --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-QP.TACTIC-reactivity --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-QP.TACTIC-abuse-resistance --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-QP.TACTIC-typed-contracts --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-DD.DECISION-mqtt-transport --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-DD.DECISION-no-accounts --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-DD.DECISION-channel-resource --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-DD.DECISION-modular-service --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-DD.DECISION-typed-sql --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-CP.CODE-PATTERN-permission-check --(applies-to)--> ARCH-FV.COMPONENT-service
+ARCH-CP.CODE-PATTERN-dao-per-entity --(applies-to)--> ARCH-FV.COMPONENT-service
+ARCH-CP.CODE-PATTERN-versioned-write --(applies-to)--> ARCH-FV.COMPONENT-service

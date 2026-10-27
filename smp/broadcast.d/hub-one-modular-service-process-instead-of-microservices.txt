@@ -1,0 +1,43 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-DD.DECISION-modular-service: "One modular service process instead of microservices" [ url: "#ARCH-DD.DECISION-modular-service", type: DECISION, primary: true, STATUS: Accepted ]
+REQS-NR.REQUIREMENT-scalability: "Horizontal Scalability" [ url: "#REQS-NR.REQUIREMENT-scalability", type: REQUIREMENT ]
+REQS-NR.REQUIREMENT-cost: "Per-Event Cost Efficiency" [ url: "#REQS-NR.REQUIREMENT-cost", type: REQUIREMENT ]
+REQS-NR.REQUIREMENT-contract-safety: "Compile-Time Contract Safety" [ url: "#REQS-NR.REQUIREMENT-contract-safety", type: REQUIREMENT ]
+ARCH-AT.MAXIM-simplicity: "Simplicity over Flexibility" [ url: "#ARCH-AT.MAXIM-simplicity", type: MAXIM ]
+ARCH-AT.PRINCIPLE-one-process: "One Service Process" [ url: "#ARCH-AT.PRINCIPLE-one-process", type: PRINCIPLE ]
+ARCH-AP.PATTERN-modular-monolith: "Modular Monolith" [ url: "#ARCH-AP.PATTERN-modular-monolith", type: PATTERN ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT ]
+ARCH-FV.COMPONENT-auth: "Authentication Service" [ url: "#ARCH-FV.COMPONENT-auth", type: COMPONENT ]
+ARCH-FV.COMPONENT-translation: "Translation Service" [ url: "#ARCH-FV.COMPONENT-translation", type: COMPONENT ]
+ARCH-FV.COMPONENT-statistics: "Statistics Service" [ url: "#ARCH-FV.COMPONENT-statistics", type: COMPONENT ]
+ARCH-CO.UNIT-service-loop: "Service Event Loop" [ url: "#ARCH-CO.UNIT-service-loop", type: UNIT ]
+ARCH-DV.NODE-service: "Service Containers" [ url: "#ARCH-DV.NODE-service", type: NODE ]
+ARCH-CP.CODE-PATTERN-versioned-write: "Version-Checked Write" [ url: "#ARCH-CP.CODE-PATTERN-versioned-write", type: CODE-PATTERN ]
+
+ARCH-DD.DECISION-modular-service --(driven-by)--> REQS-NR.REQUIREMENT-cost
+ARCH-DD.DECISION-modular-service --(driven-by)--> REQS-NR.REQUIREMENT-contract-safety
+ARCH-DD.DECISION-modular-service --(driven-by)--> REQS-NR.REQUIREMENT-scalability
+ARCH-DD.DECISION-modular-service --(guided-by)--> ARCH-AT.MAXIM-simplicity
+ARCH-DD.DECISION-modular-service --(guided-by)--> ARCH-AT.PRINCIPLE-one-process
+ARCH-DD.DECISION-modular-service --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-DD.DECISION-modular-service --(affects)--> ARCH-FV.COMPONENT-auth
+ARCH-DD.DECISION-modular-service --(affects)--> ARCH-FV.COMPONENT-translation
+ARCH-DD.DECISION-modular-service --(affects)--> ARCH-FV.COMPONENT-statistics
+ARCH-DD.DECISION-modular-service --(affects)--> ARCH-CO.UNIT-service-loop
+ARCH-DD.DECISION-modular-service --(affects)--> ARCH-DV.NODE-service
+ARCH-DD.DECISION-modular-service --(decides)--> ARCH-AP.PATTERN-modular-monolith
+ARCH-CP.CODE-PATTERN-versioned-write --(decided-by)--> ARCH-DD.DECISION-modular-service

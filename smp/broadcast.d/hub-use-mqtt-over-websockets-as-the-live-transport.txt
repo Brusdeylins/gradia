@@ -1,0 +1,41 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-DD.DECISION-mqtt-transport: "Use MQTT over WebSockets as the live transport" [ url: "#ARCH-DD.DECISION-mqtt-transport", type: DECISION, primary: true, STATUS: Accepted ]
+REQS-NR.REQUIREMENT-attendee-scale: "Concurrent Attendee Scale" [ url: "#REQS-NR.REQUIREMENT-attendee-scale", type: REQUIREMENT ]
+REQS-NR.REQUIREMENT-config-latency: "Live Configuration Latency" [ url: "#REQS-NR.REQUIREMENT-config-latency", type: REQUIREMENT ]
+REQS-SP.PREMISE-websocket-passage: "Attendee Networks Pass WebSocket Traffic" [ url: "#REQS-SP.PREMISE-websocket-passage", type: PREMISE ]
+ARCH-AT.MAXIM-scale-out: "Scale Out over Scale Up" [ url: "#ARCH-AT.MAXIM-scale-out", type: MAXIM ]
+ARCH-AT.PRINCIPLE-stateless-tiers: "Stateless Connection Tiers" [ url: "#ARCH-AT.PRINCIPLE-stateless-tiers", type: PRINCIPLE ]
+ARCH-AP.PATTERN-pub-sub: Publish-Subscribe [ url: "#ARCH-AP.PATTERN-pub-sub", type: PATTERN ]
+ARCH-FV.COMPONENT-relay: Relay [ url: "#ARCH-FV.COMPONENT-relay", type: COMPONENT ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT ]
+ARCH-CO.UNIT-relay-pool: "Relay Pool" [ url: "#ARCH-CO.UNIT-relay-pool", type: UNIT ]
+ARCH-QP.TACTIC-reactivity: "Real-Time Reactivity" [ url: "#ARCH-QP.TACTIC-reactivity", type: TACTIC ]
+ARCH-TS.TIER-common.COMPONENT-messaging: Messaging [ url: "#ARCH-TS.TIER-common.COMPONENT-messaging", type: COMPONENT ]
+ARCH-TS.TIER-middleware.COMPONENT-message-broker: "Message Broker" [ url: "#ARCH-TS.TIER-middleware.COMPONENT-message-broker", type: COMPONENT ]
+
+ARCH-DD.DECISION-mqtt-transport --(driven-by)--> REQS-NR.REQUIREMENT-attendee-scale
+ARCH-DD.DECISION-mqtt-transport --(driven-by)--> REQS-NR.REQUIREMENT-config-latency
+ARCH-DD.DECISION-mqtt-transport --(driven-by)--> REQS-SP.PREMISE-websocket-passage
+ARCH-DD.DECISION-mqtt-transport --(guided-by)--> ARCH-AT.MAXIM-scale-out
+ARCH-DD.DECISION-mqtt-transport --(guided-by)--> ARCH-AT.PRINCIPLE-stateless-tiers
+ARCH-DD.DECISION-mqtt-transport --(affects)--> ARCH-FV.COMPONENT-relay
+ARCH-DD.DECISION-mqtt-transport --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-DD.DECISION-mqtt-transport --(affects)--> ARCH-CO.UNIT-relay-pool
+ARCH-DD.DECISION-mqtt-transport --(decides)--> ARCH-AP.PATTERN-pub-sub
+ARCH-DD.DECISION-mqtt-transport --(decides)--> ARCH-QP.TACTIC-reactivity
+ARCH-DD.DECISION-mqtt-transport --(decides)--> ARCH-TS.TIER-common.COMPONENT-messaging
+ARCH-DD.DECISION-mqtt-transport --(decides)--> ARCH-TS.TIER-middleware.COMPONENT-message-broker

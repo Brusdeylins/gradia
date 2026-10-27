@@ -1,0 +1,39 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-TS.TIER-client: Client [ url: "#ARCH-TS.TIER-client", primary: true ]
+ARCH-TS.TIER-client.COMPONENT-build-tool: "Build Tool" [ url: "#ARCH-TS.TIER-client.COMPONENT-build-tool", PRODUCT: Vite ]
+ARCH-TS.TIER-client.COMPONENT-styling-framework: "Styling Framework" [ url: "#ARCH-TS.TIER-client.COMPONENT-styling-framework", PRODUCT: "Tailwind CSS" ]
+ARCH-TS.TIER-client.COMPONENT-ui-framework: "UI Framework" [ url: "#ARCH-TS.TIER-client.COMPONENT-ui-framework", PRODUCT: Vue.js ]
+ARCH-TS.TIER-client.COMPONENT-widget-framework: "Widget Framework" [ url: "#ARCH-TS.TIER-client.COMPONENT-widget-framework", PRODUCT: "Reka UI" ]
+ARCH-TS.TIER-client.COMPONENT-typography: Typography [ url: "#ARCH-TS.TIER-client.COMPONENT-typography", PRODUCT: TypoPRO ]
+ARCH-TS.TIER-client.COMPONENT-iconography: Iconography [ url: "#ARCH-TS.TIER-client.COMPONENT-iconography", PRODUCT: Fontawesome ]
+ARCH-TS.TIER-client.COMPONENT-tooltips: Tooltips [ url: "#ARCH-TS.TIER-client.COMPONENT-tooltips", PRODUCT: "vue-tippy + tippy.js" ]
+ARCH-TS.TIER-client.COMPONENT-animations: Animations [ url: "#ARCH-TS.TIER-client.COMPONENT-animations", PRODUCT: Anime.js ]
+ARCH-TS.TIER-client.COMPONENT-client-sentiment: "Sentiment Analysis" [ url: "#ARCH-TS.TIER-client.COMPONENT-client-sentiment", PRODUCT: "natural + @nlpjs/core + multilang-sentiment" ]
+ARCH-TS.TIER-client.COMPONENT-client-langid: "Language Identification" [ url: "#ARCH-TS.TIER-client.COMPONENT-client-langid", PRODUCT: "tinyld + franc + lande" ]
+ARCH-DV.TIER-client-tier: Client [ url: "#ARCH-DV.TIER-client-tier" ]
+
+ARCH-DV.TIER-client-tier --> ARCH-TS.TIER-client
+ARCH-TS.TIER-client --> ARCH-TS.TIER-client.COMPONENT-build-tool
+ARCH-TS.TIER-client --> ARCH-TS.TIER-client.COMPONENT-styling-framework
+ARCH-TS.TIER-client --> ARCH-TS.TIER-client.COMPONENT-ui-framework
+ARCH-TS.TIER-client --> ARCH-TS.TIER-client.COMPONENT-widget-framework
+ARCH-TS.TIER-client --> ARCH-TS.TIER-client.COMPONENT-typography
+ARCH-TS.TIER-client --> ARCH-TS.TIER-client.COMPONENT-iconography
+ARCH-TS.TIER-client --> ARCH-TS.TIER-client.COMPONENT-tooltips
+ARCH-TS.TIER-client --> ARCH-TS.TIER-client.COMPONENT-animations
+ARCH-TS.TIER-client --> ARCH-TS.TIER-client.COMPONENT-client-sentiment
+ARCH-TS.TIER-client --> ARCH-TS.TIER-client.COMPONENT-client-langid

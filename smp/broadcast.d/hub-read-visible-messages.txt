@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+DATA-AM.PERMISSION-attendee-read-message: "Read Visible Messages" [ url: "#DATA-AM.PERMISSION-attendee-read-message", type: PERMISSION, primary: true ]
+REQS-UP.ROLE-attendee: Attendee [ url: "#REQS-UP.ROLE-attendee", type: ROLE ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-SM.LIFECYCLE-message.STATE-accepted: Accepted [ url: "#DATA-SM.LIFECYCLE-message.STATE-accepted", type: STATE ]
+DATA-SM.LIFECYCLE-message.STATE-forwarded: Forwarded [ url: "#DATA-SM.LIFECYCLE-message.STATE-forwarded", type: STATE ]
+DATA-SM.LIFECYCLE-message.STATE-answered: Answered [ url: "#DATA-SM.LIFECYCLE-message.STATE-answered", type: STATE ]
+DATA-SM.LIFECYCLE-message.STATE-suspended: Suspended [ url: "#DATA-SM.LIFECYCLE-message.STATE-suspended", type: STATE ]
+REQS-DR.RULE-moderation-gate: "Moderation Determines Initial Visibility" [ url: "#REQS-DR.RULE-moderation-gate", type: RULE ]
+REQS-UC.USE-CASE-chat-during-event.SCENARIO-chat-post: "Post a Chat Message" [ url: "#REQS-UC.USE-CASE-chat-during-event.SCENARIO-chat-post", type: SCENARIO ]
+REQS-UC.USE-CASE-chat-during-event.SCENARIO-chat-pending-private: "Pending Message Stays Private" [ url: "#REQS-UC.USE-CASE-chat-during-event.SCENARIO-chat-pending-private", type: SCENARIO ]
+REQS-UC.USE-CASE-chat-during-event.SCENARIO-chat-own-only: "Show Own Contributions Only" [ url: "#REQS-UC.USE-CASE-chat-during-event.SCENARIO-chat-own-only", type: SCENARIO ]
+
+DATA-AM.PERMISSION-attendee-read-message --(role)--> REQS-UP.ROLE-attendee
+DATA-AM.PERMISSION-attendee-read-message --(entity)--> DATA-DM.ENTITY-message
+DATA-AM.PERMISSION-attendee-read-message --(states)--> DATA-SM.LIFECYCLE-message.STATE-accepted
+DATA-AM.PERMISSION-attendee-read-message --(states)--> DATA-SM.LIFECYCLE-message.STATE-forwarded
+DATA-AM.PERMISSION-attendee-read-message --(states)--> DATA-SM.LIFECYCLE-message.STATE-answered
+DATA-AM.PERMISSION-attendee-read-message --(states)--> DATA-SM.LIFECYCLE-message.STATE-suspended
+DATA-AM.PERMISSION-attendee-read-message --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-AM.PERMISSION-attendee-read-message --(use-cases)--> REQS-UC.USE-CASE-chat-during-event.SCENARIO-chat-post
+DATA-AM.PERMISSION-attendee-read-message --(use-cases)--> REQS-UC.USE-CASE-chat-during-event.SCENARIO-chat-own-only
+DATA-AM.PERMISSION-attendee-read-message --(use-cases)--> REQS-UC.USE-CASE-chat-during-event.SCENARIO-chat-pending-private

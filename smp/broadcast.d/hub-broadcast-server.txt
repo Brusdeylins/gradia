@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 600
+
+APIS-IE.ENDPOINT-broadcast-server: broadcast-server [ url: "#APIS-IE.ENDPOINT-broadcast-server", type: ENDPOINT, primary: true ]
+APIS-ID.TYPE-loglevel: LogLevel [ url: "#APIS-ID.TYPE-loglevel", type: TYPE ]
+APIS-ID.TYPE-configuration.CONSTANT-default-mqtt-url: DEFAULT_MQTT_URL [ url: "#APIS-ID.TYPE-configuration.CONSTANT-default-mqtt-url", type: CONSTANT ]
+APIS-ID.TYPE-configuration.CONSTANT-default-db-url: DEFAULT_DB_URL [ url: "#APIS-ID.TYPE-configuration.CONSTANT-default-db-url", type: CONSTANT ]
+APIS-ID.TYPE-configuration.CONSTANT-default-directory: DEFAULT_DIRECTORY [ url: "#APIS-ID.TYPE-configuration.CONSTANT-default-directory", type: CONSTANT ]
+APIS-IM.INTERFACE-server-cli: "Server Command Line" [ url: "#APIS-IM.INTERFACE-server-cli", type: INTERFACE ]
+DATA-AM.PERMISSION-administrator-events: "Administer Every Event" [ url: "#DATA-AM.PERMISSION-administrator-events", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-channels: "Administer the Channels" [ url: "#DATA-AM.PERMISSION-administrator-channels", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-resources: "Administer the Resources" [ url: "#DATA-AM.PERMISSION-administrator-resources", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-params: "Administer the Provider Parameters" [ url: "#DATA-AM.PERMISSION-administrator-params", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-roles: "Administer the Roles" [ url: "#DATA-AM.PERMISSION-administrator-roles", type: PERMISSION ]
+
+APIS-IE.ENDPOINT-broadcast-server --(interface)-->[1] APIS-IM.INTERFACE-server-cli
+APIS-IE.ENDPOINT-broadcast-server --(permissions)-->[1] DATA-AM.PERMISSION-administrator-events
+APIS-IE.ENDPOINT-broadcast-server --(permissions)-->[1] DATA-AM.PERMISSION-administrator-channels
+APIS-IE.ENDPOINT-broadcast-server --(permissions)-->[1] DATA-AM.PERMISSION-administrator-resources
+APIS-IE.ENDPOINT-broadcast-server --(permissions)-->[1] DATA-AM.PERMISSION-administrator-params
+APIS-IE.ENDPOINT-broadcast-server --(permissions)-->[1] DATA-AM.PERMISSION-administrator-roles
+APIS-IE.ENDPOINT-broadcast-server --(type)-->[1] APIS-ID.TYPE-loglevel
+APIS-IE.ENDPOINT-broadcast-server --(default)-->[1] APIS-ID.TYPE-configuration.CONSTANT-default-mqtt-url
+APIS-IE.ENDPOINT-broadcast-server --(default)-->[1] APIS-ID.TYPE-configuration.CONSTANT-default-db-url
+APIS-IE.ENDPOINT-broadcast-server --(default)-->[1] APIS-ID.TYPE-configuration.CONSTANT-default-directory

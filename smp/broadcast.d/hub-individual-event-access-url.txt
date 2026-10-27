@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-FR.GROUP-access: "Event Access" [ url: "#REQS-FR.GROUP-access", type: GROUP ]
+REQS-FR.REQUIREMENT-authentication: "User Authentication" [ url: "#REQS-FR.REQUIREMENT-authentication", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-individual-url: "Individual Event Access URL" [ url: "#REQS-FR.REQUIREMENT-individual-url", type: REQUIREMENT, primary: true ]
+REQS-FR.REQUIREMENT-personalized-url: "Personalized Event Access URL" [ url: "#REQS-FR.REQUIREMENT-personalized-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-automatic-url: "Automatic Event Access URL" [ url: "#REQS-FR.REQUIREMENT-automatic-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-registration-export: "Return Access URLs to Registration" [ url: "#REQS-FR.REQUIREMENT-registration-export", type: REQUIREMENT ]
+REQS-NR.REQUIREMENT-token-strength: "Unguessable Access Tokens" [ url: "#REQS-NR.REQUIREMENT-token-strength", type: REQUIREMENT ]
+REQS-SP.PREMISE-audience-known: "Registered Audience Known in Advance" [ url: "#REQS-SP.PREMISE-audience-known", type: PREMISE ]
+REQS-UC.USE-CASE-join-event: "Join Event and Watch Stream" [ url: "#REQS-UC.USE-CASE-join-event", type: USE-CASE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+ARCH-FV.COMPONENT-client: "Web Client" [ url: "#ARCH-FV.COMPONENT-client", type: COMPONENT ]
+
+REQS-FR.REQUIREMENT-individual-url --(group)--> REQS-FR.GROUP-access
+REQS-FR.REQUIREMENT-individual-url --(depends-on)--> REQS-FR.REQUIREMENT-authentication
+REQS-FR.REQUIREMENT-individual-url --(premises)--> REQS-SP.PREMISE-audience-known
+REQS-FR.REQUIREMENT-personalized-url --(depends-on)--> REQS-FR.REQUIREMENT-individual-url
+REQS-FR.REQUIREMENT-automatic-url --(depends-on)--> REQS-FR.REQUIREMENT-individual-url
+REQS-FR.REQUIREMENT-registration-export --(depends-on)--> REQS-FR.REQUIREMENT-individual-url
+REQS-NR.REQUIREMENT-token-strength --(qualifies)--> REQS-FR.REQUIREMENT-individual-url
+REQS-UC.USE-CASE-join-event --(requirements)--> REQS-FR.REQUIREMENT-individual-url
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-individual-url
+ARCH-FV.COMPONENT-client --(realizes)--> REQS-FR.REQUIREMENT-individual-url

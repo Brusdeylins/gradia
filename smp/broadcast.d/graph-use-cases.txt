@@ -1,0 +1,50 @@
+#type graph
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-join-event: "Join Event and Watch Stream" [ url: "#REQS-UC.USE-CASE-join-event", type: USE-CASE ]
+REQS-UC.USE-CASE-authenticate: "Authenticate via Email Token" [ url: "#REQS-UC.USE-CASE-authenticate", type: USE-CASE ]
+REQS-UC.USE-CASE-ask-question: "Ask a Question" [ url: "#REQS-UC.USE-CASE-ask-question", type: USE-CASE ]
+REQS-UC.USE-CASE-chat-during-event: "Chat During the Event" [ url: "#REQS-UC.USE-CASE-chat-during-event", type: USE-CASE ]
+REQS-UC.USE-CASE-moderate: "Moderate and Forward Messages" [ url: "#REQS-UC.USE-CASE-moderate", type: USE-CASE ]
+REQS-UC.USE-CASE-moderate-chat: "Moderate the Chat Conversation" [ url: "#REQS-UC.USE-CASE-moderate-chat", type: USE-CASE ]
+REQS-UC.USE-CASE-steer-presenter: "Steer the Presenter" [ url: "#REQS-UC.USE-CASE-steer-presenter", type: USE-CASE ]
+REQS-UC.USE-CASE-configure-event: "Configure the Event" [ url: "#REQS-UC.USE-CASE-configure-event", type: USE-CASE ]
+REQS-UC.USE-CASE-switch-provider: "Switch Streaming Provider" [ url: "#REQS-UC.USE-CASE-switch-provider", type: USE-CASE ]
+REQS-UC.USE-CASE-create-event: "Create Event from Registration Import" [ url: "#REQS-UC.USE-CASE-create-event", type: USE-CASE ]
+REQS-UC.USE-CASE-publish-start-finish: "Publish, Start, and Finish Event" [ url: "#REQS-UC.USE-CASE-publish-start-finish", type: USE-CASE ]
+REQS-UC.USE-CASE-export-data: "Export Anonymized Event Data" [ url: "#REQS-UC.USE-CASE-export-data", type: USE-CASE ]
+REQS-UC.USE-CASE-present: "Present Forwarded Questions" [ url: "#REQS-UC.USE-CASE-present", type: USE-CASE ]
+REQS-UC.USE-CASE-administer-event: "Administer Any Event" [ url: "#REQS-UC.USE-CASE-administer-event", type: USE-CASE ]
+REQS-UP.ROLE-attendee: Attendee [ url: "#REQS-UP.ROLE-attendee", type: ROLE ]
+REQS-UP.ROLE-moderator: Moderator [ url: "#REQS-UP.ROLE-moderator", type: ROLE ]
+REQS-UP.ROLE-presenter: Presenter [ url: "#REQS-UP.ROLE-presenter", type: ROLE ]
+REQS-UP.ROLE-manager: Manager [ url: "#REQS-UP.ROLE-manager", type: ROLE ]
+REQS-UP.ROLE-administrator: Administrator [ url: "#REQS-UP.ROLE-administrator", type: ROLE ]
+
+REQS-UC.USE-CASE-join-event --(actor)--> REQS-UP.ROLE-attendee
+REQS-UC.USE-CASE-join-event --(includes)--> REQS-UC.USE-CASE-authenticate
+REQS-UC.USE-CASE-authenticate --(actor)--> REQS-UP.ROLE-attendee
+REQS-UC.USE-CASE-ask-question --(actor)--> REQS-UP.ROLE-attendee
+REQS-UC.USE-CASE-chat-during-event --(actor)--> REQS-UP.ROLE-attendee
+REQS-UC.USE-CASE-moderate --(actor)--> REQS-UP.ROLE-moderator
+REQS-UC.USE-CASE-moderate-chat --(actor)--> REQS-UP.ROLE-moderator
+REQS-UC.USE-CASE-steer-presenter --(actor)--> REQS-UP.ROLE-moderator
+REQS-UC.USE-CASE-configure-event --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-switch-provider --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-create-event --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-publish-start-finish --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-export-data --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-present --(actor)--> REQS-UP.ROLE-presenter
+REQS-UC.USE-CASE-administer-event --(actor)--> REQS-UP.ROLE-administrator

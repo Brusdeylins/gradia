@@ -1,0 +1,51 @@
+#type grid
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+#config grid-columns-max 2
+
+ARCH-TS.TIER-common: Common [ url: "#ARCH-TS.TIER-common", container: grid ]
+ARCH-TS.TIER-client: Client [ url: "#ARCH-TS.TIER-client", container: grid ]
+ARCH-TS.TIER-middleware: Middleware [ url: "#ARCH-TS.TIER-middleware", container: grid ]
+ARCH-TS.TIER-server: Server [ url: "#ARCH-TS.TIER-server", container: grid ]
+ARCH-TS.TIER-database: Database [ url: "#ARCH-TS.TIER-database", container: grid ]
+ARCH-TS.TIER-common.COMPONENT-language: Language [ url: "#ARCH-TS.TIER-common.COMPONENT-language", parent: ARCH-TS.TIER-common, PRODUCT: TypeScript ]
+ARCH-TS.TIER-common.COMPONENT-task-runner: "Task Runner" [ url: "#ARCH-TS.TIER-common.COMPONENT-task-runner", parent: ARCH-TS.TIER-common, PRODUCT: STX ]
+ARCH-TS.TIER-common.COMPONENT-linting: Linting [ url: "#ARCH-TS.TIER-common.COMPONENT-linting", parent: ARCH-TS.TIER-common, PRODUCT: ESLint ]
+ARCH-TS.TIER-common.COMPONENT-messaging: Messaging [ url: "#ARCH-TS.TIER-common.COMPONENT-messaging", parent: ARCH-TS.TIER-common, PRODUCT: MQTT-Plus ]
+ARCH-TS.TIER-common.COMPONENT-http-client: "HTTP Client" [ url: "#ARCH-TS.TIER-common.COMPONENT-http-client", parent: ARCH-TS.TIER-common, PRODUCT: OFetch ]
+ARCH-TS.TIER-common.COMPONENT-logging: Logging [ url: "#ARCH-TS.TIER-common.COMPONENT-logging", parent: ARCH-TS.TIER-common, PRODUCT: Pino ]
+ARCH-TS.TIER-common.COMPONENT-date-management: "Date Management" [ url: "#ARCH-TS.TIER-common.COMPONENT-date-management", parent: ARCH-TS.TIER-common, PRODUCT: Luxon ]
+ARCH-TS.TIER-common.COMPONENT-unique-id: "Unique Identifier Generation" [ url: "#ARCH-TS.TIER-common.COMPONENT-unique-id", parent: ARCH-TS.TIER-common, PRODUCT: nanoid ]
+ARCH-TS.TIER-client.COMPONENT-build-tool: "Build Tool" [ url: "#ARCH-TS.TIER-client.COMPONENT-build-tool", parent: ARCH-TS.TIER-client, PRODUCT: Vite ]
+ARCH-TS.TIER-client.COMPONENT-styling-framework: "Styling Framework" [ url: "#ARCH-TS.TIER-client.COMPONENT-styling-framework", parent: ARCH-TS.TIER-client, PRODUCT: "Tailwind CSS" ]
+ARCH-TS.TIER-client.COMPONENT-ui-framework: "UI Framework" [ url: "#ARCH-TS.TIER-client.COMPONENT-ui-framework", parent: ARCH-TS.TIER-client, PRODUCT: Vue.js ]
+ARCH-TS.TIER-client.COMPONENT-widget-framework: "Widget Framework" [ url: "#ARCH-TS.TIER-client.COMPONENT-widget-framework", parent: ARCH-TS.TIER-client, PRODUCT: "Reka UI" ]
+ARCH-TS.TIER-client.COMPONENT-typography: Typography [ url: "#ARCH-TS.TIER-client.COMPONENT-typography", parent: ARCH-TS.TIER-client, PRODUCT: TypoPRO ]
+ARCH-TS.TIER-client.COMPONENT-iconography: Iconography [ url: "#ARCH-TS.TIER-client.COMPONENT-iconography", parent: ARCH-TS.TIER-client, PRODUCT: Fontawesome ]
+ARCH-TS.TIER-client.COMPONENT-tooltips: Tooltips [ url: "#ARCH-TS.TIER-client.COMPONENT-tooltips", parent: ARCH-TS.TIER-client, PRODUCT: "vue-tippy + tippy.js" ]
+ARCH-TS.TIER-client.COMPONENT-animations: Animations [ url: "#ARCH-TS.TIER-client.COMPONENT-animations", parent: ARCH-TS.TIER-client, PRODUCT: Anime.js ]
+ARCH-TS.TIER-client.COMPONENT-client-sentiment: "Sentiment Analysis" [ url: "#ARCH-TS.TIER-client.COMPONENT-client-sentiment", parent: ARCH-TS.TIER-client, PRODUCT: "natural + @nlpjs/core + multilang-sentiment" ]
+ARCH-TS.TIER-client.COMPONENT-client-langid: "Language Identification" [ url: "#ARCH-TS.TIER-client.COMPONENT-client-langid", parent: ARCH-TS.TIER-client, PRODUCT: "tinyld + franc + lande" ]
+ARCH-TS.TIER-middleware.COMPONENT-reverse-proxy: "Reverse Proxy" [ url: "#ARCH-TS.TIER-middleware.COMPONENT-reverse-proxy", parent: ARCH-TS.TIER-middleware, PRODUCT: HAProxy ]
+ARCH-TS.TIER-middleware.COMPONENT-message-broker: "Message Broker" [ url: "#ARCH-TS.TIER-middleware.COMPONENT-message-broker", parent: ARCH-TS.TIER-middleware, PRODUCT: Mosquitto ]
+ARCH-TS.TIER-server.COMPONENT-runtime: Runtime [ url: "#ARCH-TS.TIER-server.COMPONENT-runtime", parent: ARCH-TS.TIER-server, PRODUCT: Node.js ]
+ARCH-TS.TIER-server.COMPONENT-persistence-layer: "Persistence Layer" [ url: "#ARCH-TS.TIER-server.COMPONENT-persistence-layer", parent: ARCH-TS.TIER-server, PRODUCT: Drizzle ]
+ARCH-TS.TIER-server.COMPONENT-static-content-server: "Static Content Server" [ url: "#ARCH-TS.TIER-server.COMPONENT-static-content-server", parent: ARCH-TS.TIER-server, PRODUCT: Junction ]
+ARCH-TS.TIER-server.COMPONENT-argument-parsing: "Argument Parsing" [ url: "#ARCH-TS.TIER-server.COMPONENT-argument-parsing", parent: ARCH-TS.TIER-server, PRODUCT: Commander.js ]
+ARCH-TS.TIER-server.COMPONENT-configuration-loading: "Configuration Loading" [ url: "#ARCH-TS.TIER-server.COMPONENT-configuration-loading", parent: ARCH-TS.TIER-server, PRODUCT: "dotenvx + YAML" ]
+ARCH-TS.TIER-server.COMPONENT-configuration-validation: "Configuration Validation" [ url: "#ARCH-TS.TIER-server.COMPONENT-configuration-validation", parent: ARCH-TS.TIER-server, PRODUCT: Valibot ]
+ARCH-TS.TIER-server.COMPONENT-ai-connectivity: "AI/LLM Connectivity" [ url: "#ARCH-TS.TIER-server.COMPONENT-ai-connectivity", parent: ARCH-TS.TIER-server, PRODUCT: @ai-sdk ]
+ARCH-TS.TIER-server.COMPONENT-container-orchestration: "Container Orchestration" [ url: "#ARCH-TS.TIER-server.COMPONENT-container-orchestration", parent: ARCH-TS.TIER-server, PRODUCT: "Docker Compose" ]
+ARCH-TS.TIER-database.COMPONENT-database: Database [ url: "#ARCH-TS.TIER-database.COMPONENT-database", parent: ARCH-TS.TIER-database, PRODUCT: PostgreSQL ]
+ARCH-TS.TIER-database.COMPONENT-database-backup: "Database Backup" [ url: "#ARCH-TS.TIER-database.COMPONENT-database-backup", parent: ARCH-TS.TIER-database, PRODUCT: pg_dump ]

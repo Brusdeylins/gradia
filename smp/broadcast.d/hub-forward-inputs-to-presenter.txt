@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-FR.GROUP-moderating: Moderation [ url: "#REQS-FR.GROUP-moderating", type: GROUP ]
+REQS-FR.REQUIREMENT-moderation: "Moderate Chat and Questions" [ url: "#REQS-FR.REQUIREMENT-moderation", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-forward-presenter: "Forward Inputs to Presenter" [ url: "#REQS-FR.REQUIREMENT-forward-presenter", type: REQUIREMENT, primary: true ]
+REQS-FR.REQUIREMENT-presenter-hints: "Presenter Hints and Alerts" [ url: "#REQS-FR.REQUIREMENT-presenter-hints", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-presenter-dashboard: "Presenter Dashboard" [ url: "#REQS-FR.REQUIREMENT-presenter-dashboard", type: REQUIREMENT ]
+REQS-DR.RULE-forward-lock: "Forwarded Messages Are Immutable" [ url: "#REQS-DR.RULE-forward-lock", type: RULE ]
+REQS-UC.USE-CASE-moderate: "Moderate and Forward Messages" [ url: "#REQS-UC.USE-CASE-moderate", type: USE-CASE ]
+REQS-UC.USE-CASE-present: "Present Forwarded Questions" [ url: "#REQS-UC.USE-CASE-present", type: USE-CASE ]
+DATA-DM.ENTITY-role: Role [ url: "#DATA-DM.ENTITY-role", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT ]
+
+REQS-FR.REQUIREMENT-forward-presenter --(group)--> REQS-FR.GROUP-moderating
+REQS-FR.REQUIREMENT-forward-presenter --(depends-on)--> REQS-FR.REQUIREMENT-moderation
+REQS-FR.REQUIREMENT-presenter-hints --(depends-on)--> REQS-FR.REQUIREMENT-forward-presenter
+REQS-FR.REQUIREMENT-presenter-dashboard --(depends-on)--> REQS-FR.REQUIREMENT-forward-presenter
+REQS-DR.RULE-forward-lock --(constrains)--> REQS-FR.REQUIREMENT-forward-presenter
+REQS-UC.USE-CASE-moderate --(requirements)--> REQS-FR.REQUIREMENT-forward-presenter
+REQS-UC.USE-CASE-present --(requirements)--> REQS-FR.REQUIREMENT-forward-presenter
+DATA-DM.ENTITY-role --(requirements)--> REQS-FR.REQUIREMENT-forward-presenter
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-forward-presenter
+ARCH-FV.COMPONENT-service --(realizes)--> REQS-FR.REQUIREMENT-forward-presenter

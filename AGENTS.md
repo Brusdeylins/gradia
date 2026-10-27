@@ -46,7 +46,9 @@ tiles for an edge-less graph).
 -   `etc/`: the tool configurations (`eslint.mjs`, `tsconfig.json`,
     `stx.conf`, `vite.ts`)
 -   `smp/`: the sample graph descriptions (`*.txt`), their rendered
-    SVG outputs (`*.svg`), and the playground (`playground.html`)
+    SVG outputs (`*.svg`), the playground (`playground.html`), and the
+    regression test diagrams (`broadcast.d/*.txt`, the non-trivial
+    diagrams of the SpecBook "broadcast" sample specification)
 -   `dst/`: the compiled output (`bin` `gradia` is `dst/gradia-cli.js`,
     the browser UMD bundle of the API is `dst/gradia-api.umd.js`)
     -- never edit it; it is regenerated
@@ -64,6 +66,9 @@ npm start lint          # eslint --config etc/eslint.mjs src/*.ts
 npm start build-watch   # nodemon rebuild on src/**/*.ts
 npm start lint-watch    # nodemon relint on src/**/*.ts
 npm start sample        # render the smp/*.txt samples into smp/*.svg
+npm start regression-before  # render smp/broadcast.d/*.txt into *.before.svg (reference)
+npm start regression-after   # render into *.after.svg and report the differing diagrams
+npm start regression-clean   # remove the rendered *.before.svg and *.after.svg files
 npm start clean         # remove regularly built files
 npm start distclean     # also remove node_modules and package-lock.json
 ```

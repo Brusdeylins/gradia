@@ -1,0 +1,43 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-DV.TIER-server-tier: Server [ url: "#ARCH-DV.TIER-server-tier", type: TIER ]
+ARCH-DV.NODE-relay: "Relay Brokers" [ url: "#ARCH-DV.NODE-relay", type: NODE, KIND: Server, PLATFORM: "Linux x86-64" ]
+ARCH-DV.NODE-service: "Service Containers" [ url: "#ARCH-DV.NODE-service", type: NODE, primary: true, KIND: Container, PLATFORM: "OCI containers on Linux x86-64" ]
+ARCH-DV.NODE-database: "Database Server" [ url: "#ARCH-DV.NODE-database", type: NODE, KIND: Server, PLATFORM: "Linux x86-64" ]
+ARCH-DV.NETWORK-backend: "Backend Network" [ url: "#ARCH-DV.NETWORK-backend", type: NETWORK, SCOPE: Private ]
+ARCH-DV.NETWORK-data: "Data Network" [ url: "#ARCH-DV.NETWORK-data", type: NETWORK, SCOPE: Isolated ]
+ARCH-FV.COMPONENT-junction: "Junction Orchestrator" [ url: "#ARCH-FV.COMPONENT-junction", type: COMPONENT, KIND: Component ]
+ARCH-CO.UNIT-service-loop: "Service Event Loop" [ url: "#ARCH-CO.UNIT-service-loop", type: UNIT, KIND: EventLoop ]
+ARCH-OV.CONCERN-rollout: "Release Rollout" [ url: "#ARCH-OV.CONCERN-rollout", type: CONCERN ]
+ARCH-OV.CONCERN-scaling: "Horizontal Scaling" [ url: "#ARCH-OV.CONCERN-scaling", type: CONCERN ]
+ARCH-OV.CONCERN-restore: "Database Restore" [ url: "#ARCH-OV.CONCERN-restore", type: CONCERN ]
+ARCH-QP.TACTIC-recovery: "Dump-Based Recovery" [ url: "#ARCH-QP.TACTIC-recovery", type: TACTIC ]
+ARCH-DD.DECISION-modular-service: "One modular service process instead of microservices" [ url: "#ARCH-DD.DECISION-modular-service", type: DECISION ]
+ARCH-DD.DECISION-compose-orchestration: "Single-host Docker Compose instead of a cluster orchestrator" [ url: "#ARCH-DD.DECISION-compose-orchestration", type: DECISION ]
+
+ARCH-DV.NODE-service --(tier)--> ARCH-DV.TIER-server-tier
+ARCH-DV.NODE-service --(hosts)--> ARCH-CO.UNIT-service-loop
+ARCH-DV.NODE-service --(hosts)--> ARCH-FV.COMPONENT-junction
+ARCH-DV.NODE-service --(connects-to)--> ARCH-DV.NODE-relay
+ARCH-DV.NODE-service --(connects-to)--> ARCH-DV.NODE-database
+ARCH-DV.NODE-service --(networks)--> ARCH-DV.NETWORK-backend
+ARCH-DV.NODE-service --(networks)--> ARCH-DV.NETWORK-data
+ARCH-OV.CONCERN-rollout --(elements)--> ARCH-DV.NODE-service
+ARCH-OV.CONCERN-scaling --(elements)--> ARCH-DV.NODE-service
+ARCH-OV.CONCERN-restore --(elements)--> ARCH-DV.NODE-service
+ARCH-QP.TACTIC-recovery --(affects)--> ARCH-DV.NODE-service
+ARCH-DD.DECISION-modular-service --(affects)--> ARCH-DV.NODE-service
+ARCH-DD.DECISION-compose-orchestration --(affects)--> ARCH-DV.NODE-service

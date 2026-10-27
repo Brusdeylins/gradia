@@ -1,0 +1,41 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+DATA-AM.PERMISSION-administrator-events: "Administer Every Event" [ url: "#DATA-AM.PERMISSION-administrator-events", type: PERMISSION, primary: true ]
+REQS-UP.ROLE-administrator: Administrator [ url: "#REQS-UP.ROLE-administrator", type: ROLE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-SM.LIFECYCLE-event.TRANSITION-publish: publish [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-publish", type: TRANSITION ]
+DATA-SM.LIFECYCLE-event.TRANSITION-start: start [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-start", type: TRANSITION ]
+DATA-SM.LIFECYCLE-event.TRANSITION-start-unpublished: start [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-start-unpublished", type: TRANSITION ]
+DATA-SM.LIFECYCLE-event.TRANSITION-finish: finish [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-finish", type: TRANSITION ]
+REQS-DR.RULE-anonymize: "Anonymization on Event Finish" [ url: "#REQS-DR.RULE-anonymize", type: RULE ]
+REQS-DR.RULE-administrator-access: "Administrator Bypasses the Access List" [ url: "#REQS-DR.RULE-administrator-access", type: RULE ]
+REQS-UC.USE-CASE-administer-event: "Administer Any Event" [ url: "#REQS-UC.USE-CASE-administer-event", type: USE-CASE ]
+REQS-UC.USE-CASE-administer-event.SCENARIO-administer-event-list: "Reach an Event via the Overview" [ url: "#REQS-UC.USE-CASE-administer-event.SCENARIO-administer-event-list", type: SCENARIO ]
+APIS-IE.ENDPOINT-broadcast-server: broadcast-server [ url: "#APIS-IE.ENDPOINT-broadcast-server", type: ENDPOINT ]
+TEST-TC.TEST-CASE-administrator-data: "Administrator Sees No Attendee Data" [ url: "#TEST-TC.TEST-CASE-administrator-data", type: TEST-CASE ]
+
+DATA-AM.PERMISSION-administrator-events --(role)--> REQS-UP.ROLE-administrator
+DATA-AM.PERMISSION-administrator-events --(entity)--> DATA-DM.ENTITY-event
+DATA-AM.PERMISSION-administrator-events --(operations)--> DATA-SM.LIFECYCLE-event.TRANSITION-publish
+DATA-AM.PERMISSION-administrator-events --(operations)--> DATA-SM.LIFECYCLE-event.TRANSITION-start
+DATA-AM.PERMISSION-administrator-events --(operations)--> DATA-SM.LIFECYCLE-event.TRANSITION-start-unpublished
+DATA-AM.PERMISSION-administrator-events --(operations)--> DATA-SM.LIFECYCLE-event.TRANSITION-finish
+DATA-AM.PERMISSION-administrator-events --(rules)--> REQS-DR.RULE-administrator-access
+DATA-AM.PERMISSION-administrator-events --(rules)--> REQS-DR.RULE-anonymize
+DATA-AM.PERMISSION-administrator-events --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-events --(use-cases)--> REQS-UC.USE-CASE-administer-event.SCENARIO-administer-event-list
+APIS-IE.ENDPOINT-broadcast-server --(permissions)--> DATA-AM.PERMISSION-administrator-events
+TEST-TC.TEST-CASE-administrator-data --(verifies)--> DATA-AM.PERMISSION-administrator-events

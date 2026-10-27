@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+UXUI-IC.PRINCIPLE-moderation-gated: "Moderation-Gated Visibility" [ url: "#UXUI-IC.PRINCIPLE-moderation-gated", type: PRINCIPLE, primary: true ]
+REQS-UP.PERSONA-attendee: Anna [ url: "#REQS-UP.PERSONA-attendee", type: PERSONA ]
+REQS-UP.PERSONA-moderator-chat: Markus [ url: "#REQS-UP.PERSONA-moderator-chat", type: PERSONA ]
+REQS-UP.PERSONA-moderator-qa: Peter [ url: "#REQS-UP.PERSONA-moderator-qa", type: PERSONA ]
+REQS-UJ.JOURNEY-attend.STEP-participate: "Watch stream and interact" [ url: "#REQS-UJ.JOURNEY-attend.STEP-participate", type: STEP ]
+REQS-UC.USE-CASE-ask-question: "Ask a Question" [ url: "#REQS-UC.USE-CASE-ask-question", type: USE-CASE ]
+REQS-UC.USE-CASE-chat-during-event: "Chat During the Event" [ url: "#REQS-UC.USE-CASE-chat-during-event", type: USE-CASE ]
+REQS-UC.USE-CASE-moderate: "Moderate and Forward Messages" [ url: "#REQS-UC.USE-CASE-moderate", type: USE-CASE ]
+UXUI-DP.DIALOG-PATTERN-composer: "Inline Composer" [ url: "#UXUI-DP.DIALOG-PATTERN-composer", type: DIALOG-PATTERN ]
+UXUI-DP.DIALOG-PATTERN-kanban-board: "Kanban Moderation Board" [ url: "#UXUI-DP.DIALOG-PATTERN-kanban-board", type: DIALOG-PATTERN ]
+UXUI-VD.ELEMENT-color-palette: "Brand Color Palette" [ url: "#UXUI-VD.ELEMENT-color-palette", type: ELEMENT ]
+
+UXUI-IC.PRINCIPLE-moderation-gated --(actors)--> REQS-UP.PERSONA-attendee
+UXUI-IC.PRINCIPLE-moderation-gated --(actors)--> REQS-UP.PERSONA-moderator-chat
+UXUI-IC.PRINCIPLE-moderation-gated --(actors)--> REQS-UP.PERSONA-moderator-qa
+UXUI-IC.PRINCIPLE-moderation-gated --(motivated-by)--> REQS-UJ.JOURNEY-attend.STEP-participate
+UXUI-IC.PRINCIPLE-moderation-gated --(use-cases)--> REQS-UC.USE-CASE-ask-question
+UXUI-IC.PRINCIPLE-moderation-gated --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+UXUI-IC.PRINCIPLE-moderation-gated --(use-cases)--> REQS-UC.USE-CASE-moderate
+UXUI-DP.DIALOG-PATTERN-composer --(principles)--> UXUI-IC.PRINCIPLE-moderation-gated
+UXUI-DP.DIALOG-PATTERN-kanban-board --(principles)--> UXUI-IC.PRINCIPLE-moderation-gated
+UXUI-VD.ELEMENT-color-palette --(principles)--> UXUI-IC.PRINCIPLE-moderation-gated

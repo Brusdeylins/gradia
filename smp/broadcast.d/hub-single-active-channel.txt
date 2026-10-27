@@ -1,0 +1,39 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DR.RULE-single-channel: "Single Active Channel" [ url: "#REQS-DR.RULE-single-channel", type: RULE, primary: true ]
+REQS-DG.TERM-event: Event [ url: "#REQS-DG.TERM-event", type: TERM ]
+REQS-DG.TERM-channel: Channel [ url: "#REQS-DG.TERM-channel", type: TERM ]
+REQS-FR.REQUIREMENT-provider-switch: "Live Provider Switching" [ url: "#REQS-FR.REQUIREMENT-provider-switch", type: REQUIREMENT ]
+REQS-UC.USE-CASE-configure-event: "Configure the Event" [ url: "#REQS-UC.USE-CASE-configure-event", type: USE-CASE ]
+REQS-UC.USE-CASE-switch-provider: "Switch Streaming Provider" [ url: "#REQS-UC.USE-CASE-switch-provider", type: USE-CASE ]
+DATA-AM.PERMISSION-attendee-watch-channel: "Watch the Active Channel" [ url: "#DATA-AM.PERMISSION-attendee-watch-channel", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-channels: "Lay Out the Channels" [ url: "#DATA-AM.PERMISSION-manager-channels", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-channels: "Administer the Channels" [ url: "#DATA-AM.PERMISSION-administrator-channels", type: PERMISSION ]
+TEST-TC.TEST-CASE-single-channel: "Channel Activation Deactivates Previous" [ url: "#TEST-TC.TEST-CASE-single-channel", type: TEST-CASE ]
+TEST-TC.TEST-CASE-initial-channel: "First Channel Activated on Creation" [ url: "#TEST-TC.TEST-CASE-initial-channel", type: TEST-CASE ]
+TEST-TC.TEST-CASE-active-channel-locked: "Active Channel Not Deactivated Directly" [ url: "#TEST-TC.TEST-CASE-active-channel-locked", type: TEST-CASE ]
+
+REQS-DR.RULE-single-channel --(governs)--> REQS-DG.TERM-channel
+REQS-DR.RULE-single-channel --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-single-channel --(constrains)--> REQS-FR.REQUIREMENT-provider-switch
+REQS-UC.USE-CASE-configure-event --(rules)--> REQS-DR.RULE-single-channel
+REQS-UC.USE-CASE-switch-provider --(rules)--> REQS-DR.RULE-single-channel
+DATA-AM.PERMISSION-attendee-watch-channel --(rules)--> REQS-DR.RULE-single-channel
+DATA-AM.PERMISSION-manager-channels --(rules)--> REQS-DR.RULE-single-channel
+DATA-AM.PERMISSION-administrator-channels --(rules)--> REQS-DR.RULE-single-channel
+TEST-TC.TEST-CASE-single-channel --(verifies)--> REQS-DR.RULE-single-channel
+TEST-TC.TEST-CASE-initial-channel --(verifies)--> REQS-DR.RULE-single-channel
+TEST-TC.TEST-CASE-active-channel-locked --(verifies)--> REQS-DR.RULE-single-channel

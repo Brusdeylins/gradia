@@ -1,0 +1,39 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-DV.TIER-database-tier: Database [ url: "#ARCH-DV.TIER-database-tier", type: TIER ]
+ARCH-DV.NODE-service: "Service Containers" [ url: "#ARCH-DV.NODE-service", type: NODE, KIND: Container, PLATFORM: "OCI containers on Linux x86-64" ]
+ARCH-DV.NODE-database: "Database Server" [ url: "#ARCH-DV.NODE-database", type: NODE, primary: true, KIND: Server, PLATFORM: "Linux x86-64" ]
+ARCH-DV.NETWORK-data: "Data Network" [ url: "#ARCH-DV.NETWORK-data", type: NETWORK, SCOPE: Isolated ]
+ARCH-CO.UNIT-database: "Database Server" [ url: "#ARCH-CO.UNIT-database", type: UNIT, KIND: Process ]
+ARCH-OV.CONCERN-backup: "Database Backup" [ url: "#ARCH-OV.CONCERN-backup", type: CONCERN ]
+ARCH-OV.CONCERN-restore: "Database Restore" [ url: "#ARCH-OV.CONCERN-restore", type: CONCERN ]
+ARCH-QP.TACTIC-network-isolation: "Network Segmentation" [ url: "#ARCH-QP.TACTIC-network-isolation", type: TACTIC ]
+ARCH-QP.TACTIC-recovery: "Dump-Based Recovery" [ url: "#ARCH-QP.TACTIC-recovery", type: TACTIC ]
+ARCH-DD.DECISION-network-segments: "Three network segments with an isolated database subnet" [ url: "#ARCH-DD.DECISION-network-segments", type: DECISION ]
+ARCH-DD.DECISION-postgresql-store: "PostgreSQL as the single self-hosted relational store" [ url: "#ARCH-DD.DECISION-postgresql-store", type: DECISION ]
+ARCH-DD.DECISION-logical-dumps: "Logical dumps instead of continuous archiving for backup" [ url: "#ARCH-DD.DECISION-logical-dumps", type: DECISION ]
+
+ARCH-DV.NODE-service --(connects-to)--> ARCH-DV.NODE-database
+ARCH-DV.NODE-database --(tier)--> ARCH-DV.TIER-database-tier
+ARCH-DV.NODE-database --(hosts)--> ARCH-CO.UNIT-database
+ARCH-DV.NODE-database --(networks)--> ARCH-DV.NETWORK-data
+ARCH-OV.CONCERN-backup --(elements)--> ARCH-DV.NODE-database
+ARCH-OV.CONCERN-restore --(elements)--> ARCH-DV.NODE-database
+ARCH-QP.TACTIC-network-isolation --(affects)--> ARCH-DV.NODE-database
+ARCH-QP.TACTIC-recovery --(affects)--> ARCH-DV.NODE-database
+ARCH-DD.DECISION-network-segments --(affects)--> ARCH-DV.NODE-database
+ARCH-DD.DECISION-postgresql-store --(affects)--> ARCH-DV.NODE-database
+ARCH-DD.DECISION-logical-dumps --(affects)--> ARCH-DV.NODE-database

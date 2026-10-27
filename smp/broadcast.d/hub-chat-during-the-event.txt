@@ -1,0 +1,93 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-chat-during-event: "Chat During the Event" [ url: "#REQS-UC.USE-CASE-chat-during-event", type: USE-CASE, primary: true ]
+REQS-UP.ROLE-attendee: Attendee [ url: "#REQS-UP.ROLE-attendee", type: ROLE ]
+REQS-UJ.JOURNEY-attend.STEP-participate: "Watch stream and interact" [ url: "#REQS-UJ.JOURNEY-attend.STEP-participate", type: STEP ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event: "Attend Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event", type: ACTIVITY ]
+REQS-FR.REQUIREMENT-chat: "Chat Messages" [ url: "#REQS-FR.REQUIREMENT-chat", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-likes: "Like Messages" [ url: "#REQS-FR.REQUIREMENT-likes", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-replies: "Reply to Chat Messages" [ url: "#REQS-FR.REQUIREMENT-replies", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-name-appearance: "Configurable Name Appearance" [ url: "#REQS-FR.REQUIREMENT-name-appearance", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-display-options: "Personal Display Filtering" [ url: "#REQS-FR.REQUIREMENT-display-options", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-message-editing: "Edit and Delete Messages" [ url: "#REQS-FR.REQUIREMENT-message-editing", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-mc-feedback: "Multiple-Choice Feedback" [ url: "#REQS-FR.REQUIREMENT-mc-feedback", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-deleted-placeholder: "Deleted Message Placeholder" [ url: "#REQS-FR.REQUIREMENT-deleted-placeholder", type: REQUIREMENT ]
+REQS-DR.RULE-moderation-gate: "Moderation Determines Initial Visibility" [ url: "#REQS-DR.RULE-moderation-gate", type: RULE ]
+REQS-DR.RULE-forward-lock: "Forwarded Messages Are Immutable" [ url: "#REQS-DR.RULE-forward-lock", type: RULE ]
+REQS-DR.RULE-type-states: "State Set Depends on Message Type" [ url: "#REQS-DR.RULE-type-states", type: RULE ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-DM.ENTITY-messagetext: MessageText [ url: "#DATA-DM.ENTITY-messagetext", type: ENTITY ]
+DATA-SM.LIFECYCLE-message.TRANSITION-accept-unmoderated: accept [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-accept-unmoderated", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-resubmit: resubmit [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-resubmit", type: TRANSITION ]
+DATA-AM.PERMISSION-attendee-send-message: "Send Messages" [ url: "#DATA-AM.PERMISSION-attendee-send-message", type: PERMISSION ]
+DATA-AM.PERMISSION-attendee-read-message: "Read Visible Messages" [ url: "#DATA-AM.PERMISSION-attendee-read-message", type: PERMISSION ]
+DATA-AM.PERMISSION-attendee-track-own: "Track Own Messages" [ url: "#DATA-AM.PERMISSION-attendee-track-own", type: PERMISSION ]
+DATA-AM.PERMISSION-attendee-edit-own: "Correct Own Messages" [ url: "#DATA-AM.PERMISSION-attendee-edit-own", type: PERMISSION ]
+DATA-AM.PERMISSION-attendee-like: "Like Messages" [ url: "#DATA-AM.PERMISSION-attendee-like", type: PERMISSION ]
+UXUI-IC.PRINCIPLE-moderation-gated: "Moderation-Gated Visibility" [ url: "#UXUI-IC.PRINCIPLE-moderation-gated", type: PRINCIPLE ]
+UXUI-IC.PRINCIPLE-privacy-identity: "Privacy-Visible Identity" [ url: "#UXUI-IC.PRINCIPLE-privacy-identity", type: PRINCIPLE ]
+UXUI-IC.PRINCIPLE-never-leave-stream: "Never Leave the Stream" [ url: "#UXUI-IC.PRINCIPLE-never-leave-stream", type: PRINCIPLE ]
+UXUI-IC.PRINCIPLE-correct-over-confirm: "Correct over Confirm" [ url: "#UXUI-IC.PRINCIPLE-correct-over-confirm", type: PRINCIPLE ]
+UXUI-IC.PRINCIPLE-familiar-conventions: "Familiar Conventions" [ url: "#UXUI-IC.PRINCIPLE-familiar-conventions", type: PRINCIPLE ]
+UXUI-IC.PRINCIPLE-one-tap-contribution: "One-Tap Contribution" [ url: "#UXUI-IC.PRINCIPLE-one-tap-contribution", type: PRINCIPLE ]
+UXUI-DS.STORYBOARD-chat-interaction: "Attendee Reads and Posts Chat" [ url: "#UXUI-DS.STORYBOARD-chat-interaction", type: STORYBOARD ]
+ARCH-CV.ENTITY-attendee: Attendee [ url: "#ARCH-CV.ENTITY-attendee", type: ENTITY ]
+ARCH-CV.ENTITY-llm: "Translation LLM" [ url: "#ARCH-CV.ENTITY-llm", type: ENTITY ]
+TEST-TC.TEST-CASE-unmoderated-accepted: "Unmoderated Chat Starts Accepted" [ url: "#TEST-TC.TEST-CASE-unmoderated-accepted", type: TEST-CASE ]
+TEST-TC.TEST-CASE-forward-lock: "Forwarded Message Is Locked" [ url: "#TEST-TC.TEST-CASE-forward-lock", type: TEST-CASE ]
+TEST-TC.TEST-CASE-name-appearance: "Chat Message Shows Configured Name" [ url: "#TEST-TC.TEST-CASE-name-appearance", type: TEST-CASE ]
+TEST-TC.TEST-CASE-like-toggle: "Like Toggles the Count" [ url: "#TEST-TC.TEST-CASE-like-toggle", type: TEST-CASE ]
+TEST-TC.TEST-CASE-deleted-placeholder: "Deleted Message Leaves Placeholder" [ url: "#TEST-TC.TEST-CASE-deleted-placeholder", type: TEST-CASE ]
+
+REQS-UC.USE-CASE-chat-during-event --(actor)--> REQS-UP.ROLE-attendee
+REQS-UC.USE-CASE-chat-during-event --(journeys)--> REQS-UJ.JOURNEY-attend.STEP-participate
+REQS-UC.USE-CASE-chat-during-event --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event
+REQS-UC.USE-CASE-chat-during-event --(requirements)--> REQS-FR.REQUIREMENT-chat
+REQS-UC.USE-CASE-chat-during-event --(requirements)--> REQS-FR.REQUIREMENT-likes
+REQS-UC.USE-CASE-chat-during-event --(requirements)--> REQS-FR.REQUIREMENT-replies
+REQS-UC.USE-CASE-chat-during-event --(requirements)--> REQS-FR.REQUIREMENT-message-editing
+REQS-UC.USE-CASE-chat-during-event --(requirements)--> REQS-FR.REQUIREMENT-deleted-placeholder
+REQS-UC.USE-CASE-chat-during-event --(requirements)--> REQS-FR.REQUIREMENT-display-options
+REQS-UC.USE-CASE-chat-during-event --(requirements)--> REQS-FR.REQUIREMENT-name-appearance
+REQS-UC.USE-CASE-chat-during-event --(requirements)--> REQS-FR.REQUIREMENT-mc-feedback
+REQS-UC.USE-CASE-chat-during-event --(rules)--> REQS-DR.RULE-moderation-gate
+REQS-UC.USE-CASE-chat-during-event --(rules)--> REQS-DR.RULE-type-states
+REQS-UC.USE-CASE-chat-during-event --(rules)--> REQS-DR.RULE-forward-lock
+DATA-DM.ENTITY-user --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+DATA-DM.ENTITY-message --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+DATA-DM.ENTITY-messagetext --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+DATA-SM.LIFECYCLE-message.TRANSITION-accept-unmoderated --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+DATA-SM.LIFECYCLE-message.TRANSITION-resubmit --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+DATA-AM.PERMISSION-attendee-send-message --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+DATA-AM.PERMISSION-attendee-read-message --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+DATA-AM.PERMISSION-attendee-track-own --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+DATA-AM.PERMISSION-attendee-edit-own --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+DATA-AM.PERMISSION-attendee-like --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+UXUI-IC.PRINCIPLE-moderation-gated --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+UXUI-IC.PRINCIPLE-privacy-identity --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+UXUI-IC.PRINCIPLE-never-leave-stream --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+UXUI-IC.PRINCIPLE-correct-over-confirm --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+UXUI-IC.PRINCIPLE-familiar-conventions --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+UXUI-IC.PRINCIPLE-one-tap-contribution --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+UXUI-DS.STORYBOARD-chat-interaction --(scenario)--> REQS-UC.USE-CASE-chat-during-event
+ARCH-CV.ENTITY-attendee --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+ARCH-CV.ENTITY-llm --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+TEST-TC.TEST-CASE-unmoderated-accepted --(verifies)--> REQS-UC.USE-CASE-chat-during-event
+TEST-TC.TEST-CASE-forward-lock --(verifies)--> REQS-UC.USE-CASE-chat-during-event
+TEST-TC.TEST-CASE-name-appearance --(verifies)--> REQS-UC.USE-CASE-chat-during-event
+TEST-TC.TEST-CASE-like-toggle --(verifies)--> REQS-UC.USE-CASE-chat-during-event
+TEST-TC.TEST-CASE-deleted-placeholder --(verifies)--> REQS-UC.USE-CASE-chat-during-event

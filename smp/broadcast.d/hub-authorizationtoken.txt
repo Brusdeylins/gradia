@@ -1,0 +1,49 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-DM.ENTITY-authorizationtoken: AuthorizationToken [ url: "#DATA-DM.ENTITY-authorizationtoken", type: ENTITY, primary: true ]
+REQS-FR.REQUIREMENT-authentication: "User Authentication" [ url: "#REQS-FR.REQUIREMENT-authentication", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-automatic-url: "Automatic Event Access URL" [ url: "#REQS-FR.REQUIREMENT-automatic-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-registration-import: "Import Registered Attendees" [ url: "#REQS-FR.REQUIREMENT-registration-import", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-registration-export: "Return Access URLs to Registration" [ url: "#REQS-FR.REQUIREMENT-registration-export", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-debug-stats: "Debugging Statistics" [ url: "#REQS-FR.REQUIREMENT-debug-stats", type: REQUIREMENT ]
+REQS-UC.USE-CASE-authenticate: "Authenticate via Email Token" [ url: "#REQS-UC.USE-CASE-authenticate", type: USE-CASE ]
+REQS-UC.USE-CASE-create-event: "Create Event from Registration Import" [ url: "#REQS-UC.USE-CASE-create-event", type: USE-CASE ]
+REQS-UC.USE-CASE-export-data: "Export Anonymized Event Data" [ url: "#REQS-UC.USE-CASE-export-data", type: USE-CASE ]
+DATA-SM.LIFECYCLE-authtoken: AuthorizationToken [ url: "#DATA-SM.LIFECYCLE-authtoken", type: LIFECYCLE ]
+ARCH-FV.COMPONENT-auth: "Authentication Service" [ url: "#ARCH-FV.COMPONENT-auth", type: COMPONENT ]
+ARCH-QP.TACTIC-privacy: "Privacy by Design" [ url: "#ARCH-QP.TACTIC-privacy", type: TACTIC ]
+ARCH-QP.TACTIC-access-security: "Email-Verified Access" [ url: "#ARCH-QP.TACTIC-access-security", type: TACTIC ]
+ARCH-QP.TACTIC-observability: "Snapshot Observability" [ url: "#ARCH-QP.TACTIC-observability", type: TACTIC ]
+TEST-TC.TEST-CASE-url-format: "Returned URL Format" [ url: "#TEST-TC.TEST-CASE-url-format", type: TEST-CASE ]
+
+DATA-DM.ENTITY-authorizationtoken --(requirements)--> REQS-FR.REQUIREMENT-authentication
+DATA-DM.ENTITY-authorizationtoken --(requirements)--> REQS-FR.REQUIREMENT-automatic-url
+DATA-DM.ENTITY-authorizationtoken --(requirements)--> REQS-FR.REQUIREMENT-registration-import
+DATA-DM.ENTITY-authorizationtoken --(requirements)--> REQS-FR.REQUIREMENT-registration-export
+DATA-DM.ENTITY-authorizationtoken --(requirements)--> REQS-FR.REQUIREMENT-debug-stats
+DATA-DM.ENTITY-authorizationtoken --(use-cases)--> REQS-UC.USE-CASE-authenticate
+DATA-DM.ENTITY-authorizationtoken --(use-cases)--> REQS-UC.USE-CASE-create-event
+DATA-DM.ENTITY-authorizationtoken --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-SM.LIFECYCLE-authtoken --(entity)--> DATA-DM.ENTITY-authorizationtoken
+ARCH-FV.COMPONENT-auth --(owns)--> DATA-DM.ENTITY-authorizationtoken
+ARCH-QP.TACTIC-privacy --(affects)--> DATA-DM.ENTITY-authorizationtoken
+ARCH-QP.TACTIC-access-security --(affects)--> DATA-DM.ENTITY-authorizationtoken
+ARCH-QP.TACTIC-observability --(affects)--> DATA-DM.ENTITY-authorizationtoken
+TEST-TC.TEST-CASE-url-format --(verifies)--> DATA-DM.ENTITY-authorizationtoken
+DATA-DM.ENTITY-authorizationtoken --(user)-->[1] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-authorizationtoken --(event)-->[1] DATA-DM.ENTITY-event

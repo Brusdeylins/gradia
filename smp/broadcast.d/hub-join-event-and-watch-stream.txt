@@ -1,0 +1,81 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-join-event: "Join Event and Watch Stream" [ url: "#REQS-UC.USE-CASE-join-event", type: USE-CASE, primary: true ]
+REQS-UC.USE-CASE-authenticate: "Authenticate via Email Token" [ url: "#REQS-UC.USE-CASE-authenticate", type: USE-CASE ]
+REQS-UP.ROLE-attendee: Attendee [ url: "#REQS-UP.ROLE-attendee", type: ROLE ]
+REQS-UJ.JOURNEY-attend.STEP-arrival: "Open event page and review login info" [ url: "#REQS-UJ.JOURNEY-attend.STEP-arrival", type: STEP ]
+REQS-UJ.JOURNEY-attend.STEP-participate: "Watch stream and interact" [ url: "#REQS-UJ.JOURNEY-attend.STEP-participate", type: STEP ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event: "Attend Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event", type: ACTIVITY ]
+REQS-FR.REQUIREMENT-authentication: "User Authentication" [ url: "#REQS-FR.REQUIREMENT-authentication", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-browser-access: "Browser Access" [ url: "#REQS-FR.REQUIREMENT-browser-access", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-individual-url: "Individual Event Access URL" [ url: "#REQS-FR.REQUIREMENT-individual-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-resource-url: "Direct Resource Access URL" [ url: "#REQS-FR.REQUIREMENT-resource-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-mobile: "Mobile Device Support" [ url: "#REQS-FR.REQUIREMENT-mobile", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-language-switch: "In-Session Language Switching" [ url: "#REQS-FR.REQUIREMENT-language-switch", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-theme-toggle: "Light and Dark Theme" [ url: "#REQS-FR.REQUIREMENT-theme-toggle", type: REQUIREMENT ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-agendapoint: AgendaPoint [ url: "#DATA-DM.ENTITY-agendapoint", type: ENTITY ]
+DATA-DM.ENTITY-channel: Channel [ url: "#DATA-DM.ENTITY-channel", type: ENTITY ]
+DATA-DM.ENTITY-resource: Resource [ url: "#DATA-DM.ENTITY-resource", type: ENTITY ]
+DATA-DM.ENTITY-messagetext: MessageText [ url: "#DATA-DM.ENTITY-messagetext", type: ENTITY ]
+DATA-DM.ENTITY-sessiontoken: SessionToken [ url: "#DATA-DM.ENTITY-sessiontoken", type: ENTITY ]
+DATA-DM.ENTITY-userstatistic: UserStatistic [ url: "#DATA-DM.ENTITY-userstatistic", type: ENTITY ]
+DATA-AM.PERMISSION-attendee-enter-event: "Enter the Event" [ url: "#DATA-AM.PERMISSION-attendee-enter-event", type: PERMISSION ]
+DATA-AM.PERMISSION-attendee-watch-channel: "Watch the Active Channel" [ url: "#DATA-AM.PERMISSION-attendee-watch-channel", type: PERMISSION ]
+DATA-AM.PERMISSION-attendee-play-resource: "Play the Active Resource" [ url: "#DATA-AM.PERMISSION-attendee-play-resource", type: PERMISSION ]
+UXUI-IC.PRINCIPLE-privacy-identity: "Privacy-Visible Identity" [ url: "#UXUI-IC.PRINCIPLE-privacy-identity", type: PRINCIPLE ]
+UXUI-IC.PRINCIPLE-frictionless-join: "Frictionless Joining" [ url: "#UXUI-IC.PRINCIPLE-frictionless-join", type: PRINCIPLE ]
+UXUI-IC.PRINCIPLE-never-leave-stream: "Never Leave the Stream" [ url: "#UXUI-IC.PRINCIPLE-never-leave-stream", type: PRINCIPLE ]
+UXUI-DS.STORYBOARD-attendee-join: "Attendee Joins and Watches" [ url: "#UXUI-DS.STORYBOARD-attendee-join", type: STORYBOARD ]
+ARCH-CV.ENTITY-attendee: Attendee [ url: "#ARCH-CV.ENTITY-attendee", type: ENTITY ]
+ARCH-CV.ENTITY-provider: "Streaming Provider" [ url: "#ARCH-CV.ENTITY-provider", type: ENTITY ]
+ARCH-CV.ENTITY-cdn: "Content CDN" [ url: "#ARCH-CV.ENTITY-cdn", type: ENTITY ]
+ARCH-CV.ENTITY-llm: "Translation LLM" [ url: "#ARCH-CV.ENTITY-llm", type: ENTITY ]
+TEST-TC.TEST-CASE-resource-url: "Resource URL Selects the Resource" [ url: "#TEST-TC.TEST-CASE-resource-url", type: TEST-CASE ]
+TEST-TC.TEST-CASE-language-switch: "Language Switch Applies Immediately" [ url: "#TEST-TC.TEST-CASE-language-switch", type: TEST-CASE ]
+
+REQS-UC.USE-CASE-join-event --(actor)--> REQS-UP.ROLE-attendee
+REQS-UC.USE-CASE-join-event --(journeys)--> REQS-UJ.JOURNEY-attend.STEP-arrival
+REQS-UC.USE-CASE-join-event --(journeys)--> REQS-UJ.JOURNEY-attend.STEP-participate
+REQS-UC.USE-CASE-join-event --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event
+REQS-UC.USE-CASE-join-event --(requirements)--> REQS-FR.REQUIREMENT-individual-url
+REQS-UC.USE-CASE-join-event --(requirements)--> REQS-FR.REQUIREMENT-authentication
+REQS-UC.USE-CASE-join-event --(requirements)--> REQS-FR.REQUIREMENT-browser-access
+REQS-UC.USE-CASE-join-event --(requirements)--> REQS-FR.REQUIREMENT-resource-url
+REQS-UC.USE-CASE-join-event --(requirements)--> REQS-FR.REQUIREMENT-mobile
+REQS-UC.USE-CASE-join-event --(requirements)--> REQS-FR.REQUIREMENT-language-switch
+REQS-UC.USE-CASE-join-event --(requirements)--> REQS-FR.REQUIREMENT-theme-toggle
+REQS-UC.USE-CASE-join-event --(includes)--> REQS-UC.USE-CASE-authenticate
+DATA-DM.ENTITY-event --(use-cases)--> REQS-UC.USE-CASE-join-event
+DATA-DM.ENTITY-agendapoint --(use-cases)--> REQS-UC.USE-CASE-join-event
+DATA-DM.ENTITY-channel --(use-cases)--> REQS-UC.USE-CASE-join-event
+DATA-DM.ENTITY-resource --(use-cases)--> REQS-UC.USE-CASE-join-event
+DATA-DM.ENTITY-messagetext --(use-cases)--> REQS-UC.USE-CASE-join-event
+DATA-DM.ENTITY-sessiontoken --(use-cases)--> REQS-UC.USE-CASE-join-event
+DATA-DM.ENTITY-userstatistic --(use-cases)--> REQS-UC.USE-CASE-join-event
+DATA-AM.PERMISSION-attendee-enter-event --(use-cases)--> REQS-UC.USE-CASE-join-event
+DATA-AM.PERMISSION-attendee-watch-channel --(use-cases)--> REQS-UC.USE-CASE-join-event
+DATA-AM.PERMISSION-attendee-play-resource --(use-cases)--> REQS-UC.USE-CASE-join-event
+UXUI-IC.PRINCIPLE-privacy-identity --(use-cases)--> REQS-UC.USE-CASE-join-event
+UXUI-IC.PRINCIPLE-frictionless-join --(use-cases)--> REQS-UC.USE-CASE-join-event
+UXUI-IC.PRINCIPLE-never-leave-stream --(use-cases)--> REQS-UC.USE-CASE-join-event
+UXUI-DS.STORYBOARD-attendee-join --(scenario)--> REQS-UC.USE-CASE-join-event
+ARCH-CV.ENTITY-attendee --(use-cases)--> REQS-UC.USE-CASE-join-event
+ARCH-CV.ENTITY-provider --(use-cases)--> REQS-UC.USE-CASE-join-event
+ARCH-CV.ENTITY-cdn --(use-cases)--> REQS-UC.USE-CASE-join-event
+ARCH-CV.ENTITY-llm --(use-cases)--> REQS-UC.USE-CASE-join-event
+TEST-TC.TEST-CASE-resource-url --(verifies)--> REQS-UC.USE-CASE-join-event
+TEST-TC.TEST-CASE-language-switch --(verifies)--> REQS-UC.USE-CASE-join-event

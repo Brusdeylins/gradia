@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-DM.ENTITY-sessiontoken: SessionToken [ url: "#DATA-DM.ENTITY-sessiontoken", type: ENTITY, primary: true ]
+REQS-FR.REQUIREMENT-authentication: "User Authentication" [ url: "#REQS-FR.REQUIREMENT-authentication", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-parallel-access: "Limit Parallel Access" [ url: "#REQS-FR.REQUIREMENT-parallel-access", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-event-stats: "General Event Statistics" [ url: "#REQS-FR.REQUIREMENT-event-stats", type: REQUIREMENT ]
+REQS-UC.USE-CASE-join-event: "Join Event and Watch Stream" [ url: "#REQS-UC.USE-CASE-join-event", type: USE-CASE ]
+REQS-UC.USE-CASE-authenticate: "Authenticate via Email Token" [ url: "#REQS-UC.USE-CASE-authenticate", type: USE-CASE ]
+ARCH-FV.COMPONENT-auth: "Authentication Service" [ url: "#ARCH-FV.COMPONENT-auth", type: COMPONENT ]
+ARCH-QP.TACTIC-privacy: "Privacy by Design" [ url: "#ARCH-QP.TACTIC-privacy", type: TACTIC ]
+ARCH-QP.TACTIC-access-security: "Email-Verified Access" [ url: "#ARCH-QP.TACTIC-access-security", type: TACTIC ]
+
+DATA-DM.ENTITY-sessiontoken --(requirements)--> REQS-FR.REQUIREMENT-authentication
+DATA-DM.ENTITY-sessiontoken --(requirements)--> REQS-FR.REQUIREMENT-parallel-access
+DATA-DM.ENTITY-sessiontoken --(requirements)--> REQS-FR.REQUIREMENT-event-stats
+DATA-DM.ENTITY-sessiontoken --(use-cases)--> REQS-UC.USE-CASE-authenticate
+DATA-DM.ENTITY-sessiontoken --(use-cases)--> REQS-UC.USE-CASE-join-event
+ARCH-FV.COMPONENT-auth --(owns)--> DATA-DM.ENTITY-sessiontoken
+ARCH-QP.TACTIC-privacy --(affects)--> DATA-DM.ENTITY-sessiontoken
+ARCH-QP.TACTIC-access-security --(affects)--> DATA-DM.ENTITY-sessiontoken
+DATA-DM.ENTITY-sessiontoken --(user)-->[1] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-sessiontoken --(event)-->[1] DATA-DM.ENTITY-event

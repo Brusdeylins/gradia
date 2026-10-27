@@ -1,0 +1,47 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-publish-start-finish: "Publish, Start, and Finish Event" [ url: "#REQS-UC.USE-CASE-publish-start-finish", type: USE-CASE, primary: true ]
+REQS-UP.ROLE-manager: Manager [ url: "#REQS-UP.ROLE-manager", type: ROLE ]
+REQS-UJ.JOURNEY-operate.STEP-configure: "Configure and run the event" [ url: "#REQS-UJ.JOURNEY-operate.STEP-configure", type: STEP ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live: "Start Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live", type: ACTIVITY ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-finish-event: "Finish Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-finish-event", type: ACTIVITY ]
+REQS-DR.RULE-anonymize: "Anonymization on Event Finish" [ url: "#REQS-DR.RULE-anonymize", type: RULE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-role: Role [ url: "#DATA-DM.ENTITY-role", type: ENTITY ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-SM.LIFECYCLE-event.TRANSITION-publish: publish [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-publish", type: TRANSITION ]
+DATA-SM.LIFECYCLE-event.TRANSITION-start: start [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-start", type: TRANSITION ]
+DATA-SM.LIFECYCLE-event.TRANSITION-start-unpublished: start [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-start-unpublished", type: TRANSITION ]
+DATA-SM.LIFECYCLE-event.TRANSITION-finish: finish [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-finish", type: TRANSITION ]
+DATA-SM.LIFECYCLE-userstatistic.TRANSITION-unlink: unlink [ url: "#DATA-SM.LIFECYCLE-userstatistic.TRANSITION-unlink", type: TRANSITION ]
+DATA-AM.PERMISSION-manager-run-event: "Run the Event" [ url: "#DATA-AM.PERMISSION-manager-run-event", type: PERMISSION ]
+ARCH-CV.ENTITY-operator: "Event Operator" [ url: "#ARCH-CV.ENTITY-operator", type: ENTITY ]
+
+REQS-UC.USE-CASE-publish-start-finish --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-publish-start-finish --(journeys)--> REQS-UJ.JOURNEY-operate.STEP-configure
+REQS-UC.USE-CASE-publish-start-finish --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live
+REQS-UC.USE-CASE-publish-start-finish --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-finish-event
+REQS-UC.USE-CASE-publish-start-finish --(rules)--> REQS-DR.RULE-anonymize
+DATA-DM.ENTITY-event --(use-cases)--> REQS-UC.USE-CASE-publish-start-finish
+DATA-DM.ENTITY-role --(use-cases)--> REQS-UC.USE-CASE-publish-start-finish
+DATA-DM.ENTITY-user --(use-cases)--> REQS-UC.USE-CASE-publish-start-finish
+DATA-SM.LIFECYCLE-event.TRANSITION-publish --(use-cases)--> REQS-UC.USE-CASE-publish-start-finish
+DATA-SM.LIFECYCLE-event.TRANSITION-start --(use-cases)--> REQS-UC.USE-CASE-publish-start-finish
+DATA-SM.LIFECYCLE-event.TRANSITION-start-unpublished --(use-cases)--> REQS-UC.USE-CASE-publish-start-finish
+DATA-SM.LIFECYCLE-event.TRANSITION-finish --(use-cases)--> REQS-UC.USE-CASE-publish-start-finish
+DATA-SM.LIFECYCLE-userstatistic.TRANSITION-unlink --(use-cases)--> REQS-UC.USE-CASE-publish-start-finish
+DATA-AM.PERMISSION-manager-run-event --(use-cases)--> REQS-UC.USE-CASE-publish-start-finish
+ARCH-CV.ENTITY-operator --(use-cases)--> REQS-UC.USE-CASE-publish-start-finish

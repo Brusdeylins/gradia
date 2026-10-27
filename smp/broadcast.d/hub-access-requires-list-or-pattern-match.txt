@@ -1,0 +1,41 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DR.RULE-access-grant: "Access Requires List or Pattern Match" [ url: "#REQS-DR.RULE-access-grant", type: RULE, primary: true ]
+REQS-DG.TERM-event: Event [ url: "#REQS-DG.TERM-event", type: TERM ]
+REQS-DG.TERM-user: User [ url: "#REQS-DG.TERM-user", type: TERM ]
+REQS-DG.TERM-accesslist: "Access List" [ url: "#REQS-DG.TERM-accesslist", type: TERM ]
+REQS-FR.REQUIREMENT-authentication: "User Authentication" [ url: "#REQS-FR.REQUIREMENT-authentication", type: REQUIREMENT ]
+REQS-SP.PREMISE-url-leakage: "Access URLs Forwarded Beyond the Audience" [ url: "#REQS-SP.PREMISE-url-leakage", type: PREMISE ]
+REQS-UC.USE-CASE-authenticate: "Authenticate via Email Token" [ url: "#REQS-UC.USE-CASE-authenticate", type: USE-CASE ]
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-send: send [ url: "#DATA-SM.LIFECYCLE-authtoken.TRANSITION-send", type: TRANSITION ]
+DATA-AM.PERMISSION-attendee-enter-event: "Enter the Event" [ url: "#DATA-AM.PERMISSION-attendee-enter-event", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-access-list: "Maintain the Access List" [ url: "#DATA-AM.PERMISSION-manager-access-list", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-users: "Administer the Users" [ url: "#DATA-AM.PERMISSION-administrator-users", type: PERMISSION ]
+TEST-TC.TEST-CASE-valid-token: "Valid Token Grants Access" [ url: "#TEST-TC.TEST-CASE-valid-token", type: TEST-CASE ]
+TEST-TC.TEST-CASE-unauthorized: "Unauthorized Email Rejected" [ url: "#TEST-TC.TEST-CASE-unauthorized", type: TEST-CASE ]
+
+REQS-DR.RULE-access-grant --(governs)--> REQS-DG.TERM-user
+REQS-DR.RULE-access-grant --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-access-grant --(governs)--> REQS-DG.TERM-accesslist
+REQS-DR.RULE-access-grant --(constrains)--> REQS-FR.REQUIREMENT-authentication
+REQS-DR.RULE-access-grant --(premises)--> REQS-SP.PREMISE-url-leakage
+REQS-UC.USE-CASE-authenticate --(rules)--> REQS-DR.RULE-access-grant
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-send --(rules)--> REQS-DR.RULE-access-grant
+DATA-AM.PERMISSION-attendee-enter-event --(rules)--> REQS-DR.RULE-access-grant
+DATA-AM.PERMISSION-manager-access-list --(rules)--> REQS-DR.RULE-access-grant
+DATA-AM.PERMISSION-administrator-users --(rules)--> REQS-DR.RULE-access-grant
+TEST-TC.TEST-CASE-valid-token --(verifies)--> REQS-DR.RULE-access-grant
+TEST-TC.TEST-CASE-unauthorized --(verifies)--> REQS-DR.RULE-access-grant

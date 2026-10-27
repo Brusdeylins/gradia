@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DR.RULE-like-count: "Likes Conserved as Count on Finish" [ url: "#REQS-DR.RULE-like-count", type: RULE, primary: true ]
+REQS-DG.TERM-event: Event [ url: "#REQS-DG.TERM-event", type: TERM ]
+REQS-DG.TERM-message: Message [ url: "#REQS-DG.TERM-message", type: TERM ]
+REQS-DG.TERM-like: Like [ url: "#REQS-DG.TERM-like", type: TERM ]
+REQS-DG.TERM-anonymization: Anonymization [ url: "#REQS-DG.TERM-anonymization", type: TERM ]
+REQS-FR.REQUIREMENT-likes: "Like Messages" [ url: "#REQS-FR.REQUIREMENT-likes", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-export-inputs: "Export Attendee Inputs" [ url: "#REQS-FR.REQUIREMENT-export-inputs", type: REQUIREMENT ]
+REQS-UC.USE-CASE-export-data: "Export Anonymized Event Data" [ url: "#REQS-UC.USE-CASE-export-data", type: USE-CASE ]
+DATA-AM.PERMISSION-attendee-like: "Like Messages" [ url: "#DATA-AM.PERMISSION-attendee-like", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-export-messages: "Export the Messages" [ url: "#DATA-AM.PERMISSION-manager-export-messages", type: PERMISSION ]
+TEST-TC.TEST-CASE-export-fields: "Export Contains Required Fields" [ url: "#TEST-TC.TEST-CASE-export-fields", type: TEST-CASE ]
+
+REQS-DR.RULE-like-count --(governs)--> REQS-DG.TERM-like
+REQS-DR.RULE-like-count --(governs)--> REQS-DG.TERM-message
+REQS-DR.RULE-like-count --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-like-count --(governs)--> REQS-DG.TERM-anonymization
+REQS-DR.RULE-like-count --(constrains)--> REQS-FR.REQUIREMENT-likes
+REQS-DR.RULE-like-count --(constrains)--> REQS-FR.REQUIREMENT-export-inputs
+REQS-UC.USE-CASE-export-data --(rules)--> REQS-DR.RULE-like-count
+DATA-AM.PERMISSION-attendee-like --(rules)--> REQS-DR.RULE-like-count
+DATA-AM.PERMISSION-manager-export-messages --(rules)--> REQS-DR.RULE-like-count
+TEST-TC.TEST-CASE-export-fields --(verifies)--> REQS-DR.RULE-like-count

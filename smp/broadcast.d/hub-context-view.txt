@@ -1,0 +1,36 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+
+ARCH-CV-@center: Broadcast [ url: "#META-TI", type: Solution, primary: true ]
+ARCH-CV.ENTITY-attendee: Attendee [ url: "#ARCH-CV.ENTITY-attendee", type: ENTITY, KIND: Person ]
+ARCH-CV.ENTITY-operator: "Event Operator" [ url: "#ARCH-CV.ENTITY-operator", type: ENTITY, KIND: Person ]
+ARCH-CV.ENTITY-provider: "Streaming Provider" [ url: "#ARCH-CV.ENTITY-provider", type: ENTITY, KIND: System ]
+ARCH-CV.ENTITY-cdn: "Content CDN" [ url: "#ARCH-CV.ENTITY-cdn", type: ENTITY, KIND: Service ]
+ARCH-CV.ENTITY-registration-system: "Event Registration System" [ url: "#ARCH-CV.ENTITY-registration-system", type: ENTITY, KIND: System ]
+ARCH-CV.ENTITY-email: "Email Gateway" [ url: "#ARCH-CV.ENTITY-email", type: ENTITY, KIND: Service ]
+ARCH-CV.ENTITY-llm: "Translation LLM" [ url: "#ARCH-CV.ENTITY-llm", type: ENTITY, KIND: Service ]
+ARCH-CV.ENTITY-app: "Embedded Third-Party App" [ url: "#ARCH-CV.ENTITY-app", type: ENTITY, KIND: System ]
+
+ARCH-CV.ENTITY-attendee --> ARCH-CV-@center
+ARCH-CV-@center --> ARCH-CV.ENTITY-attendee
+ARCH-CV.ENTITY-operator --> ARCH-CV-@center
+ARCH-CV-@center --> ARCH-CV.ENTITY-operator
+ARCH-CV-@center --> ARCH-CV.ENTITY-provider
+ARCH-CV-@center --> ARCH-CV.ENTITY-cdn
+ARCH-CV.ENTITY-registration-system --("via Event Operator")--> ARCH-CV-@center
+ARCH-CV-@center --("via Event Operator")--> ARCH-CV.ENTITY-registration-system
+ARCH-CV-@center --> ARCH-CV.ENTITY-email
+ARCH-CV-@center --> ARCH-CV.ENTITY-llm
+ARCH-CV.ENTITY-app --> ARCH-CV-@center
+ARCH-CV-@center --> ARCH-CV.ENTITY-app

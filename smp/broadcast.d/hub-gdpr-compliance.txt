@@ -1,0 +1,41 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-NR.GROUP-data-protection: "Data Protection" [ url: "#REQS-NR.GROUP-data-protection", type: GROUP ]
+REQS-NR.REQUIREMENT-gdpr: "GDPR Compliance" [ url: "#REQS-NR.REQUIREMENT-gdpr", type: REQUIREMENT, primary: true ]
+REQS-FR.REQUIREMENT-gdpr-eu: "GDPR-Compliant EU Processing" [ url: "#REQS-FR.REQUIREMENT-gdpr-eu", type: REQUIREMENT ]
+REQS-SP.PREMISE-eu-hosting: "EU Hosting on Self-Operated Infrastructure" [ url: "#REQS-SP.PREMISE-eu-hosting", type: PREMISE ]
+REQS-SP.PREMISE-message-personal-data: "Message Texts Contain Personal Data" [ url: "#REQS-SP.PREMISE-message-personal-data", type: PREMISE ]
+ARCH-QP.TACTIC-privacy: "Privacy by Design" [ url: "#ARCH-QP.TACTIC-privacy", type: TACTIC ]
+ARCH-QP.TACTIC-network-isolation: "Network Segmentation" [ url: "#ARCH-QP.TACTIC-network-isolation", type: TACTIC ]
+ARCH-DD.DECISION-self-host: "Self-host on Hetzner instead of public cloud" [ url: "#ARCH-DD.DECISION-self-host", type: DECISION ]
+ARCH-DD.DECISION-no-accounts: "Privacy by design with no permanent user accounts" [ url: "#ARCH-DD.DECISION-no-accounts", type: DECISION ]
+ARCH-DD.DECISION-network-segments: "Three network segments with an isolated database subnet" [ url: "#ARCH-DD.DECISION-network-segments", type: DECISION ]
+ARCH-DD.DECISION-postgresql-store: "PostgreSQL as the single self-hosted relational store" [ url: "#ARCH-DD.DECISION-postgresql-store", type: DECISION ]
+ARCH-DD.DECISION-cdn-edge: "Serve the static client from a CDN edge outside the data center" [ url: "#ARCH-DD.DECISION-cdn-edge", type: DECISION ]
+ARCH-OV.CONCERN-backup: "Database Backup" [ url: "#ARCH-OV.CONCERN-backup", type: CONCERN ]
+
+REQS-NR.REQUIREMENT-gdpr --(group)--> REQS-NR.GROUP-data-protection
+REQS-NR.REQUIREMENT-gdpr --(qualifies)--> REQS-FR.REQUIREMENT-gdpr-eu
+REQS-NR.REQUIREMENT-gdpr --(premises)--> REQS-SP.PREMISE-eu-hosting
+REQS-NR.REQUIREMENT-gdpr --(premises)--> REQS-SP.PREMISE-message-personal-data
+ARCH-QP.TACTIC-privacy --(addresses)--> REQS-NR.REQUIREMENT-gdpr
+ARCH-QP.TACTIC-network-isolation --(addresses)--> REQS-NR.REQUIREMENT-gdpr
+ARCH-DD.DECISION-self-host --(driven-by)--> REQS-NR.REQUIREMENT-gdpr
+ARCH-DD.DECISION-no-accounts --(driven-by)--> REQS-NR.REQUIREMENT-gdpr
+ARCH-DD.DECISION-network-segments --(driven-by)--> REQS-NR.REQUIREMENT-gdpr
+ARCH-DD.DECISION-postgresql-store --(driven-by)--> REQS-NR.REQUIREMENT-gdpr
+ARCH-DD.DECISION-cdn-edge --(driven-by)--> REQS-NR.REQUIREMENT-gdpr
+ARCH-OV.CONCERN-backup --(addresses)--> REQS-NR.REQUIREMENT-gdpr

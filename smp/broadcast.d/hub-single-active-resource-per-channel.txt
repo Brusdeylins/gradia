@@ -1,0 +1,43 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DR.RULE-single-resource: "Single Active Resource per Channel" [ url: "#REQS-DR.RULE-single-resource", type: RULE, primary: true ]
+REQS-DG.TERM-channel: Channel [ url: "#REQS-DG.TERM-channel", type: TERM ]
+REQS-DG.TERM-resource: Resource [ url: "#REQS-DG.TERM-resource", type: TERM ]
+REQS-DG.TERM-provider: "Streaming Provider" [ url: "#REQS-DG.TERM-provider", type: TERM ]
+REQS-FR.REQUIREMENT-multi-provider: "Multiple Streaming Providers" [ url: "#REQS-FR.REQUIREMENT-multi-provider", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-provider-switch: "Live Provider Switching" [ url: "#REQS-FR.REQUIREMENT-provider-switch", type: REQUIREMENT ]
+REQS-UC.USE-CASE-configure-event: "Configure the Event" [ url: "#REQS-UC.USE-CASE-configure-event", type: USE-CASE ]
+REQS-UC.USE-CASE-switch-provider: "Switch Streaming Provider" [ url: "#REQS-UC.USE-CASE-switch-provider", type: USE-CASE ]
+DATA-AM.PERMISSION-attendee-play-resource: "Play the Active Resource" [ url: "#DATA-AM.PERMISSION-attendee-play-resource", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-resources: "Switch the Resource" [ url: "#DATA-AM.PERMISSION-manager-resources", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-resources: "Administer the Resources" [ url: "#DATA-AM.PERMISSION-administrator-resources", type: PERMISSION ]
+TEST-TC.TEST-CASE-provider-switch: "Live Provider Switch Propagates" [ url: "#TEST-TC.TEST-CASE-provider-switch", type: TEST-CASE ]
+TEST-TC.TEST-CASE-initial-resource: "First Resource Activated on Creation" [ url: "#TEST-TC.TEST-CASE-initial-resource", type: TEST-CASE ]
+TEST-TC.TEST-CASE-active-resource-locked: "Active Resource Not Deactivated Directly" [ url: "#TEST-TC.TEST-CASE-active-resource-locked", type: TEST-CASE ]
+
+REQS-DR.RULE-single-resource --(governs)--> REQS-DG.TERM-resource
+REQS-DR.RULE-single-resource --(governs)--> REQS-DG.TERM-channel
+REQS-DR.RULE-single-resource --(governs)--> REQS-DG.TERM-provider
+REQS-DR.RULE-single-resource --(constrains)--> REQS-FR.REQUIREMENT-provider-switch
+REQS-DR.RULE-single-resource --(constrains)--> REQS-FR.REQUIREMENT-multi-provider
+REQS-UC.USE-CASE-configure-event --(rules)--> REQS-DR.RULE-single-resource
+REQS-UC.USE-CASE-switch-provider --(rules)--> REQS-DR.RULE-single-resource
+DATA-AM.PERMISSION-attendee-play-resource --(rules)--> REQS-DR.RULE-single-resource
+DATA-AM.PERMISSION-manager-resources --(rules)--> REQS-DR.RULE-single-resource
+DATA-AM.PERMISSION-administrator-resources --(rules)--> REQS-DR.RULE-single-resource
+TEST-TC.TEST-CASE-provider-switch --(verifies)--> REQS-DR.RULE-single-resource
+TEST-TC.TEST-CASE-initial-resource --(verifies)--> REQS-DR.RULE-single-resource
+TEST-TC.TEST-CASE-active-resource-locked --(verifies)--> REQS-DR.RULE-single-resource

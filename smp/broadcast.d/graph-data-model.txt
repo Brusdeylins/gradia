@@ -1,0 +1,67 @@
+#type graph
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config graph-columns-max 2
+
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", primary: true, parent: DATA-DM.GROUP-events ]
+DATA-DM.ENTITY-agendapoint: AgendaPoint [ url: "#DATA-DM.ENTITY-agendapoint", parent: DATA-DM.GROUP-events ]
+DATA-DM.ENTITY-channel: Channel [ url: "#DATA-DM.ENTITY-channel", parent: DATA-DM.GROUP-channels ]
+DATA-DM.ENTITY-resource: Resource [ url: "#DATA-DM.ENTITY-resource", parent: DATA-DM.GROUP-channels ]
+DATA-DM.ENTITY-resourceproviderparam: ResourceProviderParam [ url: "#DATA-DM.ENTITY-resourceproviderparam", parent: DATA-DM.GROUP-channels ]
+DATA-DM.ENTITY-role: Role [ url: "#DATA-DM.ENTITY-role", parent: DATA-DM.GROUP-users ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", parent: DATA-DM.GROUP-users ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", parent: DATA-DM.GROUP-messages ]
+DATA-DM.ENTITY-messagetext: MessageText [ url: "#DATA-DM.ENTITY-messagetext", parent: DATA-DM.GROUP-messages ]
+DATA-DM.ENTITY-questiontag: QuestionTag [ url: "#DATA-DM.ENTITY-questiontag", parent: DATA-DM.GROUP-events ]
+DATA-DM.ENTITY-authorizationtoken: AuthorizationToken [ url: "#DATA-DM.ENTITY-authorizationtoken", parent: DATA-DM.GROUP-tokens ]
+DATA-DM.ENTITY-sessiontoken: SessionToken [ url: "#DATA-DM.ENTITY-sessiontoken", parent: DATA-DM.GROUP-tokens ]
+DATA-DM.ENTITY-eventstatistic: EventStatistic [ url: "#DATA-DM.ENTITY-eventstatistic", parent: DATA-DM.GROUP-statistics ]
+DATA-DM.ENTITY-channelstatistic: ChannelStatistic [ url: "#DATA-DM.ENTITY-channelstatistic", parent: DATA-DM.GROUP-statistics ]
+DATA-DM.ENTITY-userstatistic: UserStatistic [ url: "#DATA-DM.ENTITY-userstatistic", parent: DATA-DM.GROUP-statistics ]
+DATA-DM.GROUP-events: Events [ url: "#DATA-DM.GROUP-events" ]
+DATA-DM.GROUP-channels: Channels [ url: "#DATA-DM.GROUP-channels" ]
+DATA-DM.GROUP-users: Users [ url: "#DATA-DM.GROUP-users" ]
+DATA-DM.GROUP-messages: Messages [ url: "#DATA-DM.GROUP-messages" ]
+DATA-DM.GROUP-tokens: Tokens [ url: "#DATA-DM.GROUP-tokens" ]
+DATA-DM.GROUP-statistics: Statistics [ url: "#DATA-DM.GROUP-statistics" ]
+
+DATA-DM.ENTITY-event --(channels)-->[0..n] DATA-DM.ENTITY-channel
+DATA-DM.ENTITY-event --(accessList)-->[0..n] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-event --(messages)-->[0..n] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-event --(statistics)-->[0..n] DATA-DM.ENTITY-eventstatistic
+DATA-DM.ENTITY-event --(userStatistics)-->[0..n] DATA-DM.ENTITY-userstatistic
+DATA-DM.ENTITY-event --(availableQuestionTags)-->[0..n] DATA-DM.ENTITY-questiontag
+DATA-DM.ENTITY-event --(activeAgendaPoint)-->[0..1] DATA-DM.ENTITY-agendapoint
+DATA-DM.ENTITY-event --(agendaPoints)-->[0..n] DATA-DM.ENTITY-agendapoint
+DATA-DM.ENTITY-agendapoint --(correspondingTags)-->[0..n] DATA-DM.ENTITY-questiontag
+DATA-DM.ENTITY-channel --(resources)-->[1..n] DATA-DM.ENTITY-resource
+DATA-DM.ENTITY-channel --(statistics)-->[0..n] DATA-DM.ENTITY-channelstatistic
+DATA-DM.ENTITY-resource --(params)-->[0..n] DATA-DM.ENTITY-resourceproviderparam
+DATA-DM.ENTITY-user --(roles)-->[0..n] DATA-DM.ENTITY-role
+DATA-DM.ENTITY-user --(likes)-->[0..n] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-user --(sentMessages)-->[0..n] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-user --(statistics)-->[0..n] DATA-DM.ENTITY-userstatistic
+DATA-DM.ENTITY-message --(sender)-->[0..1] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-message --(liker)-->[0..n] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-message --(event)-->[1] DATA-DM.ENTITY-event
+DATA-DM.ENTITY-message --(replyTo)-->[0..1] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-message --(predecessor)-->[0..1] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-message --(questionTags)-->[0..n] DATA-DM.ENTITY-questiontag
+DATA-DM.ENTITY-message --(messageText)-->[1..n] DATA-DM.ENTITY-messagetext
+DATA-DM.ENTITY-questiontag --(messages)-->[0..n] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-questiontag --(agendaPoints)-->[0..n] DATA-DM.ENTITY-agendapoint
+DATA-DM.ENTITY-authorizationtoken --(user)-->[1] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-authorizationtoken --(event)-->[1] DATA-DM.ENTITY-event
+DATA-DM.ENTITY-sessiontoken --(user)-->[1] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-sessiontoken --(event)-->[1] DATA-DM.ENTITY-event
+DATA-DM.ENTITY-userstatistic --(event)-->[1] DATA-DM.ENTITY-event

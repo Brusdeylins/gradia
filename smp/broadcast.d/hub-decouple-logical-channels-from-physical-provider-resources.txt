@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-DD.DECISION-channel-resource: "Decouple logical Channels from physical provider Resources" [ url: "#ARCH-DD.DECISION-channel-resource", type: DECISION, primary: true, STATUS: Accepted ]
+REQS-NR.REQUIREMENT-failover: "Provider Failover Continuity" [ url: "#REQS-NR.REQUIREMENT-failover", type: REQUIREMENT ]
+REQS-SP.PREMISE-two-languages: "German and English Cover All Events" [ url: "#REQS-SP.PREMISE-two-languages", type: PREMISE ]
+REQS-SP.PREMISE-provider-delivery: "Streaming Providers Deliver the Video" [ url: "#REQS-SP.PREMISE-provider-delivery", type: PREMISE ]
+ARCH-AT.MAXIM-buy-before-build: "Buy before Build" [ url: "#ARCH-AT.MAXIM-buy-before-build", type: MAXIM ]
+ARCH-AT.PRINCIPLE-logical-resources: "Logical over Physical Resources" [ url: "#ARCH-AT.PRINCIPLE-logical-resources", type: PRINCIPLE ]
+DATA-DM.ENTITY-channel: Channel [ url: "#DATA-DM.ENTITY-channel", type: ENTITY ]
+DATA-DM.ENTITY-resource: Resource [ url: "#DATA-DM.ENTITY-resource", type: ENTITY ]
+ARCH-FV.COMPONENT-client: "Web Client" [ url: "#ARCH-FV.COMPONENT-client", type: COMPONENT ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT ]
+ARCH-QP.TACTIC-failover: "Live Failover Continuity" [ url: "#ARCH-QP.TACTIC-failover", type: TACTIC ]
+
+ARCH-DD.DECISION-channel-resource --(driven-by)--> REQS-NR.REQUIREMENT-failover
+ARCH-DD.DECISION-channel-resource --(driven-by)--> REQS-SP.PREMISE-provider-delivery
+ARCH-DD.DECISION-channel-resource --(driven-by)--> REQS-SP.PREMISE-two-languages
+ARCH-DD.DECISION-channel-resource --(guided-by)--> ARCH-AT.MAXIM-buy-before-build
+ARCH-DD.DECISION-channel-resource --(guided-by)--> ARCH-AT.PRINCIPLE-logical-resources
+ARCH-DD.DECISION-channel-resource --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-DD.DECISION-channel-resource --(affects)--> ARCH-FV.COMPONENT-client
+ARCH-DD.DECISION-channel-resource --(affects)--> DATA-DM.ENTITY-channel
+ARCH-DD.DECISION-channel-resource --(affects)--> DATA-DM.ENTITY-resource
+ARCH-DD.DECISION-channel-resource --(decides)--> ARCH-QP.TACTIC-failover

@@ -1,0 +1,39 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+UXUI-IC.PRINCIPLE-live-reactivity: "Live Reactivity" [ url: "#UXUI-IC.PRINCIPLE-live-reactivity", type: PRINCIPLE, primary: true ]
+REQS-UJ.JOURNEY-attend.STEP-participate: "Watch stream and interact" [ url: "#REQS-UJ.JOURNEY-attend.STEP-participate", type: STEP ]
+REQS-UJ.JOURNEY-moderate.STEP-support: "Moderate and support the presenter" [ url: "#REQS-UJ.JOURNEY-moderate.STEP-support", type: STEP ]
+REQS-UC.USE-CASE-moderate: "Moderate and Forward Messages" [ url: "#REQS-UC.USE-CASE-moderate", type: USE-CASE ]
+REQS-UC.USE-CASE-steer-presenter: "Steer the Presenter" [ url: "#REQS-UC.USE-CASE-steer-presenter", type: USE-CASE ]
+REQS-UC.USE-CASE-configure-event: "Configure the Event" [ url: "#REQS-UC.USE-CASE-configure-event", type: USE-CASE ]
+REQS-UC.USE-CASE-switch-provider: "Switch Streaming Provider" [ url: "#REQS-UC.USE-CASE-switch-provider", type: USE-CASE ]
+REQS-UC.USE-CASE-present: "Present Forwarded Questions" [ url: "#REQS-UC.USE-CASE-present", type: USE-CASE ]
+UXUI-DP.DIALOG-PATTERN-message-stream: "Live Message Stream" [ url: "#UXUI-DP.DIALOG-PATTERN-message-stream", type: DIALOG-PATTERN ]
+UXUI-DP.DIALOG-PATTERN-kanban-board: "Kanban Moderation Board" [ url: "#UXUI-DP.DIALOG-PATTERN-kanban-board", type: DIALOG-PATTERN ]
+UXUI-DP.DIALOG-PATTERN-stats-dashboard: "Live Statistics Dashboard" [ url: "#UXUI-DP.DIALOG-PATTERN-stats-dashboard", type: DIALOG-PATTERN ]
+UXUI-VD.ELEMENT-motion: "Subtle State Transitions" [ url: "#UXUI-VD.ELEMENT-motion", type: ELEMENT ]
+
+UXUI-IC.PRINCIPLE-live-reactivity --(motivated-by)--> REQS-UJ.JOURNEY-attend.STEP-participate
+UXUI-IC.PRINCIPLE-live-reactivity --(motivated-by)--> REQS-UJ.JOURNEY-moderate.STEP-support
+UXUI-IC.PRINCIPLE-live-reactivity --(use-cases)--> REQS-UC.USE-CASE-configure-event
+UXUI-IC.PRINCIPLE-live-reactivity --(use-cases)--> REQS-UC.USE-CASE-switch-provider
+UXUI-IC.PRINCIPLE-live-reactivity --(use-cases)--> REQS-UC.USE-CASE-steer-presenter
+UXUI-IC.PRINCIPLE-live-reactivity --(use-cases)--> REQS-UC.USE-CASE-moderate
+UXUI-IC.PRINCIPLE-live-reactivity --(use-cases)--> REQS-UC.USE-CASE-present
+UXUI-DP.DIALOG-PATTERN-message-stream --(principles)--> UXUI-IC.PRINCIPLE-live-reactivity
+UXUI-DP.DIALOG-PATTERN-kanban-board --(principles)--> UXUI-IC.PRINCIPLE-live-reactivity
+UXUI-DP.DIALOG-PATTERN-stats-dashboard --(principles)--> UXUI-IC.PRINCIPLE-live-reactivity
+UXUI-VD.ELEMENT-motion --(principles)--> UXUI-IC.PRINCIPLE-live-reactivity

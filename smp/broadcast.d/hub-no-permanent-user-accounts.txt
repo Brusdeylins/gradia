@@ -1,0 +1,49 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DR.RULE-no-accounts: "No Permanent User Accounts" [ url: "#REQS-DR.RULE-no-accounts", type: RULE, primary: true ]
+REQS-DG.TERM-event: Event [ url: "#REQS-DG.TERM-event", type: TERM ]
+REQS-DG.TERM-user: User [ url: "#REQS-DG.TERM-user", type: TERM ]
+REQS-DG.TERM-administrator: Administrator [ url: "#REQS-DG.TERM-administrator", type: TERM ]
+REQS-DG.TERM-role: Role [ url: "#REQS-DG.TERM-role", type: TERM ]
+REQS-DG.TERM-accesslist: "Access List" [ url: "#REQS-DG.TERM-accesslist", type: TERM ]
+REQS-DW.WORKFLOW-run-broadcast-event: "Run Broadcast Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event", type: WORKFLOW ]
+REQS-UC.USE-CASE-configure-event: "Configure the Event" [ url: "#REQS-UC.USE-CASE-configure-event", type: USE-CASE ]
+REQS-UC.USE-CASE-create-event: "Create Event from Registration Import" [ url: "#REQS-UC.USE-CASE-create-event", type: USE-CASE ]
+REQS-UC.USE-CASE-administer-event: "Administer Any Event" [ url: "#REQS-UC.USE-CASE-administer-event", type: USE-CASE ]
+DATA-AM.PERMISSION-attendee-enter-event: "Enter the Event" [ url: "#DATA-AM.PERMISSION-attendee-enter-event", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-delete-event: "Delete the Event" [ url: "#DATA-AM.PERMISSION-manager-delete-event", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-roles: "Grant Event Roles" [ url: "#DATA-AM.PERMISSION-manager-roles", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-access-list: "Maintain the Access List" [ url: "#DATA-AM.PERMISSION-manager-access-list", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-users: "Administer the Users" [ url: "#DATA-AM.PERMISSION-administrator-users", type: PERMISSION ]
+TEST-TC.TEST-CASE-no-accounts: "User Vanishes Without Role or Access" [ url: "#TEST-TC.TEST-CASE-no-accounts", type: TEST-CASE ]
+TEST-TC.TEST-CASE-administrator-data: "Administrator Sees No Attendee Data" [ url: "#TEST-TC.TEST-CASE-administrator-data", type: TEST-CASE ]
+
+REQS-DR.RULE-no-accounts --(governs)--> REQS-DG.TERM-user
+REQS-DR.RULE-no-accounts --(governs)--> REQS-DG.TERM-role
+REQS-DR.RULE-no-accounts --(governs)--> REQS-DG.TERM-administrator
+REQS-DR.RULE-no-accounts --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-no-accounts --(governs)--> REQS-DG.TERM-accesslist
+REQS-DW.WORKFLOW-run-broadcast-event --(rules)--> REQS-DR.RULE-no-accounts
+REQS-UC.USE-CASE-configure-event --(rules)--> REQS-DR.RULE-no-accounts
+REQS-UC.USE-CASE-create-event --(rules)--> REQS-DR.RULE-no-accounts
+REQS-UC.USE-CASE-administer-event --(rules)--> REQS-DR.RULE-no-accounts
+DATA-AM.PERMISSION-attendee-enter-event --(rules)--> REQS-DR.RULE-no-accounts
+DATA-AM.PERMISSION-manager-delete-event --(rules)--> REQS-DR.RULE-no-accounts
+DATA-AM.PERMISSION-manager-roles --(rules)--> REQS-DR.RULE-no-accounts
+DATA-AM.PERMISSION-manager-access-list --(rules)--> REQS-DR.RULE-no-accounts
+DATA-AM.PERMISSION-administrator-users --(rules)--> REQS-DR.RULE-no-accounts
+TEST-TC.TEST-CASE-no-accounts --(verifies)--> REQS-DR.RULE-no-accounts
+TEST-TC.TEST-CASE-administrator-data --(verifies)--> REQS-DR.RULE-no-accounts

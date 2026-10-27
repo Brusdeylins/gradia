@@ -1,0 +1,41 @@
+#type graph
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event: "Plan Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event", type: ACTIVITY, parent: REQS-UP.ROLE-manager ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-invite-attendees: "Invite Attendees" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-invite-attendees", type: ACTIVITY, parent: REQS-UP.ROLE-manager ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event: "Rehearse Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event", type: ACTIVITY ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live: "Start Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live", type: ACTIVITY, parent: REQS-UP.ROLE-manager ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event: "Attend Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event", type: ACTIVITY, parent: REQS-UP.ROLE-attendee ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction: "Moderate Interaction" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction", type: ACTIVITY, parent: REQS-UP.ROLE-moderator ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-present-talk: "Present and Answer" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-present-talk", type: ACTIVITY, parent: REQS-UP.ROLE-presenter ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-finish-event: "Finish Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-finish-event", type: ACTIVITY, parent: REQS-UP.ROLE-manager ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-archive-results: "Archive Results" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-archive-results", type: ACTIVITY, parent: REQS-UP.ROLE-manager ]
+REQS-UP.ROLE-manager: Manager [ url: "#REQS-UP.ROLE-manager", type: ROLE ]
+REQS-UP.ROLE-attendee: Attendee [ url: "#REQS-UP.ROLE-attendee", type: ROLE ]
+REQS-UP.ROLE-moderator: Moderator [ url: "#REQS-UP.ROLE-moderator", type: ROLE ]
+REQS-UP.ROLE-presenter: Presenter [ url: "#REQS-UP.ROLE-presenter", type: ROLE ]
+
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event --(import)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-invite-attendees
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-invite-attendees --(notify)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event --(rework)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event --(approve)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live --(admit)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live --(staff)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live --(cue)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-present-talk
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction --(forward)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-present-talk
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event --(disperse)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-finish-event
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction --(wrap)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-finish-event
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-present-talk --(sign-off)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-finish-event
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-finish-event --(hand-over)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-archive-results

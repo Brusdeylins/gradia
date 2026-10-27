@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-FR.GROUP-statistics: Statistics [ url: "#REQS-FR.GROUP-statistics", type: GROUP ]
+REQS-FR.REQUIREMENT-event-stats: "General Event Statistics" [ url: "#REQS-FR.REQUIREMENT-event-stats", type: REQUIREMENT, primary: true ]
+REQS-FR.REQUIREMENT-debug-stats: "Debugging Statistics" [ url: "#REQS-FR.REQUIREMENT-debug-stats", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-channel-stats: "Channel Statistics" [ url: "#REQS-FR.REQUIREMENT-channel-stats", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-user-stats: "User Statistics" [ url: "#REQS-FR.REQUIREMENT-user-stats", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-stats-snapshots: "Periodic Statistics Snapshots" [ url: "#REQS-FR.REQUIREMENT-stats-snapshots", type: REQUIREMENT ]
+REQS-NR.REQUIREMENT-observability: "Live Diagnosability" [ url: "#REQS-NR.REQUIREMENT-observability", type: REQUIREMENT ]
+REQS-UC.USE-CASE-export-data: "Export Anonymized Event Data" [ url: "#REQS-UC.USE-CASE-export-data", type: USE-CASE ]
+DATA-DM.ENTITY-sessiontoken: SessionToken [ url: "#DATA-DM.ENTITY-sessiontoken", type: ENTITY ]
+DATA-DM.ENTITY-eventstatistic: EventStatistic [ url: "#DATA-DM.ENTITY-eventstatistic", type: ENTITY ]
+ARCH-FV.COMPONENT-statistics: "Statistics Service" [ url: "#ARCH-FV.COMPONENT-statistics", type: COMPONENT ]
+
+REQS-FR.REQUIREMENT-event-stats --(group)--> REQS-FR.GROUP-statistics
+REQS-FR.REQUIREMENT-debug-stats --(depends-on)--> REQS-FR.REQUIREMENT-event-stats
+REQS-FR.REQUIREMENT-channel-stats --(depends-on)--> REQS-FR.REQUIREMENT-event-stats
+REQS-FR.REQUIREMENT-user-stats --(depends-on)--> REQS-FR.REQUIREMENT-event-stats
+REQS-FR.REQUIREMENT-stats-snapshots --(depends-on)--> REQS-FR.REQUIREMENT-event-stats
+REQS-NR.REQUIREMENT-observability --(qualifies)--> REQS-FR.REQUIREMENT-event-stats
+REQS-UC.USE-CASE-export-data --(requirements)--> REQS-FR.REQUIREMENT-event-stats
+DATA-DM.ENTITY-sessiontoken --(requirements)--> REQS-FR.REQUIREMENT-event-stats
+DATA-DM.ENTITY-eventstatistic --(requirements)--> REQS-FR.REQUIREMENT-event-stats
+ARCH-FV.COMPONENT-statistics --(realizes)--> REQS-FR.REQUIREMENT-event-stats

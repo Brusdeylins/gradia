@@ -1,0 +1,39 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-CP.CODE-PATTERN-permission-check: "Declarative Permission Check" [ url: "#ARCH-CP.CODE-PATTERN-permission-check", type: CODE-PATTERN, primary: true ]
+ARCH-CP.CODE-PATTERN-dao-per-entity: "DAO per Entity" [ url: "#ARCH-CP.CODE-PATTERN-dao-per-entity", type: CODE-PATTERN ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT ]
+ARCH-FV.COMPONENT-auth: "Authentication Service" [ url: "#ARCH-FV.COMPONENT-auth", type: COMPONENT ]
+REQS-UP.ROLE-attendee: Attendee [ url: "#REQS-UP.ROLE-attendee", type: ROLE ]
+REQS-UP.ROLE-moderator: Moderator [ url: "#REQS-UP.ROLE-moderator", type: ROLE ]
+REQS-UP.ROLE-presenter: Presenter [ url: "#REQS-UP.ROLE-presenter", type: ROLE ]
+REQS-UP.ROLE-manager: Manager [ url: "#REQS-UP.ROLE-manager", type: ROLE ]
+REQS-UP.ROLE-administrator: Administrator [ url: "#REQS-UP.ROLE-administrator", type: ROLE ]
+ARCH-TS.TIER-server.COMPONENT-persistence-layer: "Persistence Layer" [ url: "#ARCH-TS.TIER-server.COMPONENT-persistence-layer", type: COMPONENT ]
+ARCH-QP.TACTIC-access-security: "Email-Verified Access" [ url: "#ARCH-QP.TACTIC-access-security", type: TACTIC ]
+ARCH-DD.DECISION-no-accounts: "Privacy by design with no permanent user accounts" [ url: "#ARCH-DD.DECISION-no-accounts", type: DECISION ]
+
+ARCH-CP.CODE-PATTERN-permission-check --(applies-to)--> ARCH-FV.COMPONENT-service
+ARCH-CP.CODE-PATTERN-permission-check --(applies-to)--> ARCH-FV.COMPONENT-auth
+ARCH-CP.CODE-PATTERN-permission-check --(applies-to)--> REQS-UP.ROLE-attendee
+ARCH-CP.CODE-PATTERN-permission-check --(applies-to)--> REQS-UP.ROLE-moderator
+ARCH-CP.CODE-PATTERN-permission-check --(applies-to)--> REQS-UP.ROLE-presenter
+ARCH-CP.CODE-PATTERN-permission-check --(applies-to)--> REQS-UP.ROLE-manager
+ARCH-CP.CODE-PATTERN-permission-check --(applies-to)--> REQS-UP.ROLE-administrator
+ARCH-CP.CODE-PATTERN-permission-check --(realizes)--> ARCH-QP.TACTIC-access-security
+ARCH-CP.CODE-PATTERN-permission-check --(decided-by)--> ARCH-DD.DECISION-no-accounts
+ARCH-CP.CODE-PATTERN-permission-check --(tools)--> ARCH-TS.TIER-server.COMPONENT-persistence-layer
+ARCH-CP.CODE-PATTERN-dao-per-entity --(uses)--> ARCH-CP.CODE-PATTERN-permission-check

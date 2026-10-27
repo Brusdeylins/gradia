@@ -1,0 +1,41 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DG.TERM-attendee: Attendee [ url: "#REQS-DG.TERM-attendee", type: TERM, primary: true ]
+REQS-DG.TERM-role: Role [ url: "#REQS-DG.TERM-role", type: TERM ]
+REQS-SP.PREMISE-email-at-hand: "Attendees Read Their Email While Logging In" [ url: "#REQS-SP.PREMISE-email-at-hand", type: PREMISE ]
+REQS-SP.PREMISE-audience-bound: "Ten Thousand Attendees Is the Upper Bound" [ url: "#REQS-SP.PREMISE-audience-bound", type: PREMISE ]
+REQS-SP.PREMISE-websocket-passage: "Attendee Networks Pass WebSocket Traffic" [ url: "#REQS-SP.PREMISE-websocket-passage", type: PREMISE ]
+REQS-SP.PREMISE-start-surge: "Connection Surge at Event Start" [ url: "#REQS-SP.PREMISE-start-surge", type: PREMISE ]
+REQS-SP.PREMISE-url-leakage: "Access URLs Forwarded Beyond the Audience" [ url: "#REQS-SP.PREMISE-url-leakage", type: PREMISE ]
+REQS-DR.RULE-moderation-gate: "Moderation Determines Initial Visibility" [ url: "#REQS-DR.RULE-moderation-gate", type: RULE ]
+REQS-DR.RULE-forward-lock: "Forwarded Messages Are Immutable" [ url: "#REQS-DR.RULE-forward-lock", type: RULE ]
+DATA-DM.ENTITY-role: Role [ url: "#DATA-DM.ENTITY-role", type: ENTITY ]
+REQS-UP.ROLE-attendee: Attendee [ url: "#REQS-UP.ROLE-attendee", type: ROLE ]
+REQS-UP.PERSONA-attendee: Anna [ url: "#REQS-UP.PERSONA-attendee", type: PERSONA ]
+ARCH-CV.ENTITY-attendee: Attendee [ url: "#ARCH-CV.ENTITY-attendee", type: ENTITY ]
+
+REQS-DG.TERM-attendee --(broader)--> REQS-DG.TERM-role
+REQS-DG.TERM-attendee --(premises)--> REQS-SP.PREMISE-email-at-hand
+REQS-DG.TERM-attendee --(premises)--> REQS-SP.PREMISE-audience-bound
+REQS-DG.TERM-attendee --(premises)--> REQS-SP.PREMISE-websocket-passage
+REQS-DG.TERM-attendee --(premises)--> REQS-SP.PREMISE-start-surge
+REQS-DG.TERM-attendee --(premises)--> REQS-SP.PREMISE-url-leakage
+REQS-DR.RULE-moderation-gate --(governs)--> REQS-DG.TERM-attendee
+REQS-DR.RULE-forward-lock --(governs)--> REQS-DG.TERM-attendee
+DATA-DM.ENTITY-role --(terms)--> REQS-DG.TERM-attendee
+REQS-UP.ROLE-attendee --(term)--> REQS-DG.TERM-attendee
+REQS-UP.PERSONA-attendee --(terms)--> REQS-DG.TERM-attendee
+ARCH-CV.ENTITY-attendee --(terms)--> REQS-DG.TERM-attendee

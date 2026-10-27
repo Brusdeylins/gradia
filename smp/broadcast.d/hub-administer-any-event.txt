@@ -1,0 +1,65 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-administer-event: "Administer Any Event" [ url: "#REQS-UC.USE-CASE-administer-event", type: USE-CASE, primary: true ]
+REQS-UP.ROLE-administrator: Administrator [ url: "#REQS-UP.ROLE-administrator", type: ROLE ]
+REQS-UP.PERSONA-administrator: Sven [ url: "#REQS-UP.PERSONA-administrator", type: PERSONA ]
+REQS-DR.RULE-no-accounts: "No Permanent User Accounts" [ url: "#REQS-DR.RULE-no-accounts", type: RULE ]
+REQS-DR.RULE-administrator-access: "Administrator Bypasses the Access List" [ url: "#REQS-DR.RULE-administrator-access", type: RULE ]
+REQS-DR.RULE-administrator-bootstrap: "Administrator Bootstrapped by Configuration" [ url: "#REQS-DR.RULE-administrator-bootstrap", type: RULE ]
+DATA-DM.ENTITY-role: Role [ url: "#DATA-DM.ENTITY-role", type: ENTITY ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-AM.PERMISSION-administrator-events: "Administer Every Event" [ url: "#DATA-AM.PERMISSION-administrator-events", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-agenda: "Administer the Agenda" [ url: "#DATA-AM.PERMISSION-administrator-agenda", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-channels: "Administer the Channels" [ url: "#DATA-AM.PERMISSION-administrator-channels", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-resources: "Administer the Resources" [ url: "#DATA-AM.PERMISSION-administrator-resources", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-params: "Administer the Provider Parameters" [ url: "#DATA-AM.PERMISSION-administrator-params", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-roles: "Administer the Roles" [ url: "#DATA-AM.PERMISSION-administrator-roles", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-users: "Administer the Users" [ url: "#DATA-AM.PERMISSION-administrator-users", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-messages: "Administer the Messages" [ url: "#DATA-AM.PERMISSION-administrator-messages", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-message-texts: "Administer the Message Texts" [ url: "#DATA-AM.PERMISSION-administrator-message-texts", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-tags: "Administer the Tags" [ url: "#DATA-AM.PERMISSION-administrator-tags", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-auth-tokens: "Administer the Authorization Tokens" [ url: "#DATA-AM.PERMISSION-administrator-auth-tokens", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-sessions: "Administer the Sessions" [ url: "#DATA-AM.PERMISSION-administrator-sessions", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-statistics-event: "Administer the Event Statistics" [ url: "#DATA-AM.PERMISSION-administrator-statistics-event", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-statistics-channel: "Administer the Channel Statistics" [ url: "#DATA-AM.PERMISSION-administrator-statistics-channel", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-statistics-user: "Administer the Viewer Statistics" [ url: "#DATA-AM.PERMISSION-administrator-statistics-user", type: PERMISSION ]
+TEST-TC.TEST-CASE-administrator-access: "Administrator Enters Without Access List Entry" [ url: "#TEST-TC.TEST-CASE-administrator-access", type: TEST-CASE ]
+TEST-TC.TEST-CASE-administrator-bootstrap: "Administrator Role Granted by Configuration Only" [ url: "#TEST-TC.TEST-CASE-administrator-bootstrap", type: TEST-CASE ]
+
+REQS-UC.USE-CASE-administer-event --(actor)--> REQS-UP.ROLE-administrator
+REQS-UC.USE-CASE-administer-event --(personas)--> REQS-UP.PERSONA-administrator
+REQS-UC.USE-CASE-administer-event --(rules)--> REQS-DR.RULE-administrator-access
+REQS-UC.USE-CASE-administer-event --(rules)--> REQS-DR.RULE-administrator-bootstrap
+REQS-UC.USE-CASE-administer-event --(rules)--> REQS-DR.RULE-no-accounts
+DATA-DM.ENTITY-role --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-DM.ENTITY-user --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-events --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-agenda --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-channels --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-resources --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-params --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-roles --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-users --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-messages --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-message-texts --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-tags --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-auth-tokens --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-sessions --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-statistics-event --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-statistics-channel --(use-cases)--> REQS-UC.USE-CASE-administer-event
+DATA-AM.PERMISSION-administrator-statistics-user --(use-cases)--> REQS-UC.USE-CASE-administer-event
+TEST-TC.TEST-CASE-administrator-access --(verifies)--> REQS-UC.USE-CASE-administer-event
+TEST-TC.TEST-CASE-administrator-bootstrap --(verifies)--> REQS-UC.USE-CASE-administer-event

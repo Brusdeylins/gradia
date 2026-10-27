@@ -1,0 +1,51 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-create-event: "Create Event from Registration Import" [ url: "#REQS-UC.USE-CASE-create-event", type: USE-CASE, primary: true ]
+REQS-UP.ROLE-manager: Manager [ url: "#REQS-UP.ROLE-manager", type: ROLE ]
+REQS-UJ.JOURNEY-operate.STEP-configure: "Configure and run the event" [ url: "#REQS-UJ.JOURNEY-operate.STEP-configure", type: STEP ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event: "Plan Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event", type: ACTIVITY ]
+REQS-FR.REQUIREMENT-registration-import: "Import Registered Attendees" [ url: "#REQS-FR.REQUIREMENT-registration-import", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-registration-export: "Return Access URLs to Registration" [ url: "#REQS-FR.REQUIREMENT-registration-export", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-event-portability: "Import and Export Event" [ url: "#REQS-FR.REQUIREMENT-event-portability", type: REQUIREMENT ]
+REQS-DR.RULE-token-format: "Token Format and Validity" [ url: "#REQS-DR.RULE-token-format", type: RULE ]
+REQS-DR.RULE-no-accounts: "No Permanent User Accounts" [ url: "#REQS-DR.RULE-no-accounts", type: RULE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-DM.ENTITY-authorizationtoken: AuthorizationToken [ url: "#DATA-DM.ENTITY-authorizationtoken", type: ENTITY ]
+DATA-AM.PERMISSION-manager-access-list: "Maintain the Access List" [ url: "#DATA-AM.PERMISSION-manager-access-list", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-tokens: "Issue Access Tokens" [ url: "#DATA-AM.PERMISSION-manager-tokens", type: PERMISSION ]
+UXUI-IC.PRINCIPLE-validate-before-live: "Validate Before Going Live" [ url: "#UXUI-IC.PRINCIPLE-validate-before-live", type: PRINCIPLE ]
+UXUI-DS.STORYBOARD-registration-import: "Manager Imports Registration Sheet" [ url: "#UXUI-DS.STORYBOARD-registration-import", type: STORYBOARD ]
+ARCH-CV.ENTITY-operator: "Event Operator" [ url: "#ARCH-CV.ENTITY-operator", type: ENTITY ]
+ARCH-CV.ENTITY-registration-system: "Event Registration System" [ url: "#ARCH-CV.ENTITY-registration-system", type: ENTITY ]
+
+REQS-UC.USE-CASE-create-event --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-create-event --(journeys)--> REQS-UJ.JOURNEY-operate.STEP-configure
+REQS-UC.USE-CASE-create-event --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event
+REQS-UC.USE-CASE-create-event --(requirements)--> REQS-FR.REQUIREMENT-registration-import
+REQS-UC.USE-CASE-create-event --(requirements)--> REQS-FR.REQUIREMENT-registration-export
+REQS-UC.USE-CASE-create-event --(requirements)--> REQS-FR.REQUIREMENT-event-portability
+REQS-UC.USE-CASE-create-event --(rules)--> REQS-DR.RULE-token-format
+REQS-UC.USE-CASE-create-event --(rules)--> REQS-DR.RULE-no-accounts
+DATA-DM.ENTITY-event --(use-cases)--> REQS-UC.USE-CASE-create-event
+DATA-DM.ENTITY-user --(use-cases)--> REQS-UC.USE-CASE-create-event
+DATA-DM.ENTITY-authorizationtoken --(use-cases)--> REQS-UC.USE-CASE-create-event
+DATA-AM.PERMISSION-manager-access-list --(use-cases)--> REQS-UC.USE-CASE-create-event
+DATA-AM.PERMISSION-manager-tokens --(use-cases)--> REQS-UC.USE-CASE-create-event
+UXUI-IC.PRINCIPLE-validate-before-live --(use-cases)--> REQS-UC.USE-CASE-create-event
+UXUI-DS.STORYBOARD-registration-import --(scenario)--> REQS-UC.USE-CASE-create-event
+ARCH-CV.ENTITY-operator --(use-cases)--> REQS-UC.USE-CASE-create-event
+ARCH-CV.ENTITY-registration-system --(use-cases)--> REQS-UC.USE-CASE-create-event

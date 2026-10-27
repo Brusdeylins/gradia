@@ -2,3 +2,5 @@
 .DS_Store
 node_modules
 dst
+smp/broadcast.d/*.before.svg
+smp/broadcast.d/*.after.svg

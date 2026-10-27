@@ -1,0 +1,73 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-ask-question: "Ask a Question" [ url: "#REQS-UC.USE-CASE-ask-question", type: USE-CASE, primary: true ]
+REQS-UP.ROLE-attendee: Attendee [ url: "#REQS-UP.ROLE-attendee", type: ROLE ]
+REQS-UJ.JOURNEY-attend.STEP-participate: "Watch stream and interact" [ url: "#REQS-UJ.JOURNEY-attend.STEP-participate", type: STEP ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event: "Attend Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event", type: ACTIVITY ]
+REQS-FR.REQUIREMENT-questions: "Ask Questions" [ url: "#REQS-FR.REQUIREMENT-questions", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-client-sentiment: "Client-Side Sentiment Analysis" [ url: "#REQS-FR.REQUIREMENT-client-sentiment", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-server-sentiment: "Server-Side Sentiment Analysis" [ url: "#REQS-FR.REQUIREMENT-server-sentiment", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-question-tags: "Tag Question Messages" [ url: "#REQS-FR.REQUIREMENT-question-tags", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-moderation: "Moderate Chat and Questions" [ url: "#REQS-FR.REQUIREMENT-moderation", type: REQUIREMENT ]
+REQS-DR.RULE-moderation-gate: "Moderation Determines Initial Visibility" [ url: "#REQS-DR.RULE-moderation-gate", type: RULE ]
+REQS-DR.RULE-type-states: "State Set Depends on Message Type" [ url: "#REQS-DR.RULE-type-states", type: RULE ]
+REQS-DR.RULE-sentiment-threshold: "Sentiment Auto-Decision Threshold" [ url: "#REQS-DR.RULE-sentiment-threshold", type: RULE ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-DM.ENTITY-questiontag: QuestionTag [ url: "#DATA-DM.ENTITY-questiontag", type: ENTITY ]
+DATA-SM.LIFECYCLE-message.TRANSITION-accept-sentiment: accept [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-accept-sentiment", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-reject-sentiment: reject [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-reject-sentiment", type: TRANSITION ]
+DATA-AM.PERMISSION-attendee-send-message: "Send Messages" [ url: "#DATA-AM.PERMISSION-attendee-send-message", type: PERMISSION ]
+DATA-AM.PERMISSION-attendee-track-own: "Track Own Messages" [ url: "#DATA-AM.PERMISSION-attendee-track-own", type: PERMISSION ]
+DATA-AM.PERMISSION-attendee-use-tags: "Use Public Tags" [ url: "#DATA-AM.PERMISSION-attendee-use-tags", type: PERMISSION ]
+UXUI-IC.PRINCIPLE-moderation-gated: "Moderation-Gated Visibility" [ url: "#UXUI-IC.PRINCIPLE-moderation-gated", type: PRINCIPLE ]
+UXUI-IC.PRINCIPLE-one-tap-contribution: "One-Tap Contribution" [ url: "#UXUI-IC.PRINCIPLE-one-tap-contribution", type: PRINCIPLE ]
+UXUI-DS.STORYBOARD-ask-question: "Attendee Asks a Tagged Question" [ url: "#UXUI-DS.STORYBOARD-ask-question", type: STORYBOARD ]
+ARCH-CV.ENTITY-attendee: Attendee [ url: "#ARCH-CV.ENTITY-attendee", type: ENTITY ]
+ARCH-CV.ENTITY-llm: "Translation LLM" [ url: "#ARCH-CV.ENTITY-llm", type: ENTITY ]
+TEST-TC.TEST-CASE-moderated-pending: "Moderated Question Starts Pending" [ url: "#TEST-TC.TEST-CASE-moderated-pending", type: TEST-CASE ]
+TEST-TC.TEST-CASE-sentiment-reject: "Sentiment Auto-Reject Below Threshold" [ url: "#TEST-TC.TEST-CASE-sentiment-reject", type: TEST-CASE ]
+TEST-TC.TEST-CASE-sentiment-accept: "Sentiment Auto-Accept Above Threshold" [ url: "#TEST-TC.TEST-CASE-sentiment-accept", type: TEST-CASE ]
+TEST-TC.TEST-CASE-throttled: "Throttled Submission Not Stored" [ url: "#TEST-TC.TEST-CASE-throttled", type: TEST-CASE ]
+TEST-TC.TEST-CASE-client-block: "Client-Side Check Holds Back Improper Input" [ url: "#TEST-TC.TEST-CASE-client-block", type: TEST-CASE ]
+
+REQS-UC.USE-CASE-ask-question --(actor)--> REQS-UP.ROLE-attendee
+REQS-UC.USE-CASE-ask-question --(journeys)--> REQS-UJ.JOURNEY-attend.STEP-participate
+REQS-UC.USE-CASE-ask-question --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event
+REQS-UC.USE-CASE-ask-question --(requirements)--> REQS-FR.REQUIREMENT-questions
+REQS-UC.USE-CASE-ask-question --(requirements)--> REQS-FR.REQUIREMENT-question-tags
+REQS-UC.USE-CASE-ask-question --(requirements)--> REQS-FR.REQUIREMENT-moderation
+REQS-UC.USE-CASE-ask-question --(requirements)--> REQS-FR.REQUIREMENT-server-sentiment
+REQS-UC.USE-CASE-ask-question --(requirements)--> REQS-FR.REQUIREMENT-client-sentiment
+REQS-UC.USE-CASE-ask-question --(rules)--> REQS-DR.RULE-moderation-gate
+REQS-UC.USE-CASE-ask-question --(rules)--> REQS-DR.RULE-type-states
+REQS-UC.USE-CASE-ask-question --(rules)--> REQS-DR.RULE-sentiment-threshold
+DATA-DM.ENTITY-message --(use-cases)--> REQS-UC.USE-CASE-ask-question
+DATA-DM.ENTITY-questiontag --(use-cases)--> REQS-UC.USE-CASE-ask-question
+DATA-SM.LIFECYCLE-message.TRANSITION-accept-sentiment --(use-cases)--> REQS-UC.USE-CASE-ask-question
+DATA-SM.LIFECYCLE-message.TRANSITION-reject-sentiment --(use-cases)--> REQS-UC.USE-CASE-ask-question
+DATA-AM.PERMISSION-attendee-send-message --(use-cases)--> REQS-UC.USE-CASE-ask-question
+DATA-AM.PERMISSION-attendee-track-own --(use-cases)--> REQS-UC.USE-CASE-ask-question
+DATA-AM.PERMISSION-attendee-use-tags --(use-cases)--> REQS-UC.USE-CASE-ask-question
+UXUI-IC.PRINCIPLE-moderation-gated --(use-cases)--> REQS-UC.USE-CASE-ask-question
+UXUI-IC.PRINCIPLE-one-tap-contribution --(use-cases)--> REQS-UC.USE-CASE-ask-question
+UXUI-DS.STORYBOARD-ask-question --(scenario)--> REQS-UC.USE-CASE-ask-question
+ARCH-CV.ENTITY-attendee --(use-cases)--> REQS-UC.USE-CASE-ask-question
+ARCH-CV.ENTITY-llm --(use-cases)--> REQS-UC.USE-CASE-ask-question
+TEST-TC.TEST-CASE-moderated-pending --(verifies)--> REQS-UC.USE-CASE-ask-question
+TEST-TC.TEST-CASE-sentiment-reject --(verifies)--> REQS-UC.USE-CASE-ask-question
+TEST-TC.TEST-CASE-sentiment-accept --(verifies)--> REQS-UC.USE-CASE-ask-question
+TEST-TC.TEST-CASE-throttled --(verifies)--> REQS-UC.USE-CASE-ask-question
+TEST-TC.TEST-CASE-client-block --(verifies)--> REQS-UC.USE-CASE-ask-question

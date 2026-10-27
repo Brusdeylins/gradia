@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-FR.GROUP-streaming: Streaming [ url: "#REQS-FR.GROUP-streaming", type: GROUP ]
+REQS-FR.REQUIREMENT-multi-provider: "Multiple Streaming Providers" [ url: "#REQS-FR.REQUIREMENT-multi-provider", type: REQUIREMENT, primary: true ]
+REQS-FR.REQUIREMENT-provider-switch: "Live Provider Switching" [ url: "#REQS-FR.REQUIREMENT-provider-switch", type: REQUIREMENT ]
+REQS-SP.PREMISE-provider-delivery: "Streaming Providers Deliver the Video" [ url: "#REQS-SP.PREMISE-provider-delivery", type: PREMISE ]
+REQS-DR.RULE-single-resource: "Single Active Resource per Channel" [ url: "#REQS-DR.RULE-single-resource", type: RULE ]
+REQS-DR.RULE-initial-resource: "Initial Resource Becomes Active" [ url: "#REQS-DR.RULE-initial-resource", type: RULE ]
+REQS-UC.USE-CASE-configure-event: "Configure the Event" [ url: "#REQS-UC.USE-CASE-configure-event", type: USE-CASE ]
+REQS-UC.USE-CASE-switch-provider: "Switch Streaming Provider" [ url: "#REQS-UC.USE-CASE-switch-provider", type: USE-CASE ]
+DATA-DM.ENTITY-channel: Channel [ url: "#DATA-DM.ENTITY-channel", type: ENTITY ]
+DATA-DM.ENTITY-resource: Resource [ url: "#DATA-DM.ENTITY-resource", type: ENTITY ]
+DATA-DM.ENTITY-resourceproviderparam: ResourceProviderParam [ url: "#DATA-DM.ENTITY-resourceproviderparam", type: ENTITY ]
+
+REQS-FR.REQUIREMENT-multi-provider --(group)--> REQS-FR.GROUP-streaming
+REQS-FR.REQUIREMENT-multi-provider --(premises)--> REQS-SP.PREMISE-provider-delivery
+REQS-FR.REQUIREMENT-provider-switch --(depends-on)--> REQS-FR.REQUIREMENT-multi-provider
+REQS-DR.RULE-single-resource --(constrains)--> REQS-FR.REQUIREMENT-multi-provider
+REQS-DR.RULE-initial-resource --(constrains)--> REQS-FR.REQUIREMENT-multi-provider
+REQS-UC.USE-CASE-configure-event --(requirements)--> REQS-FR.REQUIREMENT-multi-provider
+REQS-UC.USE-CASE-switch-provider --(requirements)--> REQS-FR.REQUIREMENT-multi-provider
+DATA-DM.ENTITY-channel --(requirements)--> REQS-FR.REQUIREMENT-multi-provider
+DATA-DM.ENTITY-resource --(requirements)--> REQS-FR.REQUIREMENT-multi-provider
+DATA-DM.ENTITY-resourceproviderparam --(requirements)--> REQS-FR.REQUIREMENT-multi-provider

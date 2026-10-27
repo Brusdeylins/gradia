@@ -1,0 +1,53 @@
+#type grid
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+#config grid-columns-max 4
+
+TEST-TC.TEST-CASE-valid-token: "Valid Token Grants Access" [ url: "#TEST-TC.TEST-CASE-valid-token" ]
+TEST-TC.TEST-CASE-unauthorized: "Unauthorized Email Rejected" [ url: "#TEST-TC.TEST-CASE-unauthorized" ]
+TEST-TC.TEST-CASE-auto-token: "URL Token Skips Login Dialog" [ url: "#TEST-TC.TEST-CASE-auto-token" ]
+TEST-TC.TEST-CASE-single-session: "Second Login Closes First Session" [ url: "#TEST-TC.TEST-CASE-single-session" ]
+TEST-TC.TEST-CASE-moderated-pending: "Moderated Question Starts Pending" [ url: "#TEST-TC.TEST-CASE-moderated-pending" ]
+TEST-TC.TEST-CASE-unmoderated-accepted: "Unmoderated Chat Starts Accepted" [ url: "#TEST-TC.TEST-CASE-unmoderated-accepted" ]
+TEST-TC.TEST-CASE-type-states: "Chat Cannot Enter Question States" [ url: "#TEST-TC.TEST-CASE-type-states" ]
+TEST-TC.TEST-CASE-moderator-accept: "Moderator Message Starts Accepted" [ url: "#TEST-TC.TEST-CASE-moderator-accept" ]
+TEST-TC.TEST-CASE-forward-lock: "Forwarded Message Is Locked" [ url: "#TEST-TC.TEST-CASE-forward-lock" ]
+TEST-TC.TEST-CASE-sentiment-reject: "Sentiment Auto-Reject Below Threshold" [ url: "#TEST-TC.TEST-CASE-sentiment-reject" ]
+TEST-TC.TEST-CASE-sentiment-accept: "Sentiment Auto-Accept Above Threshold" [ url: "#TEST-TC.TEST-CASE-sentiment-accept" ]
+TEST-TC.TEST-CASE-throttled: "Throttled Submission Not Stored" [ url: "#TEST-TC.TEST-CASE-throttled" ]
+TEST-TC.TEST-CASE-provider-switch: "Live Provider Switch Propagates" [ url: "#TEST-TC.TEST-CASE-provider-switch" ]
+TEST-TC.TEST-CASE-single-channel: "Channel Activation Deactivates Previous" [ url: "#TEST-TC.TEST-CASE-single-channel" ]
+TEST-TC.TEST-CASE-initial-channel: "First Channel Activated on Creation" [ url: "#TEST-TC.TEST-CASE-initial-channel" ]
+TEST-TC.TEST-CASE-initial-resource: "First Resource Activated on Creation" [ url: "#TEST-TC.TEST-CASE-initial-resource" ]
+TEST-TC.TEST-CASE-active-channel-locked: "Active Channel Not Deactivated Directly" [ url: "#TEST-TC.TEST-CASE-active-channel-locked" ]
+TEST-TC.TEST-CASE-active-resource-locked: "Active Resource Not Deactivated Directly" [ url: "#TEST-TC.TEST-CASE-active-resource-locked" ]
+TEST-TC.TEST-CASE-config-propagation: "Config Change Reaches Clients" [ url: "#TEST-TC.TEST-CASE-config-propagation" ]
+TEST-TC.TEST-CASE-registration-dedup: "Registration Import Avoids Duplicates" [ url: "#TEST-TC.TEST-CASE-registration-dedup" ]
+TEST-TC.TEST-CASE-url-format: "Returned URL Format" [ url: "#TEST-TC.TEST-CASE-url-format" ]
+TEST-TC.TEST-CASE-anonymize: "Anonymization Removes Personal Data" [ url: "#TEST-TC.TEST-CASE-anonymize" ]
+TEST-TC.TEST-CASE-no-accounts: "User Vanishes Without Role or Access" [ url: "#TEST-TC.TEST-CASE-no-accounts" ]
+TEST-TC.TEST-CASE-export-fields: "Export Contains Required Fields" [ url: "#TEST-TC.TEST-CASE-export-fields" ]
+TEST-TC.TEST-CASE-manager-retained: "Manager Role Survives Finish" [ url: "#TEST-TC.TEST-CASE-manager-retained" ]
+TEST-TC.TEST-CASE-name-appearance: "Chat Message Shows Configured Name" [ url: "#TEST-TC.TEST-CASE-name-appearance" ]
+TEST-TC.TEST-CASE-like-toggle: "Like Toggles the Count" [ url: "#TEST-TC.TEST-CASE-like-toggle" ]
+TEST-TC.TEST-CASE-deleted-placeholder: "Deleted Message Leaves Placeholder" [ url: "#TEST-TC.TEST-CASE-deleted-placeholder" ]
+TEST-TC.TEST-CASE-client-block: "Client-Side Check Holds Back Improper Input" [ url: "#TEST-TC.TEST-CASE-client-block" ]
+TEST-TC.TEST-CASE-direct-reply: "Direct Moderator Reply Stays Private" [ url: "#TEST-TC.TEST-CASE-direct-reply" ]
+TEST-TC.TEST-CASE-resource-url: "Resource URL Selects the Resource" [ url: "#TEST-TC.TEST-CASE-resource-url" ]
+TEST-TC.TEST-CASE-language-switch: "Language Switch Applies Immediately" [ url: "#TEST-TC.TEST-CASE-language-switch" ]
+TEST-TC.TEST-CASE-presenter-view: "Presenter Sees Forwarded Questions Only" [ url: "#TEST-TC.TEST-CASE-presenter-view" ]
+TEST-TC.TEST-CASE-administrator-data: "Administrator Sees No Attendee Data" [ url: "#TEST-TC.TEST-CASE-administrator-data" ]
+TEST-TC.TEST-CASE-administrator-access: "Administrator Enters Without Access List Entry" [ url: "#TEST-TC.TEST-CASE-administrator-access" ]
+TEST-TC.TEST-CASE-administrator-bootstrap: "Administrator Role Granted by Configuration Only" [ url: "#TEST-TC.TEST-CASE-administrator-bootstrap" ]
+TEST-TC.TEST-CASE-load: "Concurrent Attendee Load" [ url: "#TEST-TC.TEST-CASE-load" ]

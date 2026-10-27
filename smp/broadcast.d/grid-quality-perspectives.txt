@@ -1,0 +1,27 @@
+#type grid
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+
+ARCH-QP.TACTIC-connection-scaling: "Connection Scaling" [ url: "#ARCH-QP.TACTIC-connection-scaling", QUALITY: Scalability ]
+ARCH-QP.TACTIC-failover: "Live Failover Continuity" [ url: "#ARCH-QP.TACTIC-failover", QUALITY: Availability ]
+ARCH-QP.TACTIC-privacy: "Privacy by Design" [ url: "#ARCH-QP.TACTIC-privacy", QUALITY: Privacy ]
+ARCH-QP.TACTIC-access-security: "Email-Verified Access" [ url: "#ARCH-QP.TACTIC-access-security", QUALITY: Security ]
+ARCH-QP.TACTIC-reactivity: "Real-Time Reactivity" [ url: "#ARCH-QP.TACTIC-reactivity", QUALITY: Performance ]
+ARCH-QP.TACTIC-abuse-resistance: "Abuse Resistance" [ url: "#ARCH-QP.TACTIC-abuse-resistance", QUALITY: Security ]
+ARCH-QP.TACTIC-portability: "Universal Browser Reach" [ url: "#ARCH-QP.TACTIC-portability", QUALITY: Portability ]
+ARCH-QP.TACTIC-stream-passthrough: "Provider Stream Passthrough" [ url: "#ARCH-QP.TACTIC-stream-passthrough", QUALITY: Performance ]
+ARCH-QP.TACTIC-network-isolation: "Network Segmentation" [ url: "#ARCH-QP.TACTIC-network-isolation", QUALITY: Security ]
+ARCH-QP.TACTIC-recovery: "Dump-Based Recovery" [ url: "#ARCH-QP.TACTIC-recovery", QUALITY: Reliability ]
+ARCH-QP.TACTIC-edge-delivery: "Edge Asset Delivery" [ url: "#ARCH-QP.TACTIC-edge-delivery", QUALITY: Scalability ]
+ARCH-QP.TACTIC-typed-contracts: "Shared Typed Contracts" [ url: "#ARCH-QP.TACTIC-typed-contracts", QUALITY: Maintainability ]
+ARCH-QP.TACTIC-observability: "Snapshot Observability" [ url: "#ARCH-QP.TACTIC-observability", QUALITY: Maintainability ]

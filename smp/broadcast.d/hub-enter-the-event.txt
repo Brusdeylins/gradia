@@ -1,0 +1,39 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+DATA-AM.PERMISSION-moderator-enter-event: "Enter the Event" [ url: "#DATA-AM.PERMISSION-moderator-enter-event", type: PERMISSION, primary: true ]
+REQS-UP.ROLE-moderator: Moderator [ url: "#REQS-UP.ROLE-moderator", type: ROLE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-SM.LIFECYCLE-event.STATE-planning: Planning [ url: "#DATA-SM.LIFECYCLE-event.STATE-planning", type: STATE ]
+DATA-SM.LIFECYCLE-event.STATE-published: Published [ url: "#DATA-SM.LIFECYCLE-event.STATE-published", type: STATE ]
+DATA-SM.LIFECYCLE-event.STATE-running: Running [ url: "#DATA-SM.LIFECYCLE-event.STATE-running", type: STATE ]
+REQS-DR.RULE-anonymize: "Anonymization on Event Finish" [ url: "#REQS-DR.RULE-anonymize", type: RULE ]
+REQS-UC.USE-CASE-moderate: "Moderate and Forward Messages" [ url: "#REQS-UC.USE-CASE-moderate", type: USE-CASE ]
+REQS-UC.USE-CASE-moderate-chat: "Moderate the Chat Conversation" [ url: "#REQS-UC.USE-CASE-moderate-chat", type: USE-CASE ]
+REQS-UC.USE-CASE-steer-presenter: "Steer the Presenter" [ url: "#REQS-UC.USE-CASE-steer-presenter", type: USE-CASE ]
+REQS-UC.USE-CASE-moderate.SCENARIO-moderate-after-finish: "Access Lost After Finish" [ url: "#REQS-UC.USE-CASE-moderate.SCENARIO-moderate-after-finish", type: SCENARIO ]
+TEST-TC.TEST-CASE-manager-retained: "Manager Role Survives Finish" [ url: "#TEST-TC.TEST-CASE-manager-retained", type: TEST-CASE ]
+
+DATA-AM.PERMISSION-moderator-enter-event --(role)--> REQS-UP.ROLE-moderator
+DATA-AM.PERMISSION-moderator-enter-event --(entity)--> DATA-DM.ENTITY-event
+DATA-AM.PERMISSION-moderator-enter-event --(states)--> DATA-SM.LIFECYCLE-event.STATE-planning
+DATA-AM.PERMISSION-moderator-enter-event --(states)--> DATA-SM.LIFECYCLE-event.STATE-published
+DATA-AM.PERMISSION-moderator-enter-event --(states)--> DATA-SM.LIFECYCLE-event.STATE-running
+DATA-AM.PERMISSION-moderator-enter-event --(rules)--> REQS-DR.RULE-anonymize
+DATA-AM.PERMISSION-moderator-enter-event --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-AM.PERMISSION-moderator-enter-event --(use-cases)--> REQS-UC.USE-CASE-moderate-chat
+DATA-AM.PERMISSION-moderator-enter-event --(use-cases)--> REQS-UC.USE-CASE-steer-presenter
+DATA-AM.PERMISSION-moderator-enter-event --(use-cases)--> REQS-UC.USE-CASE-moderate.SCENARIO-moderate-after-finish
+TEST-TC.TEST-CASE-manager-retained --(verifies)--> DATA-AM.PERMISSION-moderator-enter-event

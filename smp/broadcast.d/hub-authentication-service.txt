@@ -1,0 +1,51 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT, KIND: Service ]
+ARCH-FV.COMPONENT-auth: "Authentication Service" [ url: "#ARCH-FV.COMPONENT-auth", type: COMPONENT, primary: true, KIND: Module ]
+ARCH-FV.COMPONENT-database: Database [ url: "#ARCH-FV.COMPONENT-database", type: COMPONENT, KIND: Component ]
+REQS-FR.REQUIREMENT-authentication: "User Authentication" [ url: "#REQS-FR.REQUIREMENT-authentication", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-parallel-access: "Limit Parallel Access" [ url: "#REQS-FR.REQUIREMENT-parallel-access", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-automatic-url: "Automatic Event Access URL" [ url: "#REQS-FR.REQUIREMENT-automatic-url", type: REQUIREMENT ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-DM.ENTITY-authorizationtoken: AuthorizationToken [ url: "#DATA-DM.ENTITY-authorizationtoken", type: ENTITY ]
+DATA-DM.ENTITY-sessiontoken: SessionToken [ url: "#DATA-DM.ENTITY-sessiontoken", type: ENTITY ]
+ARCH-CO.UNIT-service-loop: "Service Event Loop" [ url: "#ARCH-CO.UNIT-service-loop", type: UNIT, KIND: EventLoop ]
+ARCH-OV.CONCERN-role-assignment: "Role Assignment" [ url: "#ARCH-OV.CONCERN-role-assignment", type: CONCERN ]
+ARCH-OV.CONCERN-auth-logging: "Authentication Diagnostics" [ url: "#ARCH-OV.CONCERN-auth-logging", type: CONCERN ]
+ARCH-QP.TACTIC-access-security: "Email-Verified Access" [ url: "#ARCH-QP.TACTIC-access-security", type: TACTIC ]
+ARCH-QP.TACTIC-observability: "Snapshot Observability" [ url: "#ARCH-QP.TACTIC-observability", type: TACTIC ]
+ARCH-DD.DECISION-no-accounts: "Privacy by design with no permanent user accounts" [ url: "#ARCH-DD.DECISION-no-accounts", type: DECISION ]
+ARCH-DD.DECISION-email-token: "Email one-time token as the authentication factor" [ url: "#ARCH-DD.DECISION-email-token", type: DECISION ]
+ARCH-DD.DECISION-modular-service: "One modular service process instead of microservices" [ url: "#ARCH-DD.DECISION-modular-service", type: DECISION ]
+ARCH-CP.CODE-PATTERN-permission-check: "Declarative Permission Check" [ url: "#ARCH-CP.CODE-PATTERN-permission-check", type: CODE-PATTERN ]
+
+ARCH-FV.COMPONENT-auth --(part-of)--> ARCH-FV.COMPONENT-service
+ARCH-FV.COMPONENT-auth --(realizes)--> REQS-FR.REQUIREMENT-authentication
+ARCH-FV.COMPONENT-auth --(realizes)--> REQS-FR.REQUIREMENT-parallel-access
+ARCH-FV.COMPONENT-auth --(realizes)--> REQS-FR.REQUIREMENT-automatic-url
+ARCH-FV.COMPONENT-auth --(owns)--> DATA-DM.ENTITY-user
+ARCH-FV.COMPONENT-auth --(owns)--> DATA-DM.ENTITY-authorizationtoken
+ARCH-FV.COMPONENT-auth --(owns)--> DATA-DM.ENTITY-sessiontoken
+ARCH-FV.COMPONENT-auth --(depends-on)--> ARCH-FV.COMPONENT-database
+ARCH-CO.UNIT-service-loop --(hosts)--> ARCH-FV.COMPONENT-auth
+ARCH-OV.CONCERN-role-assignment --(elements)--> ARCH-FV.COMPONENT-auth
+ARCH-OV.CONCERN-auth-logging --(elements)--> ARCH-FV.COMPONENT-auth
+ARCH-QP.TACTIC-access-security --(affects)--> ARCH-FV.COMPONENT-auth
+ARCH-QP.TACTIC-observability --(affects)--> ARCH-FV.COMPONENT-auth
+ARCH-DD.DECISION-no-accounts --(affects)--> ARCH-FV.COMPONENT-auth
+ARCH-DD.DECISION-email-token --(affects)--> ARCH-FV.COMPONENT-auth
+ARCH-DD.DECISION-modular-service --(affects)--> ARCH-FV.COMPONENT-auth
+ARCH-CP.CODE-PATTERN-permission-check --(applies-to)--> ARCH-FV.COMPONENT-auth

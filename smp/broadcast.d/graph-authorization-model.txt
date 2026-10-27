@@ -1,0 +1,91 @@
+#type graph
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 700
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-min 300
+#config size-node-width-max 440
+#config size-edge-port-gap 18
+#config graph-node-degree-max 8
+
+REQS-UP.ROLE-attendee: Attendee [ url: "#REQS-UP.ROLE-attendee", type: ROLE ]
+REQS-UP.ROLE-moderator: Moderator [ url: "#REQS-UP.ROLE-moderator", type: ROLE ]
+REQS-UP.ROLE-presenter: Presenter [ url: "#REQS-UP.ROLE-presenter", type: ROLE ]
+REQS-UP.ROLE-manager: Manager [ url: "#REQS-UP.ROLE-manager", type: ROLE ]
+REQS-UP.ROLE-administrator: Administrator [ url: "#REQS-UP.ROLE-administrator", type: ROLE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY, primary: true ]
+DATA-DM.ENTITY-agendapoint: AgendaPoint [ url: "#DATA-DM.ENTITY-agendapoint", type: ENTITY ]
+DATA-DM.ENTITY-channel: Channel [ url: "#DATA-DM.ENTITY-channel", type: ENTITY ]
+DATA-DM.ENTITY-resource: Resource [ url: "#DATA-DM.ENTITY-resource", type: ENTITY ]
+DATA-DM.ENTITY-resourceproviderparam: ResourceProviderParam [ url: "#DATA-DM.ENTITY-resourceproviderparam", type: ENTITY ]
+DATA-DM.ENTITY-role: Role [ url: "#DATA-DM.ENTITY-role", type: ENTITY ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-DM.ENTITY-messagetext: MessageText [ url: "#DATA-DM.ENTITY-messagetext", type: ENTITY ]
+DATA-DM.ENTITY-questiontag: QuestionTag [ url: "#DATA-DM.ENTITY-questiontag", type: ENTITY ]
+DATA-DM.ENTITY-authorizationtoken: AuthorizationToken [ url: "#DATA-DM.ENTITY-authorizationtoken", type: ENTITY ]
+DATA-DM.ENTITY-sessiontoken: SessionToken [ url: "#DATA-DM.ENTITY-sessiontoken", type: ENTITY ]
+DATA-DM.ENTITY-eventstatistic: EventStatistic [ url: "#DATA-DM.ENTITY-eventstatistic", type: ENTITY ]
+DATA-DM.ENTITY-channelstatistic: ChannelStatistic [ url: "#DATA-DM.ENTITY-channelstatistic", type: ENTITY ]
+DATA-DM.ENTITY-userstatistic: UserStatistic [ url: "#DATA-DM.ENTITY-userstatistic", type: ENTITY ]
+
+REQS-UP.ROLE-attendee --("Enter the Event")--> DATA-DM.ENTITY-event
+REQS-UP.ROLE-attendee --("Prove the Email Address")--> DATA-DM.ENTITY-authorizationtoken
+REQS-UP.ROLE-attendee --("Watch the Active Channel")--> DATA-DM.ENTITY-channel
+REQS-UP.ROLE-attendee --("Play the Active Resource")--> DATA-DM.ENTITY-resource
+REQS-UP.ROLE-attendee --("Follow the Agenda")--> DATA-DM.ENTITY-agendapoint
+REQS-UP.ROLE-attendee --("Send Messages")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-attendee --("Read Visible Messages")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-attendee --("Track Own Messages")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-attendee --("Correct Own Messages")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-attendee --("Like Messages")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-attendee --("Use Public Tags")--> DATA-DM.ENTITY-questiontag
+REQS-UP.ROLE-moderator --("Enter the Event")--> DATA-DM.ENTITY-event
+REQS-UP.ROLE-moderator --("Steer the Presenter")--> DATA-DM.ENTITY-event
+REQS-UP.ROLE-moderator --("Review All Messages")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-moderator --("Decide Pending Messages")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-moderator --("Forward Questions")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-moderator --("Process Forwarded Questions")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-moderator --("Author Messages")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-moderator --("Use All Tags")--> DATA-DM.ENTITY-questiontag
+REQS-UP.ROLE-presenter --("Enter the Event")--> DATA-DM.ENTITY-event
+REQS-UP.ROLE-presenter --("Confirm the Alert")--> DATA-DM.ENTITY-event
+REQS-UP.ROLE-presenter --("Read Forwarded Questions")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-presenter --("Process Forwarded Questions")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-manager --("Configure the Event")--> DATA-DM.ENTITY-event
+REQS-UP.ROLE-manager --("Run the Event")--> DATA-DM.ENTITY-event
+REQS-UP.ROLE-manager --("Delete the Event")--> DATA-DM.ENTITY-event
+REQS-UP.ROLE-manager --("Lay Out the Channels")--> DATA-DM.ENTITY-channel
+REQS-UP.ROLE-manager --("Switch the Resource")--> DATA-DM.ENTITY-resource
+REQS-UP.ROLE-manager --("Grant Event Roles")--> DATA-DM.ENTITY-role
+REQS-UP.ROLE-manager --("Maintain the Access List")--> DATA-DM.ENTITY-user
+REQS-UP.ROLE-manager --("Issue Access Tokens")--> DATA-DM.ENTITY-authorizationtoken
+REQS-UP.ROLE-manager --("Curate the Tags")--> DATA-DM.ENTITY-questiontag
+REQS-UP.ROLE-manager --("Curate the Agenda")--> DATA-DM.ENTITY-agendapoint
+REQS-UP.ROLE-manager --("Export the Messages")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-manager --("Inspect the Event Statistics")--> DATA-DM.ENTITY-eventstatistic
+REQS-UP.ROLE-manager --("Inspect the Channel Statistics")--> DATA-DM.ENTITY-channelstatistic
+REQS-UP.ROLE-manager --("Inspect the Viewer Statistics")--> DATA-DM.ENTITY-userstatistic
+REQS-UP.ROLE-administrator --("Administer Every Event")--> DATA-DM.ENTITY-event
+REQS-UP.ROLE-administrator --("Administer the Agenda")--> DATA-DM.ENTITY-agendapoint
+REQS-UP.ROLE-administrator --("Administer the Channels")--> DATA-DM.ENTITY-channel
+REQS-UP.ROLE-administrator --("Administer the Resources")--> DATA-DM.ENTITY-resource
+REQS-UP.ROLE-administrator --("Administer the Provider Parameters")--> DATA-DM.ENTITY-resourceproviderparam
+REQS-UP.ROLE-administrator --("Administer the Roles")--> DATA-DM.ENTITY-role
+REQS-UP.ROLE-administrator --("Administer the Users")--> DATA-DM.ENTITY-user
+REQS-UP.ROLE-administrator --("Administer the Messages")--> DATA-DM.ENTITY-message
+REQS-UP.ROLE-administrator --("Administer the Message Texts")--> DATA-DM.ENTITY-messagetext
+REQS-UP.ROLE-administrator --("Administer the Tags")--> DATA-DM.ENTITY-questiontag
+REQS-UP.ROLE-administrator --("Administer the Authorization Tokens")--> DATA-DM.ENTITY-authorizationtoken
+REQS-UP.ROLE-administrator --("Administer the Sessions")--> DATA-DM.ENTITY-sessiontoken
+REQS-UP.ROLE-administrator --("Administer the Event Statistics")--> DATA-DM.ENTITY-eventstatistic
+REQS-UP.ROLE-administrator --("Administer the Channel Statistics")--> DATA-DM.ENTITY-channelstatistic
+REQS-UP.ROLE-administrator --("Administer the Viewer Statistics")--> DATA-DM.ENTITY-userstatistic

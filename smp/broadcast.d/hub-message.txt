@@ -1,0 +1,49 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DG.TERM-message: Message [ url: "#REQS-DG.TERM-message", type: TERM, primary: true ]
+REQS-DG.TERM-question: Question [ url: "#REQS-DG.TERM-question", type: TERM ]
+REQS-DG.TERM-chat: Chat [ url: "#REQS-DG.TERM-chat", type: TERM ]
+REQS-DG.TERM-support: Support [ url: "#REQS-DG.TERM-support", type: TERM ]
+REQS-SP.PREMISE-two-languages: "German and English Cover All Events" [ url: "#REQS-SP.PREMISE-two-languages", type: PREMISE ]
+REQS-SP.PREMISE-translation-service: "Translation Service Available During Events" [ url: "#REQS-SP.PREMISE-translation-service", type: PREMISE ]
+REQS-SP.PREMISE-message-personal-data: "Message Texts Contain Personal Data" [ url: "#REQS-SP.PREMISE-message-personal-data", type: PREMISE ]
+REQS-SP.PREMISE-interaction-abuse: "Abusive Interaction from the Audience" [ url: "#REQS-SP.PREMISE-interaction-abuse", type: PREMISE ]
+REQS-DR.RULE-moderation-gate: "Moderation Determines Initial Visibility" [ url: "#REQS-DR.RULE-moderation-gate", type: RULE ]
+REQS-DR.RULE-moderator-accept: "Moderator Messages Auto-Accepted" [ url: "#REQS-DR.RULE-moderator-accept", type: RULE ]
+REQS-DR.RULE-forward-lock: "Forwarded Messages Are Immutable" [ url: "#REQS-DR.RULE-forward-lock", type: RULE ]
+REQS-DR.RULE-type-states: "State Set Depends on Message Type" [ url: "#REQS-DR.RULE-type-states", type: RULE ]
+REQS-DR.RULE-sentiment-threshold: "Sentiment Auto-Decision Threshold" [ url: "#REQS-DR.RULE-sentiment-threshold", type: RULE ]
+REQS-DR.RULE-anonymize: "Anonymization on Event Finish" [ url: "#REQS-DR.RULE-anonymize", type: RULE ]
+REQS-DR.RULE-like-count: "Likes Conserved as Count on Finish" [ url: "#REQS-DR.RULE-like-count", type: RULE ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-DM.ENTITY-messagetext: MessageText [ url: "#DATA-DM.ENTITY-messagetext", type: ENTITY ]
+
+REQS-DG.TERM-message --(premises)--> REQS-SP.PREMISE-two-languages
+REQS-DG.TERM-message --(premises)--> REQS-SP.PREMISE-translation-service
+REQS-DG.TERM-message --(premises)--> REQS-SP.PREMISE-message-personal-data
+REQS-DG.TERM-message --(premises)--> REQS-SP.PREMISE-interaction-abuse
+REQS-DG.TERM-question --(broader)--> REQS-DG.TERM-message
+REQS-DG.TERM-chat --(broader)--> REQS-DG.TERM-message
+REQS-DG.TERM-support --(broader)--> REQS-DG.TERM-message
+REQS-DR.RULE-moderation-gate --(governs)--> REQS-DG.TERM-message
+REQS-DR.RULE-moderator-accept --(governs)--> REQS-DG.TERM-message
+REQS-DR.RULE-forward-lock --(governs)--> REQS-DG.TERM-message
+REQS-DR.RULE-type-states --(governs)--> REQS-DG.TERM-message
+REQS-DR.RULE-sentiment-threshold --(governs)--> REQS-DG.TERM-message
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-message
+REQS-DR.RULE-like-count --(governs)--> REQS-DG.TERM-message
+DATA-DM.ENTITY-message --(terms)--> REQS-DG.TERM-message
+DATA-DM.ENTITY-messagetext --(terms)--> REQS-DG.TERM-message

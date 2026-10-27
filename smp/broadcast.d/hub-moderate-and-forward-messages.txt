@@ -1,0 +1,83 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-moderate: "Moderate and Forward Messages" [ url: "#REQS-UC.USE-CASE-moderate", type: USE-CASE, primary: true ]
+REQS-UP.ROLE-moderator: Moderator [ url: "#REQS-UP.ROLE-moderator", type: ROLE ]
+REQS-UP.PERSONA-moderator-qa: Peter [ url: "#REQS-UP.PERSONA-moderator-qa", type: PERSONA ]
+REQS-UJ.JOURNEY-moderate.STEP-support: "Moderate and support the presenter" [ url: "#REQS-UJ.JOURNEY-moderate.STEP-support", type: STEP ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event: "Rehearse Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event", type: ACTIVITY ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction: "Moderate Interaction" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction", type: ACTIVITY ]
+REQS-FR.REQUIREMENT-moderation: "Moderate Chat and Questions" [ url: "#REQS-FR.REQUIREMENT-moderation", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-forward-presenter: "Forward Inputs to Presenter" [ url: "#REQS-FR.REQUIREMENT-forward-presenter", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-presenter-hints: "Presenter Hints and Alerts" [ url: "#REQS-FR.REQUIREMENT-presenter-hints", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-sort-filter: "Sort and Filter Messages" [ url: "#REQS-FR.REQUIREMENT-sort-filter", type: REQUIREMENT ]
+REQS-DR.RULE-forward-lock: "Forwarded Messages Are Immutable" [ url: "#REQS-DR.RULE-forward-lock", type: RULE ]
+REQS-DR.RULE-type-states: "State Set Depends on Message Type" [ url: "#REQS-DR.RULE-type-states", type: RULE ]
+REQS-DR.RULE-anonymize: "Anonymization on Event Finish" [ url: "#REQS-DR.RULE-anonymize", type: RULE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-agendapoint: AgendaPoint [ url: "#DATA-DM.ENTITY-agendapoint", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-DM.ENTITY-questiontag: QuestionTag [ url: "#DATA-DM.ENTITY-questiontag", type: ENTITY ]
+DATA-SM.LIFECYCLE-message.TRANSITION-accept: accept [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-accept", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-reject: reject [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-reject", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-forward: forward [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-forward", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-answer: answer [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-answer", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-suspend: suspend [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-suspend", type: TRANSITION ]
+DATA-AM.PERMISSION-moderator-enter-event: "Enter the Event" [ url: "#DATA-AM.PERMISSION-moderator-enter-event", type: PERMISSION ]
+DATA-AM.PERMISSION-moderator-read-messages: "Review All Messages" [ url: "#DATA-AM.PERMISSION-moderator-read-messages", type: PERMISSION ]
+DATA-AM.PERMISSION-moderator-decide: "Decide Pending Messages" [ url: "#DATA-AM.PERMISSION-moderator-decide", type: PERMISSION ]
+DATA-AM.PERMISSION-moderator-forward: "Forward Questions" [ url: "#DATA-AM.PERMISSION-moderator-forward", type: PERMISSION ]
+DATA-AM.PERMISSION-moderator-process: "Process Forwarded Questions" [ url: "#DATA-AM.PERMISSION-moderator-process", type: PERMISSION ]
+DATA-AM.PERMISSION-moderator-use-tags: "Use All Tags" [ url: "#DATA-AM.PERMISSION-moderator-use-tags", type: PERMISSION ]
+UXUI-IC.PRINCIPLE-moderation-gated: "Moderation-Gated Visibility" [ url: "#UXUI-IC.PRINCIPLE-moderation-gated", type: PRINCIPLE ]
+UXUI-IC.PRINCIPLE-live-reactivity: "Live Reactivity" [ url: "#UXUI-IC.PRINCIPLE-live-reactivity", type: PRINCIPLE ]
+UXUI-DS.STORYBOARD-chat-moderation: "Chat Moderator Triages Messages" [ url: "#UXUI-DS.STORYBOARD-chat-moderation", type: STORYBOARD ]
+UXUI-DS.STORYBOARD-moderate-forward: "Moderator Forwards to Presenter" [ url: "#UXUI-DS.STORYBOARD-moderate-forward", type: STORYBOARD ]
+ARCH-CV.ENTITY-operator: "Event Operator" [ url: "#ARCH-CV.ENTITY-operator", type: ENTITY ]
+TEST-TC.TEST-CASE-manager-retained: "Manager Role Survives Finish" [ url: "#TEST-TC.TEST-CASE-manager-retained", type: TEST-CASE ]
+
+REQS-UC.USE-CASE-moderate --(actor)--> REQS-UP.ROLE-moderator
+REQS-UC.USE-CASE-moderate --(personas)--> REQS-UP.PERSONA-moderator-qa
+REQS-UC.USE-CASE-moderate --(journeys)--> REQS-UJ.JOURNEY-moderate.STEP-support
+REQS-UC.USE-CASE-moderate --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event
+REQS-UC.USE-CASE-moderate --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction
+REQS-UC.USE-CASE-moderate --(requirements)--> REQS-FR.REQUIREMENT-moderation
+REQS-UC.USE-CASE-moderate --(requirements)--> REQS-FR.REQUIREMENT-forward-presenter
+REQS-UC.USE-CASE-moderate --(requirements)--> REQS-FR.REQUIREMENT-sort-filter
+REQS-UC.USE-CASE-moderate --(requirements)--> REQS-FR.REQUIREMENT-presenter-hints
+REQS-UC.USE-CASE-moderate --(rules)--> REQS-DR.RULE-type-states
+REQS-UC.USE-CASE-moderate --(rules)--> REQS-DR.RULE-forward-lock
+REQS-UC.USE-CASE-moderate --(rules)--> REQS-DR.RULE-anonymize
+DATA-DM.ENTITY-event --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-DM.ENTITY-agendapoint --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-DM.ENTITY-message --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-DM.ENTITY-questiontag --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-SM.LIFECYCLE-message.TRANSITION-accept --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-SM.LIFECYCLE-message.TRANSITION-reject --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-SM.LIFECYCLE-message.TRANSITION-forward --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-SM.LIFECYCLE-message.TRANSITION-answer --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-SM.LIFECYCLE-message.TRANSITION-suspend --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-AM.PERMISSION-moderator-enter-event --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-AM.PERMISSION-moderator-read-messages --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-AM.PERMISSION-moderator-decide --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-AM.PERMISSION-moderator-forward --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-AM.PERMISSION-moderator-process --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-AM.PERMISSION-moderator-use-tags --(use-cases)--> REQS-UC.USE-CASE-moderate
+UXUI-IC.PRINCIPLE-moderation-gated --(use-cases)--> REQS-UC.USE-CASE-moderate
+UXUI-IC.PRINCIPLE-live-reactivity --(use-cases)--> REQS-UC.USE-CASE-moderate
+UXUI-DS.STORYBOARD-chat-moderation --(scenario)--> REQS-UC.USE-CASE-moderate
+UXUI-DS.STORYBOARD-moderate-forward --(scenario)--> REQS-UC.USE-CASE-moderate
+ARCH-CV.ENTITY-operator --(use-cases)--> REQS-UC.USE-CASE-moderate
+TEST-TC.TEST-CASE-manager-retained --(verifies)--> REQS-UC.USE-CASE-moderate

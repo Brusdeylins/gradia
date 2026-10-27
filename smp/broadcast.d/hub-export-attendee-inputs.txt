@@ -1,0 +1,39 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-FR.GROUP-moderating: Moderation [ url: "#REQS-FR.GROUP-moderating", type: GROUP ]
+REQS-FR.REQUIREMENT-questions: "Ask Questions" [ url: "#REQS-FR.REQUIREMENT-questions", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-chat: "Chat Messages" [ url: "#REQS-FR.REQUIREMENT-chat", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-export-inputs: "Export Attendee Inputs" [ url: "#REQS-FR.REQUIREMENT-export-inputs", type: REQUIREMENT, primary: true ]
+REQS-DR.RULE-like-count: "Likes Conserved as Count on Finish" [ url: "#REQS-DR.RULE-like-count", type: RULE ]
+REQS-DR.RULE-manager-retained: "Manager Retained for Export" [ url: "#REQS-DR.RULE-manager-retained", type: RULE ]
+REQS-UC.USE-CASE-export-data: "Export Anonymized Event Data" [ url: "#REQS-UC.USE-CASE-export-data", type: USE-CASE ]
+DATA-DM.ENTITY-role: Role [ url: "#DATA-DM.ENTITY-role", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-DM.ENTITY-messagetext: MessageText [ url: "#DATA-DM.ENTITY-messagetext", type: ENTITY ]
+TEST-TC.TEST-CASE-export-fields: "Export Contains Required Fields" [ url: "#TEST-TC.TEST-CASE-export-fields", type: TEST-CASE ]
+TEST-TC.TEST-CASE-manager-retained: "Manager Role Survives Finish" [ url: "#TEST-TC.TEST-CASE-manager-retained", type: TEST-CASE ]
+
+REQS-FR.REQUIREMENT-export-inputs --(group)--> REQS-FR.GROUP-moderating
+REQS-FR.REQUIREMENT-export-inputs --(depends-on)--> REQS-FR.REQUIREMENT-chat
+REQS-FR.REQUIREMENT-export-inputs --(depends-on)--> REQS-FR.REQUIREMENT-questions
+REQS-DR.RULE-like-count --(constrains)--> REQS-FR.REQUIREMENT-export-inputs
+REQS-DR.RULE-manager-retained --(constrains)--> REQS-FR.REQUIREMENT-export-inputs
+REQS-UC.USE-CASE-export-data --(requirements)--> REQS-FR.REQUIREMENT-export-inputs
+DATA-DM.ENTITY-role --(requirements)--> REQS-FR.REQUIREMENT-export-inputs
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-export-inputs
+DATA-DM.ENTITY-messagetext --(requirements)--> REQS-FR.REQUIREMENT-export-inputs
+TEST-TC.TEST-CASE-export-fields --(verifies)--> REQS-FR.REQUIREMENT-export-inputs
+TEST-TC.TEST-CASE-manager-retained --(verifies)--> REQS-FR.REQUIREMENT-export-inputs

@@ -1,0 +1,146 @@
+#type graph
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config graph-columns-max 2
+
+REQS-SV: "Solution Vision" [ url: "#REQS-SV", type: REQS, parent: @kind-REQS, order: 0 ]
+REQS-SP: "Solution Premises" [ url: "#REQS-SP", type: REQS, parent: @kind-REQS, order: 0 ]
+REQS-DG: "Domain Glossary" [ url: "#REQS-DG", type: REQS, parent: @kind-REQS, order: 0 ]
+REQS-UP: "User Personas" [ url: "#REQS-UP", type: REQS, parent: @kind-REQS, order: 0 ]
+REQS-UJ: "User Journey" [ url: "#REQS-UJ", type: REQS, parent: @kind-REQS, order: 0 ]
+REQS-FR: "Functional Requirements" [ url: "#REQS-FR", type: REQS, parent: @kind-REQS, order: 0 ]
+REQS-NR: "Non-Functional Requirements" [ url: "#REQS-NR", type: REQS, parent: @kind-REQS, order: 0 ]
+REQS-DR: "Domain Rules" [ url: "#REQS-DR", type: REQS, parent: @kind-REQS, order: 0 ]
+REQS-DW: "Domain Workflows" [ url: "#REQS-DW", type: REQS, parent: @kind-REQS, order: 0 ]
+REQS-UC: "Use Cases" [ url: "#REQS-UC", type: REQS, parent: @kind-REQS, order: 0 ]
+DATA-DM: "Data Model" [ url: "#DATA-DM", type: DATA, parent: @kind-DATA, order: 0 ]
+DATA-SM: "State Model" [ url: "#DATA-SM", type: DATA, parent: @kind-DATA, order: 0 ]
+DATA-AM: "Authorization Model" [ url: "#DATA-AM", type: DATA, parent: @kind-DATA, order: 0 ]
+APIS-IM: "Interface Model" [ url: "#APIS-IM", type: APIS, parent: @kind-APIS, order: 0 ]
+APIS-ID: "Interface Datatypes" [ url: "#APIS-ID", type: APIS, parent: @kind-APIS, order: 0 ]
+APIS-IE: "Interface Endpoints" [ url: "#APIS-IE", type: APIS, parent: @kind-APIS, order: 0 ]
+UXUI-IC: "Interaction Concept" [ url: "#UXUI-IC", type: UXUI, parent: @kind-UXUI, order: 0 ]
+UXUI-LC: "Language Conventions" [ url: "#UXUI-LC", type: UXUI, parent: @kind-UXUI, order: 0 ]
+UXUI-DP: "Dialog Patterns" [ url: "#UXUI-DP", type: UXUI, parent: @kind-UXUI, order: 0 ]
+UXUI-DS: "Dialog Storyboard" [ url: "#UXUI-DS", type: UXUI, parent: @kind-UXUI, order: 0 ]
+UXUI-VD: "Visual Design" [ url: "#UXUI-VD", type: UXUI, parent: @kind-UXUI, order: 0 ]
+ARCH-AT: "Architecture Tenets" [ url: "#ARCH-AT", type: ARCH, parent: @kind-ARCH, order: 0 ]
+ARCH-AP: "Architecture Patterns" [ url: "#ARCH-AP", type: ARCH, parent: @kind-ARCH, order: 0 ]
+ARCH-CV: "Context View" [ url: "#ARCH-CV", type: ARCH, parent: @kind-ARCH, order: 0 ]
+ARCH-FV: "Functionality View" [ url: "#ARCH-FV", type: ARCH, parent: @kind-ARCH, order: 0 ]
+ARCH-TS: "Technology Stack" [ url: "#ARCH-TS", type: ARCH, parent: @kind-ARCH, order: 0 ]
+ARCH-DA: "Development Aspects" [ url: "#ARCH-DA", type: ARCH, parent: @kind-ARCH, order: 0 ]
+ARCH-CO: "Concurrency View" [ url: "#ARCH-CO", type: ARCH, parent: @kind-ARCH, order: 0 ]
+ARCH-DV: "Deployment View" [ url: "#ARCH-DV", type: ARCH, parent: @kind-ARCH, order: 0 ]
+ARCH-OV: "Operations View" [ url: "#ARCH-OV", type: ARCH, parent: @kind-ARCH, order: 0 ]
+ARCH-QP: "Quality Perspectives" [ url: "#ARCH-QP", type: ARCH, parent: @kind-ARCH, order: 0 ]
+ARCH-DD: "Design Decisions" [ url: "#ARCH-DD", type: ARCH, parent: @kind-ARCH, order: 0 ]
+ARCH-CP: "Code Patterns" [ url: "#ARCH-CP", type: ARCH, parent: @kind-ARCH, order: 0 ]
+TEST-TC: "Test Cases" [ url: "#TEST-TC", type: TEST, parent: @kind-TEST, order: 0 ]
+@kind-REQS: REQS [ order: 1 ]
+@kind-DATA: DATA [ order: 247 ]
+@kind-APIS: APIS [ order: 488 ]
+@kind-UXUI: UXUI [ order: 520 ]
+@kind-ARCH: ARCH [ order: 611 ]
+@kind-TEST: TEST [ order: 762 ]
+
+REQS-DG -->[25] REQS-SP
+REQS-UP -->[15] REQS-DG
+REQS-UJ -->[4] REQS-UP
+REQS-FR -->[20] REQS-SP
+REQS-NR -->[19] REQS-SP
+REQS-NR -->[13] REQS-FR
+REQS-DR -->[65] REQS-DG
+REQS-DR -->[25] REQS-FR
+REQS-DR -->[6] REQS-SP
+REQS-DW -->[14] REQS-UP
+REQS-DW -->[3] REQS-UJ
+REQS-DW -->[1] REQS-DG
+REQS-DW -->[4] REQS-DR
+REQS-UC -->[18] REQS-UP
+REQS-UC -->[13] REQS-UJ
+REQS-UC -->[17] REQS-DW
+REQS-UC -->[57] REQS-FR
+REQS-UC -->[30] REQS-DR
+DATA-DM -->[127] @kind-REQS
+DATA-SM -->[4] DATA-DM
+DATA-SM -->[55] @kind-REQS
+DATA-AM -->[171] @kind-REQS
+DATA-AM -->[52] DATA-DM
+DATA-AM -->[55] DATA-SM
+APIS-IM -->[1] @kind-REQS
+APIS-ID -->[2] APIS-IM
+APIS-IE -->[1] APIS-IM
+APIS-IE -->[5] @kind-DATA
+APIS-IE -->[4] APIS-ID
+UXUI-IC -->[48] @kind-REQS
+UXUI-LC -->[4] UXUI-IC
+UXUI-LC -->[5] @kind-REQS
+UXUI-DP -->[10] @kind-REQS
+UXUI-DP -->[12] UXUI-IC
+UXUI-DS -->[33] @kind-REQS
+UXUI-DS -->[37] UXUI-DP
+UXUI-VD -->[7] UXUI-IC
+UXUI-VD -->[10] @kind-REQS
+UXUI-VD -->[6] UXUI-DS
+ARCH-AT -->[15] @kind-REQS
+ARCH-AP -->[6] ARCH-AT
+ARCH-AP -->[5] @kind-REQS
+ARCH-CV -->[40] @kind-REQS
+ARCH-FV -->[21] @kind-REQS
+ARCH-FV -->[6] ARCH-AP
+ARCH-FV -->[15] @kind-DATA
+ARCH-FV -->[1] @kind-APIS
+ARCH-TS -->[32] ARCH-FV
+ARCH-DA -->[2] ARCH-AT
+ARCH-CO -->[8] ARCH-FV
+ARCH-DV -->[4] ARCH-TS
+ARCH-DV -->[3] ARCH-FV
+ARCH-DV -->[5] ARCH-CO
+ARCH-OV -->[19] @kind-REQS
+ARCH-OV -->[9] ARCH-DV
+ARCH-OV -->[7] ARCH-TS
+ARCH-OV -->[4] ARCH-FV
+ARCH-OV -->[1] @kind-DATA
+ARCH-QP -->[17] @kind-REQS
+ARCH-QP -->[9] ARCH-AT
+ARCH-QP -->[4] ARCH-AP
+ARCH-QP -->[20] ARCH-FV
+ARCH-QP -->[6] ARCH-CO
+ARCH-QP -->[16] ARCH-DV
+ARCH-QP -->[5] ARCH-OV
+ARCH-QP -->[12] ARCH-TS
+ARCH-QP -->[14] @kind-DATA
+ARCH-QP -->[5] ARCH-DA
+ARCH-DD -->[43] @kind-REQS
+ARCH-DD -->[17] ARCH-AT
+ARCH-DD -->[18] ARCH-FV
+ARCH-DD -->[5] ARCH-CO
+ARCH-DD -->[4] ARCH-AP
+ARCH-DD -->[10] ARCH-QP
+ARCH-DD -->[11] ARCH-TS
+ARCH-DD -->[18] ARCH-DV
+ARCH-DD -->[6] ARCH-DA
+ARCH-DD -->[5] @kind-DATA
+ARCH-DD -->[3] @kind-UXUI
+ARCH-DD -->[2] ARCH-CV
+ARCH-CP -->[4] ARCH-FV
+ARCH-CP -->[5] @kind-REQS
+ARCH-CP -->[2] ARCH-QP
+ARCH-CP -->[4] ARCH-DD
+ARCH-CP -->[4] ARCH-TS
+ARCH-CP -->[9] @kind-DATA
+ARCH-CP -->[1] ARCH-CO
+TEST-TC -->[85] @kind-REQS
+TEST-TC -->[20] @kind-DATA
+TEST-TC -->[1] @kind-ARCH

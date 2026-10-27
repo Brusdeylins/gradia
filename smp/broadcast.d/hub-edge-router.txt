@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-DV.TIER-middleware-tier: Middleware [ url: "#ARCH-DV.TIER-middleware-tier", type: TIER ]
+ARCH-DV.NODE-client-device: "Client Device" [ url: "#ARCH-DV.NODE-client-device", type: NODE, KIND: Device, PLATFORM: "Browser (desktop, tablet, mobile)" ]
+ARCH-DV.NODE-cdn: "Cloudflare CDN" [ url: "#ARCH-DV.NODE-cdn", type: NODE, KIND: Managed, PLATFORM: "Cloudflare edge network" ]
+ARCH-DV.NODE-router: "Edge Router" [ url: "#ARCH-DV.NODE-router", type: NODE, primary: true, KIND: Server, PLATFORM: "Linux x86-64" ]
+ARCH-DV.NODE-proxy: "Proxy Servers" [ url: "#ARCH-DV.NODE-proxy", type: NODE, KIND: Server, PLATFORM: "Linux x86-64" ]
+ARCH-DV.NETWORK-internet: "Public Internet" [ url: "#ARCH-DV.NETWORK-internet", type: NETWORK, SCOPE: Public ]
+ARCH-DV.NETWORK-backend: "Backend Network" [ url: "#ARCH-DV.NETWORK-backend", type: NETWORK, SCOPE: Private ]
+ARCH-CO.UNIT-router: "Router Process" [ url: "#ARCH-CO.UNIT-router", type: UNIT, KIND: Process ]
+ARCH-QP.TACTIC-connection-scaling: "Connection Scaling" [ url: "#ARCH-QP.TACTIC-connection-scaling", type: TACTIC ]
+ARCH-QP.TACTIC-network-isolation: "Network Segmentation" [ url: "#ARCH-QP.TACTIC-network-isolation", type: TACTIC ]
+ARCH-DD.DECISION-haproxy-edge: "HAProxy as a two-stage router and proxy edge" [ url: "#ARCH-DD.DECISION-haproxy-edge", type: DECISION ]
+
+ARCH-DV.NODE-client-device --(connects-to)--> ARCH-DV.NODE-router
+ARCH-DV.NODE-cdn --(connects-to)--> ARCH-DV.NODE-router
+ARCH-DV.NODE-router --(tier)--> ARCH-DV.TIER-middleware-tier
+ARCH-DV.NODE-router --(hosts)--> ARCH-CO.UNIT-router
+ARCH-DV.NODE-router --(connects-to)--> ARCH-DV.NODE-proxy
+ARCH-DV.NODE-router --(networks)--> ARCH-DV.NETWORK-internet
+ARCH-DV.NODE-router --(networks)--> ARCH-DV.NETWORK-backend
+ARCH-QP.TACTIC-connection-scaling --(affects)--> ARCH-DV.NODE-router
+ARCH-QP.TACTIC-network-isolation --(affects)--> ARCH-DV.NODE-router
+ARCH-DD.DECISION-haproxy-edge --(affects)--> ARCH-DV.NODE-router

@@ -1,0 +1,82 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY, primary: true ]
+DATA-DM.ENTITY-messagetext: MessageText [ url: "#DATA-DM.ENTITY-messagetext", type: ENTITY ]
+DATA-DM.ENTITY-questiontag: QuestionTag [ url: "#DATA-DM.ENTITY-questiontag", type: ENTITY ]
+REQS-FR.REQUIREMENT-questions: "Ask Questions" [ url: "#REQS-FR.REQUIREMENT-questions", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-chat: "Chat Messages" [ url: "#REQS-FR.REQUIREMENT-chat", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-likes: "Like Messages" [ url: "#REQS-FR.REQUIREMENT-likes", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-replies: "Reply to Chat Messages" [ url: "#REQS-FR.REQUIREMENT-replies", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-server-sentiment: "Server-Side Sentiment Analysis" [ url: "#REQS-FR.REQUIREMENT-server-sentiment", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-message-editing: "Edit and Delete Messages" [ url: "#REQS-FR.REQUIREMENT-message-editing", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-question-tags: "Tag Question Messages" [ url: "#REQS-FR.REQUIREMENT-question-tags", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-moderation: "Moderate Chat and Questions" [ url: "#REQS-FR.REQUIREMENT-moderation", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-forward-presenter: "Forward Inputs to Presenter" [ url: "#REQS-FR.REQUIREMENT-forward-presenter", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-answer-inputs: "Answer Attendee Inputs" [ url: "#REQS-FR.REQUIREMENT-answer-inputs", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-moderator-messages: "Moderator-Authored Messages" [ url: "#REQS-FR.REQUIREMENT-moderator-messages", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-export-inputs: "Export Attendee Inputs" [ url: "#REQS-FR.REQUIREMENT-export-inputs", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-sort-filter: "Sort and Filter Messages" [ url: "#REQS-FR.REQUIREMENT-sort-filter", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-deleted-placeholder: "Deleted Message Placeholder" [ url: "#REQS-FR.REQUIREMENT-deleted-placeholder", type: REQUIREMENT ]
+REQS-UC.USE-CASE-ask-question: "Ask a Question" [ url: "#REQS-UC.USE-CASE-ask-question", type: USE-CASE ]
+REQS-UC.USE-CASE-chat-during-event: "Chat During the Event" [ url: "#REQS-UC.USE-CASE-chat-during-event", type: USE-CASE ]
+REQS-UC.USE-CASE-moderate: "Moderate and Forward Messages" [ url: "#REQS-UC.USE-CASE-moderate", type: USE-CASE ]
+REQS-UC.USE-CASE-moderate-chat: "Moderate the Chat Conversation" [ url: "#REQS-UC.USE-CASE-moderate-chat", type: USE-CASE ]
+REQS-UC.USE-CASE-export-data: "Export Anonymized Event Data" [ url: "#REQS-UC.USE-CASE-export-data", type: USE-CASE ]
+REQS-UC.USE-CASE-present: "Present Forwarded Questions" [ url: "#REQS-UC.USE-CASE-present", type: USE-CASE ]
+DATA-SM.LIFECYCLE-message: Message [ url: "#DATA-SM.LIFECYCLE-message", type: LIFECYCLE ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT ]
+ARCH-QP.TACTIC-privacy: "Privacy by Design" [ url: "#ARCH-QP.TACTIC-privacy", type: TACTIC ]
+ARCH-QP.TACTIC-recovery: "Dump-Based Recovery" [ url: "#ARCH-QP.TACTIC-recovery", type: TACTIC ]
+TEST-TC.TEST-CASE-export-fields: "Export Contains Required Fields" [ url: "#TEST-TC.TEST-CASE-export-fields", type: TEST-CASE ]
+
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-chat
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-questions
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-likes
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-replies
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-moderation
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-forward-presenter
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-answer-inputs
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-moderator-messages
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-message-editing
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-deleted-placeholder
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-server-sentiment
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-sort-filter
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-question-tags
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-export-inputs
+DATA-DM.ENTITY-message --(use-cases)--> REQS-UC.USE-CASE-ask-question
+DATA-DM.ENTITY-message --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+DATA-DM.ENTITY-message --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-DM.ENTITY-message --(use-cases)--> REQS-UC.USE-CASE-moderate-chat
+DATA-DM.ENTITY-message --(use-cases)--> REQS-UC.USE-CASE-present
+DATA-DM.ENTITY-message --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-SM.LIFECYCLE-message --(entity)--> DATA-DM.ENTITY-message
+ARCH-FV.COMPONENT-service --(owns)--> DATA-DM.ENTITY-message
+ARCH-QP.TACTIC-privacy --(affects)--> DATA-DM.ENTITY-message
+ARCH-QP.TACTIC-recovery --(affects)--> DATA-DM.ENTITY-message
+TEST-TC.TEST-CASE-export-fields --(verifies)--> DATA-DM.ENTITY-message
+DATA-DM.ENTITY-event --(messages)-->[0..n] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-user --(likes)-->[0..n] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-user --(sentMessages)-->[0..n] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-message --(sender)-->[0..1] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-message --(liker)-->[0..n] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-message --(event)-->[1] DATA-DM.ENTITY-event
+DATA-DM.ENTITY-message --(replyTo)-->[0..1] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-message --(predecessor)-->[0..1] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-message --(questionTags)-->[0..n] DATA-DM.ENTITY-questiontag
+DATA-DM.ENTITY-message --(messageText)-->[1..n] DATA-DM.ENTITY-messagetext
+DATA-DM.ENTITY-questiontag --(messages)-->[0..n] DATA-DM.ENTITY-message

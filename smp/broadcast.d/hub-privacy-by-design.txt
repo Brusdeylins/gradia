@@ -1,0 +1,39 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-QP.TACTIC-privacy: "Privacy by Design" [ url: "#ARCH-QP.TACTIC-privacy", type: TACTIC, primary: true, QUALITY: Privacy ]
+REQS-NR.REQUIREMENT-gdpr: "GDPR Compliance" [ url: "#REQS-NR.REQUIREMENT-gdpr", type: REQUIREMENT ]
+REQS-NR.REQUIREMENT-privacy: "Privacy by Design" [ url: "#REQS-NR.REQUIREMENT-privacy", type: REQUIREMENT ]
+ARCH-AT.MAXIM-privacy-first: "Privacy over Convenience" [ url: "#ARCH-AT.MAXIM-privacy-first", type: MAXIM ]
+ARCH-AT.PRINCIPLE-no-permanent-identity: "No Permanent Identity" [ url: "#ARCH-AT.PRINCIPLE-no-permanent-identity", type: PRINCIPLE ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT ]
+ARCH-FV.COMPONENT-database: Database [ url: "#ARCH-FV.COMPONENT-database", type: COMPONENT ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-DM.ENTITY-authorizationtoken: AuthorizationToken [ url: "#DATA-DM.ENTITY-authorizationtoken", type: ENTITY ]
+DATA-DM.ENTITY-sessiontoken: SessionToken [ url: "#DATA-DM.ENTITY-sessiontoken", type: ENTITY ]
+ARCH-DD.DECISION-no-accounts: "Privacy by design with no permanent user accounts" [ url: "#ARCH-DD.DECISION-no-accounts", type: DECISION ]
+
+ARCH-QP.TACTIC-privacy --(addresses)--> REQS-NR.REQUIREMENT-privacy
+ARCH-QP.TACTIC-privacy --(addresses)--> REQS-NR.REQUIREMENT-gdpr
+ARCH-QP.TACTIC-privacy --(guided-by)--> ARCH-AT.MAXIM-privacy-first
+ARCH-QP.TACTIC-privacy --(guided-by)--> ARCH-AT.PRINCIPLE-no-permanent-identity
+ARCH-QP.TACTIC-privacy --(affects)--> ARCH-FV.COMPONENT-service
+ARCH-QP.TACTIC-privacy --(affects)--> ARCH-FV.COMPONENT-database
+ARCH-QP.TACTIC-privacy --(affects)--> DATA-DM.ENTITY-user
+ARCH-QP.TACTIC-privacy --(affects)--> DATA-DM.ENTITY-message
+ARCH-QP.TACTIC-privacy --(affects)--> DATA-DM.ENTITY-authorizationtoken
+ARCH-QP.TACTIC-privacy --(affects)--> DATA-DM.ENTITY-sessiontoken
+ARCH-DD.DECISION-no-accounts --(decides)--> ARCH-QP.TACTIC-privacy

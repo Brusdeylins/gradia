@@ -1,0 +1,45 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-FR.GROUP-streaming: Streaming [ url: "#REQS-FR.GROUP-streaming", type: GROUP ]
+REQS-FR.REQUIREMENT-multi-provider: "Multiple Streaming Providers" [ url: "#REQS-FR.REQUIREMENT-multi-provider", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-provider-switch: "Live Provider Switching" [ url: "#REQS-FR.REQUIREMENT-provider-switch", type: REQUIREMENT, primary: true ]
+REQS-NR.REQUIREMENT-failover: "Provider Failover Continuity" [ url: "#REQS-NR.REQUIREMENT-failover", type: REQUIREMENT ]
+REQS-SP.PREMISE-provider-delivery: "Streaming Providers Deliver the Video" [ url: "#REQS-SP.PREMISE-provider-delivery", type: PREMISE ]
+REQS-DR.RULE-single-channel: "Single Active Channel" [ url: "#REQS-DR.RULE-single-channel", type: RULE ]
+REQS-DR.RULE-initial-channel: "Initial Channel Becomes Active" [ url: "#REQS-DR.RULE-initial-channel", type: RULE ]
+REQS-DR.RULE-single-resource: "Single Active Resource per Channel" [ url: "#REQS-DR.RULE-single-resource", type: RULE ]
+REQS-DR.RULE-initial-resource: "Initial Resource Becomes Active" [ url: "#REQS-DR.RULE-initial-resource", type: RULE ]
+REQS-UC.USE-CASE-switch-provider: "Switch Streaming Provider" [ url: "#REQS-UC.USE-CASE-switch-provider", type: USE-CASE ]
+DATA-DM.ENTITY-channel: Channel [ url: "#DATA-DM.ENTITY-channel", type: ENTITY ]
+DATA-DM.ENTITY-resource: Resource [ url: "#DATA-DM.ENTITY-resource", type: ENTITY ]
+ARCH-FV.COMPONENT-client: "Web Client" [ url: "#ARCH-FV.COMPONENT-client", type: COMPONENT ]
+TEST-TC.TEST-CASE-provider-switch: "Live Provider Switch Propagates" [ url: "#TEST-TC.TEST-CASE-provider-switch", type: TEST-CASE ]
+TEST-TC.TEST-CASE-single-channel: "Channel Activation Deactivates Previous" [ url: "#TEST-TC.TEST-CASE-single-channel", type: TEST-CASE ]
+
+REQS-FR.REQUIREMENT-provider-switch --(group)--> REQS-FR.GROUP-streaming
+REQS-FR.REQUIREMENT-provider-switch --(depends-on)--> REQS-FR.REQUIREMENT-multi-provider
+REQS-FR.REQUIREMENT-provider-switch --(premises)--> REQS-SP.PREMISE-provider-delivery
+REQS-NR.REQUIREMENT-failover --(qualifies)--> REQS-FR.REQUIREMENT-provider-switch
+REQS-DR.RULE-single-channel --(constrains)--> REQS-FR.REQUIREMENT-provider-switch
+REQS-DR.RULE-initial-channel --(constrains)--> REQS-FR.REQUIREMENT-provider-switch
+REQS-DR.RULE-single-resource --(constrains)--> REQS-FR.REQUIREMENT-provider-switch
+REQS-DR.RULE-initial-resource --(constrains)--> REQS-FR.REQUIREMENT-provider-switch
+REQS-UC.USE-CASE-switch-provider --(requirements)--> REQS-FR.REQUIREMENT-provider-switch
+DATA-DM.ENTITY-channel --(requirements)--> REQS-FR.REQUIREMENT-provider-switch
+DATA-DM.ENTITY-resource --(requirements)--> REQS-FR.REQUIREMENT-provider-switch
+ARCH-FV.COMPONENT-client --(realizes)--> REQS-FR.REQUIREMENT-provider-switch
+TEST-TC.TEST-CASE-provider-switch --(verifies)--> REQS-FR.REQUIREMENT-provider-switch
+TEST-TC.TEST-CASE-single-channel --(verifies)--> REQS-FR.REQUIREMENT-provider-switch

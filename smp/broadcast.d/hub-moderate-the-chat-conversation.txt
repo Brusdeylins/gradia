@@ -1,0 +1,59 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-moderate-chat: "Moderate the Chat Conversation" [ url: "#REQS-UC.USE-CASE-moderate-chat", type: USE-CASE, primary: true ]
+REQS-UP.ROLE-moderator: Moderator [ url: "#REQS-UP.ROLE-moderator", type: ROLE ]
+REQS-UP.PERSONA-moderator-chat: Markus [ url: "#REQS-UP.PERSONA-moderator-chat", type: PERSONA ]
+REQS-UJ.JOURNEY-moderate.STEP-support: "Moderate and support the presenter" [ url: "#REQS-UJ.JOURNEY-moderate.STEP-support", type: STEP ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event: "Rehearse Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event", type: ACTIVITY ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction: "Moderate Interaction" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction", type: ACTIVITY ]
+REQS-FR.REQUIREMENT-answer-inputs: "Answer Attendee Inputs" [ url: "#REQS-FR.REQUIREMENT-answer-inputs", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-moderator-messages: "Moderator-Authored Messages" [ url: "#REQS-FR.REQUIREMENT-moderator-messages", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-manage-app: "Manage Embedded Application" [ url: "#REQS-FR.REQUIREMENT-manage-app", type: REQUIREMENT ]
+REQS-DR.RULE-moderation-gate: "Moderation Determines Initial Visibility" [ url: "#REQS-DR.RULE-moderation-gate", type: RULE ]
+REQS-DR.RULE-moderator-accept: "Moderator Messages Auto-Accepted" [ url: "#REQS-DR.RULE-moderator-accept", type: RULE ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-SM.LIFECYCLE-message.TRANSITION-accept-moderator: accept [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-accept-moderator", type: TRANSITION ]
+DATA-AM.PERMISSION-moderator-enter-event: "Enter the Event" [ url: "#DATA-AM.PERMISSION-moderator-enter-event", type: PERMISSION ]
+DATA-AM.PERMISSION-moderator-read-messages: "Review All Messages" [ url: "#DATA-AM.PERMISSION-moderator-read-messages", type: PERMISSION ]
+DATA-AM.PERMISSION-moderator-author: "Author Messages" [ url: "#DATA-AM.PERMISSION-moderator-author", type: PERMISSION ]
+UXUI-IC.PRINCIPLE-privacy-identity: "Privacy-Visible Identity" [ url: "#UXUI-IC.PRINCIPLE-privacy-identity", type: PRINCIPLE ]
+UXUI-DS.STORYBOARD-support-request: "Attendee Gets Support from a Moderator" [ url: "#UXUI-DS.STORYBOARD-support-request", type: STORYBOARD ]
+ARCH-CV.ENTITY-operator: "Event Operator" [ url: "#ARCH-CV.ENTITY-operator", type: ENTITY ]
+ARCH-CV.ENTITY-app: "Embedded Third-Party App" [ url: "#ARCH-CV.ENTITY-app", type: ENTITY ]
+TEST-TC.TEST-CASE-moderator-accept: "Moderator Message Starts Accepted" [ url: "#TEST-TC.TEST-CASE-moderator-accept", type: TEST-CASE ]
+TEST-TC.TEST-CASE-direct-reply: "Direct Moderator Reply Stays Private" [ url: "#TEST-TC.TEST-CASE-direct-reply", type: TEST-CASE ]
+
+REQS-UC.USE-CASE-moderate-chat --(actor)--> REQS-UP.ROLE-moderator
+REQS-UC.USE-CASE-moderate-chat --(personas)--> REQS-UP.PERSONA-moderator-chat
+REQS-UC.USE-CASE-moderate-chat --(journeys)--> REQS-UJ.JOURNEY-moderate.STEP-support
+REQS-UC.USE-CASE-moderate-chat --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event
+REQS-UC.USE-CASE-moderate-chat --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction
+REQS-UC.USE-CASE-moderate-chat --(requirements)--> REQS-FR.REQUIREMENT-answer-inputs
+REQS-UC.USE-CASE-moderate-chat --(requirements)--> REQS-FR.REQUIREMENT-moderator-messages
+REQS-UC.USE-CASE-moderate-chat --(requirements)--> REQS-FR.REQUIREMENT-manage-app
+REQS-UC.USE-CASE-moderate-chat --(rules)--> REQS-DR.RULE-moderator-accept
+REQS-UC.USE-CASE-moderate-chat --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-DM.ENTITY-message --(use-cases)--> REQS-UC.USE-CASE-moderate-chat
+DATA-SM.LIFECYCLE-message.TRANSITION-accept-moderator --(use-cases)--> REQS-UC.USE-CASE-moderate-chat
+DATA-AM.PERMISSION-moderator-enter-event --(use-cases)--> REQS-UC.USE-CASE-moderate-chat
+DATA-AM.PERMISSION-moderator-read-messages --(use-cases)--> REQS-UC.USE-CASE-moderate-chat
+DATA-AM.PERMISSION-moderator-author --(use-cases)--> REQS-UC.USE-CASE-moderate-chat
+UXUI-IC.PRINCIPLE-privacy-identity --(use-cases)--> REQS-UC.USE-CASE-moderate-chat
+UXUI-DS.STORYBOARD-support-request --(scenario)--> REQS-UC.USE-CASE-moderate-chat
+ARCH-CV.ENTITY-operator --(use-cases)--> REQS-UC.USE-CASE-moderate-chat
+ARCH-CV.ENTITY-app --(use-cases)--> REQS-UC.USE-CASE-moderate-chat
+TEST-TC.TEST-CASE-moderator-accept --(verifies)--> REQS-UC.USE-CASE-moderate-chat
+TEST-TC.TEST-CASE-direct-reply --(verifies)--> REQS-UC.USE-CASE-moderate-chat

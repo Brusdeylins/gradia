@@ -1,0 +1,51 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-FV.COMPONENT-client: "Web Client" [ url: "#ARCH-FV.COMPONENT-client", type: COMPONENT, primary: true, KIND: Subsystem ]
+ARCH-FV.COMPONENT-client-nlp: "Client NLP" [ url: "#ARCH-FV.COMPONENT-client-nlp", type: COMPONENT, KIND: Module ]
+ARCH-FV.COMPONENT-relay: Relay [ url: "#ARCH-FV.COMPONENT-relay", type: COMPONENT, KIND: Connector ]
+REQS-FR.REQUIREMENT-name-appearance: "Configurable Name Appearance" [ url: "#REQS-FR.REQUIREMENT-name-appearance", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-browser-access: "Browser Access" [ url: "#REQS-FR.REQUIREMENT-browser-access", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-individual-url: "Individual Event Access URL" [ url: "#REQS-FR.REQUIREMENT-individual-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-user-consent: "Explicit User Consent" [ url: "#REQS-FR.REQUIREMENT-user-consent", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-provider-switch: "Live Provider Switching" [ url: "#REQS-FR.REQUIREMENT-provider-switch", type: REQUIREMENT ]
+ARCH-DV.NODE-client-device: "Client Device" [ url: "#ARCH-DV.NODE-client-device", type: NODE, KIND: Device ]
+ARCH-QP.TACTIC-failover: "Live Failover Continuity" [ url: "#ARCH-QP.TACTIC-failover", type: TACTIC ]
+ARCH-QP.TACTIC-reactivity: "Real-Time Reactivity" [ url: "#ARCH-QP.TACTIC-reactivity", type: TACTIC ]
+ARCH-QP.TACTIC-portability: "Universal Browser Reach" [ url: "#ARCH-QP.TACTIC-portability", type: TACTIC ]
+ARCH-QP.TACTIC-stream-passthrough: "Provider Stream Passthrough" [ url: "#ARCH-QP.TACTIC-stream-passthrough", type: TACTIC ]
+ARCH-QP.TACTIC-edge-delivery: "Edge Asset Delivery" [ url: "#ARCH-QP.TACTIC-edge-delivery", type: TACTIC ]
+ARCH-QP.TACTIC-typed-contracts: "Shared Typed Contracts" [ url: "#ARCH-QP.TACTIC-typed-contracts", type: TACTIC ]
+ARCH-DD.DECISION-channel-resource: "Decouple logical Channels from physical provider Resources" [ url: "#ARCH-DD.DECISION-channel-resource", type: DECISION ]
+ARCH-DD.DECISION-provider-streaming: "Embed provider-delivered video instead of self-hosted streaming" [ url: "#ARCH-DD.DECISION-provider-streaming", type: DECISION ]
+ARCH-DD.DECISION-vue-client: "Vue.js single-page client with headless widgets" [ url: "#ARCH-DD.DECISION-vue-client", type: DECISION ]
+
+ARCH-FV.COMPONENT-client --(realizes)--> REQS-FR.REQUIREMENT-name-appearance
+ARCH-FV.COMPONENT-client --(realizes)--> REQS-FR.REQUIREMENT-browser-access
+ARCH-FV.COMPONENT-client --(realizes)--> REQS-FR.REQUIREMENT-individual-url
+ARCH-FV.COMPONENT-client --(realizes)--> REQS-FR.REQUIREMENT-user-consent
+ARCH-FV.COMPONENT-client --(realizes)--> REQS-FR.REQUIREMENT-provider-switch
+ARCH-FV.COMPONENT-client --(depends-on)--> ARCH-FV.COMPONENT-relay
+ARCH-FV.COMPONENT-client-nlp --(part-of)--> ARCH-FV.COMPONENT-client
+ARCH-DV.NODE-client-device --(hosts)--> ARCH-FV.COMPONENT-client
+ARCH-QP.TACTIC-failover --(affects)--> ARCH-FV.COMPONENT-client
+ARCH-QP.TACTIC-reactivity --(affects)--> ARCH-FV.COMPONENT-client
+ARCH-QP.TACTIC-portability --(affects)--> ARCH-FV.COMPONENT-client
+ARCH-QP.TACTIC-stream-passthrough --(affects)--> ARCH-FV.COMPONENT-client
+ARCH-QP.TACTIC-edge-delivery --(affects)--> ARCH-FV.COMPONENT-client
+ARCH-QP.TACTIC-typed-contracts --(affects)--> ARCH-FV.COMPONENT-client
+ARCH-DD.DECISION-channel-resource --(affects)--> ARCH-FV.COMPONENT-client
+ARCH-DD.DECISION-provider-streaming --(affects)--> ARCH-FV.COMPONENT-client
+ARCH-DD.DECISION-vue-client --(affects)--> ARCH-FV.COMPONENT-client

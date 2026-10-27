@@ -1,0 +1,47 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DR.RULE-forward-lock: "Forwarded Messages Are Immutable" [ url: "#REQS-DR.RULE-forward-lock", type: RULE, primary: true ]
+REQS-DG.TERM-attendee: Attendee [ url: "#REQS-DG.TERM-attendee", type: TERM ]
+REQS-DG.TERM-presenter: Presenter [ url: "#REQS-DG.TERM-presenter", type: TERM ]
+REQS-DG.TERM-message: Message [ url: "#REQS-DG.TERM-message", type: TERM ]
+REQS-FR.REQUIREMENT-message-editing: "Edit and Delete Messages" [ url: "#REQS-FR.REQUIREMENT-message-editing", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-forward-presenter: "Forward Inputs to Presenter" [ url: "#REQS-FR.REQUIREMENT-forward-presenter", type: REQUIREMENT ]
+REQS-DW.WORKFLOW-run-broadcast-event.HANDOFF-forward: forward [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.HANDOFF-forward", type: HANDOFF ]
+REQS-UC.USE-CASE-chat-during-event: "Chat During the Event" [ url: "#REQS-UC.USE-CASE-chat-during-event", type: USE-CASE ]
+REQS-UC.USE-CASE-moderate: "Moderate and Forward Messages" [ url: "#REQS-UC.USE-CASE-moderate", type: USE-CASE ]
+REQS-UC.USE-CASE-present: "Present Forwarded Questions" [ url: "#REQS-UC.USE-CASE-present", type: USE-CASE ]
+DATA-SM.LIFECYCLE-message.TRANSITION-resubmit: resubmit [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-resubmit", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-forward: forward [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-forward", type: TRANSITION ]
+DATA-AM.PERMISSION-attendee-edit-own: "Correct Own Messages" [ url: "#DATA-AM.PERMISSION-attendee-edit-own", type: PERMISSION ]
+DATA-AM.PERMISSION-moderator-forward: "Forward Questions" [ url: "#DATA-AM.PERMISSION-moderator-forward", type: PERMISSION ]
+DATA-AM.PERMISSION-presenter-read-forwarded: "Read Forwarded Questions" [ url: "#DATA-AM.PERMISSION-presenter-read-forwarded", type: PERMISSION ]
+TEST-TC.TEST-CASE-forward-lock: "Forwarded Message Is Locked" [ url: "#TEST-TC.TEST-CASE-forward-lock", type: TEST-CASE ]
+
+REQS-DR.RULE-forward-lock --(governs)--> REQS-DG.TERM-message
+REQS-DR.RULE-forward-lock --(governs)--> REQS-DG.TERM-attendee
+REQS-DR.RULE-forward-lock --(governs)--> REQS-DG.TERM-presenter
+REQS-DR.RULE-forward-lock --(constrains)--> REQS-FR.REQUIREMENT-message-editing
+REQS-DR.RULE-forward-lock --(constrains)--> REQS-FR.REQUIREMENT-forward-presenter
+REQS-DW.WORKFLOW-run-broadcast-event.HANDOFF-forward --(rules)--> REQS-DR.RULE-forward-lock
+REQS-UC.USE-CASE-chat-during-event --(rules)--> REQS-DR.RULE-forward-lock
+REQS-UC.USE-CASE-moderate --(rules)--> REQS-DR.RULE-forward-lock
+REQS-UC.USE-CASE-present --(rules)--> REQS-DR.RULE-forward-lock
+DATA-SM.LIFECYCLE-message.TRANSITION-resubmit --(rules)--> REQS-DR.RULE-forward-lock
+DATA-SM.LIFECYCLE-message.TRANSITION-forward --(rules)--> REQS-DR.RULE-forward-lock
+DATA-AM.PERMISSION-attendee-edit-own --(rules)--> REQS-DR.RULE-forward-lock
+DATA-AM.PERMISSION-moderator-forward --(rules)--> REQS-DR.RULE-forward-lock
+DATA-AM.PERMISSION-presenter-read-forwarded --(rules)--> REQS-DR.RULE-forward-lock
+TEST-TC.TEST-CASE-forward-lock --(verifies)--> REQS-DR.RULE-forward-lock

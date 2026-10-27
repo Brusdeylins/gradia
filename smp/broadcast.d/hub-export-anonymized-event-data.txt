@@ -1,0 +1,71 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-export-data: "Export Anonymized Event Data" [ url: "#REQS-UC.USE-CASE-export-data", type: USE-CASE, primary: true ]
+REQS-UP.ROLE-manager: Manager [ url: "#REQS-UP.ROLE-manager", type: ROLE ]
+REQS-UJ.JOURNEY-operate.STEP-export: "Export anonymized results after event" [ url: "#REQS-UJ.JOURNEY-operate.STEP-export", type: STEP ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-archive-results: "Archive Results" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-archive-results", type: ACTIVITY ]
+REQS-FR.REQUIREMENT-export-inputs: "Export Attendee Inputs" [ url: "#REQS-FR.REQUIREMENT-export-inputs", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-event-stats: "General Event Statistics" [ url: "#REQS-FR.REQUIREMENT-event-stats", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-debug-stats: "Debugging Statistics" [ url: "#REQS-FR.REQUIREMENT-debug-stats", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-channel-stats: "Channel Statistics" [ url: "#REQS-FR.REQUIREMENT-channel-stats", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-user-stats: "User Statistics" [ url: "#REQS-FR.REQUIREMENT-user-stats", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-stats-snapshots: "Periodic Statistics Snapshots" [ url: "#REQS-FR.REQUIREMENT-stats-snapshots", type: REQUIREMENT ]
+REQS-DR.RULE-anonymize: "Anonymization on Event Finish" [ url: "#REQS-DR.RULE-anonymize", type: RULE ]
+REQS-DR.RULE-like-count: "Likes Conserved as Count on Finish" [ url: "#REQS-DR.RULE-like-count", type: RULE ]
+REQS-DR.RULE-manager-retained: "Manager Retained for Export" [ url: "#REQS-DR.RULE-manager-retained", type: RULE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-role: Role [ url: "#DATA-DM.ENTITY-role", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-DM.ENTITY-messagetext: MessageText [ url: "#DATA-DM.ENTITY-messagetext", type: ENTITY ]
+DATA-DM.ENTITY-authorizationtoken: AuthorizationToken [ url: "#DATA-DM.ENTITY-authorizationtoken", type: ENTITY ]
+DATA-DM.ENTITY-eventstatistic: EventStatistic [ url: "#DATA-DM.ENTITY-eventstatistic", type: ENTITY ]
+DATA-DM.ENTITY-channelstatistic: ChannelStatistic [ url: "#DATA-DM.ENTITY-channelstatistic", type: ENTITY ]
+DATA-DM.ENTITY-userstatistic: UserStatistic [ url: "#DATA-DM.ENTITY-userstatistic", type: ENTITY ]
+DATA-AM.PERMISSION-manager-configure-event: "Configure the Event" [ url: "#DATA-AM.PERMISSION-manager-configure-event", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-export-messages: "Export the Messages" [ url: "#DATA-AM.PERMISSION-manager-export-messages", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-statistics-event: "Inspect the Event Statistics" [ url: "#DATA-AM.PERMISSION-manager-statistics-event", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-statistics-channel: "Inspect the Channel Statistics" [ url: "#DATA-AM.PERMISSION-manager-statistics-channel", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-statistics-user: "Inspect the Viewer Statistics" [ url: "#DATA-AM.PERMISSION-manager-statistics-user", type: PERMISSION ]
+ARCH-CV.ENTITY-operator: "Event Operator" [ url: "#ARCH-CV.ENTITY-operator", type: ENTITY ]
+TEST-TC.TEST-CASE-manager-retained: "Manager Role Survives Finish" [ url: "#TEST-TC.TEST-CASE-manager-retained", type: TEST-CASE ]
+
+REQS-UC.USE-CASE-export-data --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-export-data --(journeys)--> REQS-UJ.JOURNEY-operate.STEP-export
+REQS-UC.USE-CASE-export-data --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-archive-results
+REQS-UC.USE-CASE-export-data --(requirements)--> REQS-FR.REQUIREMENT-export-inputs
+REQS-UC.USE-CASE-export-data --(requirements)--> REQS-FR.REQUIREMENT-event-stats
+REQS-UC.USE-CASE-export-data --(requirements)--> REQS-FR.REQUIREMENT-channel-stats
+REQS-UC.USE-CASE-export-data --(requirements)--> REQS-FR.REQUIREMENT-user-stats
+REQS-UC.USE-CASE-export-data --(requirements)--> REQS-FR.REQUIREMENT-debug-stats
+REQS-UC.USE-CASE-export-data --(requirements)--> REQS-FR.REQUIREMENT-stats-snapshots
+REQS-UC.USE-CASE-export-data --(rules)--> REQS-DR.RULE-anonymize
+REQS-UC.USE-CASE-export-data --(rules)--> REQS-DR.RULE-like-count
+REQS-UC.USE-CASE-export-data --(rules)--> REQS-DR.RULE-manager-retained
+DATA-DM.ENTITY-event --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-DM.ENTITY-role --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-DM.ENTITY-message --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-DM.ENTITY-messagetext --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-DM.ENTITY-authorizationtoken --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-DM.ENTITY-eventstatistic --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-DM.ENTITY-channelstatistic --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-DM.ENTITY-userstatistic --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-AM.PERMISSION-manager-configure-event --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-AM.PERMISSION-manager-export-messages --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-AM.PERMISSION-manager-statistics-event --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-AM.PERMISSION-manager-statistics-channel --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-AM.PERMISSION-manager-statistics-user --(use-cases)--> REQS-UC.USE-CASE-export-data
+ARCH-CV.ENTITY-operator --(use-cases)--> REQS-UC.USE-CASE-export-data
+TEST-TC.TEST-CASE-manager-retained --(verifies)--> REQS-UC.USE-CASE-export-data

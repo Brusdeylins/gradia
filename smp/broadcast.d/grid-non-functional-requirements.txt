@@ -1,0 +1,37 @@
+#type grid
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+#config grid-columns-max 2
+
+REQS-NR.REQUIREMENT-attendee-scale: "Concurrent Attendee Scale" [ url: "#REQS-NR.REQUIREMENT-attendee-scale", parent: REQS-NR.GROUP-audience-scale, PRIORITY: MUST, CATEGORY: Performance ]
+REQS-NR.REQUIREMENT-scalability: "Horizontal Scalability" [ url: "#REQS-NR.REQUIREMENT-scalability", parent: REQS-NR.GROUP-audience-scale, PRIORITY: MUST, CATEGORY: Performance ]
+REQS-NR.REQUIREMENT-streaming-quality: "Streaming Quality" [ url: "#REQS-NR.REQUIREMENT-streaming-quality", parent: REQS-NR.GROUP-audience-scale, PRIORITY: MUST, CATEGORY: Performance ]
+REQS-NR.REQUIREMENT-failover: "Provider Failover Continuity" [ url: "#REQS-NR.REQUIREMENT-failover", parent: REQS-NR.GROUP-live-continuity, PRIORITY: MUST, CATEGORY: Reliability ]
+REQS-NR.REQUIREMENT-browser-compat: "Cross-Browser Compatibility" [ url: "#REQS-NR.REQUIREMENT-browser-compat", PRIORITY: MUST, CATEGORY: Compatibility ]
+REQS-NR.REQUIREMENT-gdpr: "GDPR Compliance" [ url: "#REQS-NR.REQUIREMENT-gdpr", parent: REQS-NR.GROUP-data-protection, PRIORITY: MUST, CATEGORY: Compliance ]
+REQS-NR.REQUIREMENT-privacy: "Privacy by Design" [ url: "#REQS-NR.REQUIREMENT-privacy", parent: REQS-NR.GROUP-data-protection, PRIORITY: MUST, CATEGORY: Security ]
+REQS-NR.REQUIREMENT-token-strength: "Unguessable Access Tokens" [ url: "#REQS-NR.REQUIREMENT-token-strength", parent: REQS-NR.GROUP-data-protection, PRIORITY: MUST, CATEGORY: Security ]
+REQS-NR.REQUIREMENT-data-isolation: "Isolated Persistence Node" [ url: "#REQS-NR.REQUIREMENT-data-isolation", parent: REQS-NR.GROUP-data-protection, PRIORITY: MUST, CATEGORY: Security ]
+REQS-NR.REQUIREMENT-recovery: "Event Setup Recovery" [ url: "#REQS-NR.REQUIREMENT-recovery", parent: REQS-NR.GROUP-live-continuity, PRIORITY: MUST, CATEGORY: Reliability ]
+REQS-NR.REQUIREMENT-maintenance-window: "Event-Safe Maintenance" [ url: "#REQS-NR.REQUIREMENT-maintenance-window", parent: REQS-NR.GROUP-live-continuity, PRIORITY: MUST, CATEGORY: Reliability ]
+REQS-NR.REQUIREMENT-config-latency: "Live Configuration Latency" [ url: "#REQS-NR.REQUIREMENT-config-latency", parent: REQS-NR.GROUP-live-continuity, PRIORITY: SHOULD, CATEGORY: Performance ]
+REQS-NR.REQUIREMENT-cost: "Per-Event Cost Efficiency" [ url: "#REQS-NR.REQUIREMENT-cost", PRIORITY: SHOULD, CATEGORY: Constraint ]
+REQS-NR.REQUIREMENT-throttling: "Interaction Abuse Throttling" [ url: "#REQS-NR.REQUIREMENT-throttling", parent: REQS-NR.GROUP-data-protection, PRIORITY: SHOULD, CATEGORY: Security ]
+REQS-NR.REQUIREMENT-asset-delivery: "Start-Surge Asset Delivery" [ url: "#REQS-NR.REQUIREMENT-asset-delivery", parent: REQS-NR.GROUP-audience-scale, PRIORITY: SHOULD, CATEGORY: Performance ]
+REQS-NR.REQUIREMENT-contract-safety: "Compile-Time Contract Safety" [ url: "#REQS-NR.REQUIREMENT-contract-safety", PRIORITY: SHOULD, CATEGORY: Maintainability ]
+REQS-NR.REQUIREMENT-observability: "Live Diagnosability" [ url: "#REQS-NR.REQUIREMENT-observability", parent: REQS-NR.GROUP-live-continuity, PRIORITY: SHOULD, CATEGORY: Maintainability ]
+REQS-NR.REQUIREMENT-mobile-usability: "Mobile Usability" [ url: "#REQS-NR.REQUIREMENT-mobile-usability", PRIORITY: COULD, CATEGORY: Usability ]
+REQS-NR.GROUP-audience-scale: "Audience Scale" [ url: "#REQS-NR.GROUP-audience-scale" ]
+REQS-NR.GROUP-live-continuity: "Live Continuity" [ url: "#REQS-NR.GROUP-live-continuity" ]
+REQS-NR.GROUP-data-protection: "Data Protection" [ url: "#REQS-NR.GROUP-data-protection" ]

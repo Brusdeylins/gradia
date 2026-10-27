@@ -1,0 +1,45 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DG.TERM-event: Event [ url: "#REQS-DG.TERM-event", type: TERM, primary: true ]
+REQS-SP.PREMISE-audience-bound: "Ten Thousand Attendees Is the Upper Bound" [ url: "#REQS-SP.PREMISE-audience-bound", type: PREMISE ]
+REQS-SP.PREMISE-two-languages: "German and English Cover All Events" [ url: "#REQS-SP.PREMISE-two-languages", type: PREMISE ]
+REQS-SP.PREMISE-start-surge: "Connection Surge at Event Start" [ url: "#REQS-SP.PREMISE-start-surge", type: PREMISE ]
+REQS-DR.RULE-single-session: "Single Active Session per Event" [ url: "#REQS-DR.RULE-single-session", type: RULE ]
+REQS-DR.RULE-access-grant: "Access Requires List or Pattern Match" [ url: "#REQS-DR.RULE-access-grant", type: RULE ]
+REQS-DR.RULE-single-channel: "Single Active Channel" [ url: "#REQS-DR.RULE-single-channel", type: RULE ]
+REQS-DR.RULE-initial-channel: "Initial Channel Becomes Active" [ url: "#REQS-DR.RULE-initial-channel", type: RULE ]
+REQS-DR.RULE-anonymize: "Anonymization on Event Finish" [ url: "#REQS-DR.RULE-anonymize", type: RULE ]
+REQS-DR.RULE-like-count: "Likes Conserved as Count on Finish" [ url: "#REQS-DR.RULE-like-count", type: RULE ]
+REQS-DR.RULE-token-format: "Token Format and Validity" [ url: "#REQS-DR.RULE-token-format", type: RULE ]
+REQS-DR.RULE-no-accounts: "No Permanent User Accounts" [ url: "#REQS-DR.RULE-no-accounts", type: RULE ]
+REQS-DR.RULE-manager-retained: "Manager Retained for Export" [ url: "#REQS-DR.RULE-manager-retained", type: RULE ]
+REQS-DR.RULE-administrator-access: "Administrator Bypasses the Access List" [ url: "#REQS-DR.RULE-administrator-access", type: RULE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+
+REQS-DG.TERM-event --(premises)--> REQS-SP.PREMISE-audience-bound
+REQS-DG.TERM-event --(premises)--> REQS-SP.PREMISE-two-languages
+REQS-DG.TERM-event --(premises)--> REQS-SP.PREMISE-start-surge
+REQS-DR.RULE-single-session --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-access-grant --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-single-channel --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-initial-channel --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-like-count --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-token-format --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-no-accounts --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-manager-retained --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-administrator-access --(governs)--> REQS-DG.TERM-event
+DATA-DM.ENTITY-event --(terms)--> REQS-DG.TERM-event

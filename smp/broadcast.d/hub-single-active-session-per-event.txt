@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DR.RULE-single-session: "Single Active Session per Event" [ url: "#REQS-DR.RULE-single-session", type: RULE, primary: true ]
+REQS-DG.TERM-event: Event [ url: "#REQS-DG.TERM-event", type: TERM ]
+REQS-DG.TERM-user: User [ url: "#REQS-DG.TERM-user", type: TERM ]
+REQS-DG.TERM-sessiontoken: "Session Token" [ url: "#REQS-DG.TERM-sessiontoken", type: TERM ]
+REQS-FR.REQUIREMENT-parallel-access: "Limit Parallel Access" [ url: "#REQS-FR.REQUIREMENT-parallel-access", type: REQUIREMENT ]
+REQS-SP.PREMISE-url-leakage: "Access URLs Forwarded Beyond the Audience" [ url: "#REQS-SP.PREMISE-url-leakage", type: PREMISE ]
+REQS-UC.USE-CASE-authenticate: "Authenticate via Email Token" [ url: "#REQS-UC.USE-CASE-authenticate", type: USE-CASE ]
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume: consume [ url: "#DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume", type: TRANSITION ]
+DATA-AM.PERMISSION-attendee-prove-email: "Prove the Email Address" [ url: "#DATA-AM.PERMISSION-attendee-prove-email", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-sessions: "Administer the Sessions" [ url: "#DATA-AM.PERMISSION-administrator-sessions", type: PERMISSION ]
+TEST-TC.TEST-CASE-single-session: "Second Login Closes First Session" [ url: "#TEST-TC.TEST-CASE-single-session", type: TEST-CASE ]
+
+REQS-DR.RULE-single-session --(governs)--> REQS-DG.TERM-user
+REQS-DR.RULE-single-session --(governs)--> REQS-DG.TERM-sessiontoken
+REQS-DR.RULE-single-session --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-single-session --(constrains)--> REQS-FR.REQUIREMENT-parallel-access
+REQS-DR.RULE-single-session --(premises)--> REQS-SP.PREMISE-url-leakage
+REQS-UC.USE-CASE-authenticate --(rules)--> REQS-DR.RULE-single-session
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume --(rules)--> REQS-DR.RULE-single-session
+DATA-AM.PERMISSION-attendee-prove-email --(rules)--> REQS-DR.RULE-single-session
+DATA-AM.PERMISSION-administrator-sessions --(rules)--> REQS-DR.RULE-single-session
+TEST-TC.TEST-CASE-single-session --(verifies)--> REQS-DR.RULE-single-session

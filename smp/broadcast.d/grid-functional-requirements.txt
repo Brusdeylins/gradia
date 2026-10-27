@@ -1,0 +1,69 @@
+#type grid
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+#config grid-columns-max 2
+
+REQS-FR.REQUIREMENT-authentication: "User Authentication" [ url: "#REQS-FR.REQUIREMENT-authentication", parent: REQS-FR.GROUP-access, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-parallel-access: "Limit Parallel Access" [ url: "#REQS-FR.REQUIREMENT-parallel-access", parent: REQS-FR.GROUP-access, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-questions: "Ask Questions" [ url: "#REQS-FR.REQUIREMENT-questions", parent: REQS-FR.GROUP-interaction, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-chat: "Chat Messages" [ url: "#REQS-FR.REQUIREMENT-chat", parent: REQS-FR.GROUP-interaction, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-likes: "Like Messages" [ url: "#REQS-FR.REQUIREMENT-likes", parent: REQS-FR.GROUP-interaction, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-replies: "Reply to Chat Messages" [ url: "#REQS-FR.REQUIREMENT-replies", parent: REQS-FR.GROUP-interaction, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-name-appearance: "Configurable Name Appearance" [ url: "#REQS-FR.REQUIREMENT-name-appearance", parent: REQS-FR.GROUP-privacy-controls, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-display-options: "Personal Display Filtering" [ url: "#REQS-FR.REQUIREMENT-display-options", parent: REQS-FR.GROUP-client-experience, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-client-sentiment: "Client-Side Sentiment Analysis" [ url: "#REQS-FR.REQUIREMENT-client-sentiment", parent: REQS-FR.GROUP-moderating, PRIORITY: COULD ]
+REQS-FR.REQUIREMENT-server-sentiment: "Server-Side Sentiment Analysis" [ url: "#REQS-FR.REQUIREMENT-server-sentiment", parent: REQS-FR.GROUP-moderating, PRIORITY: COULD ]
+REQS-FR.REQUIREMENT-message-editing: "Edit and Delete Messages" [ url: "#REQS-FR.REQUIREMENT-message-editing", parent: REQS-FR.GROUP-interaction, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-question-tags: "Tag Question Messages" [ url: "#REQS-FR.REQUIREMENT-question-tags", parent: REQS-FR.GROUP-interaction, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-moderation: "Moderate Chat and Questions" [ url: "#REQS-FR.REQUIREMENT-moderation", parent: REQS-FR.GROUP-moderating, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-forward-presenter: "Forward Inputs to Presenter" [ url: "#REQS-FR.REQUIREMENT-forward-presenter", parent: REQS-FR.GROUP-moderating, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-answer-inputs: "Answer Attendee Inputs" [ url: "#REQS-FR.REQUIREMENT-answer-inputs", parent: REQS-FR.GROUP-moderating, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-moderator-messages: "Moderator-Authored Messages" [ url: "#REQS-FR.REQUIREMENT-moderator-messages", parent: REQS-FR.GROUP-moderating, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-export-inputs: "Export Attendee Inputs" [ url: "#REQS-FR.REQUIREMENT-export-inputs", parent: REQS-FR.GROUP-moderating, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-presenter-hints: "Presenter Hints and Alerts" [ url: "#REQS-FR.REQUIREMENT-presenter-hints", parent: REQS-FR.GROUP-moderating, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-sort-filter: "Sort and Filter Messages" [ url: "#REQS-FR.REQUIREMENT-sort-filter", parent: REQS-FR.GROUP-moderating, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-manage-app: "Manage Embedded Application" [ url: "#REQS-FR.REQUIREMENT-manage-app", parent: REQS-FR.GROUP-streaming, PRIORITY: COULD ]
+REQS-FR.REQUIREMENT-browser-access: "Browser Access" [ url: "#REQS-FR.REQUIREMENT-browser-access", parent: REQS-FR.GROUP-access, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-individual-url: "Individual Event Access URL" [ url: "#REQS-FR.REQUIREMENT-individual-url", parent: REQS-FR.GROUP-access, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-personalized-url: "Personalized Event Access URL" [ url: "#REQS-FR.REQUIREMENT-personalized-url", parent: REQS-FR.GROUP-access, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-automatic-url: "Automatic Event Access URL" [ url: "#REQS-FR.REQUIREMENT-automatic-url", parent: REQS-FR.GROUP-access, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-resource-url: "Direct Resource Access URL" [ url: "#REQS-FR.REQUIREMENT-resource-url", parent: REQS-FR.GROUP-access, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-gdpr-eu: "GDPR-Compliant EU Processing" [ url: "#REQS-FR.REQUIREMENT-gdpr-eu", parent: REQS-FR.GROUP-privacy-controls, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-user-consent: "Explicit User Consent" [ url: "#REQS-FR.REQUIREMENT-user-consent", parent: REQS-FR.GROUP-privacy-controls, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-info-messages: "Login and Interaction Messages" [ url: "#REQS-FR.REQUIREMENT-info-messages", parent: REQS-FR.GROUP-client-experience, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-multi-provider: "Multiple Streaming Providers" [ url: "#REQS-FR.REQUIREMENT-multi-provider", parent: REQS-FR.GROUP-streaming, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-provider-switch: "Live Provider Switching" [ url: "#REQS-FR.REQUIREMENT-provider-switch", parent: REQS-FR.GROUP-streaming, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-registration-import: "Import Registered Attendees" [ url: "#REQS-FR.REQUIREMENT-registration-import", parent: REQS-FR.GROUP-registration, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-registration-export: "Return Access URLs to Registration" [ url: "#REQS-FR.REQUIREMENT-registration-export", parent: REQS-FR.GROUP-registration, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-event-portability: "Import and Export Event" [ url: "#REQS-FR.REQUIREMENT-event-portability", parent: REQS-FR.GROUP-registration, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-event-stats: "General Event Statistics" [ url: "#REQS-FR.REQUIREMENT-event-stats", parent: REQS-FR.GROUP-statistics, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-debug-stats: "Debugging Statistics" [ url: "#REQS-FR.REQUIREMENT-debug-stats", parent: REQS-FR.GROUP-statistics, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-channel-stats: "Channel Statistics" [ url: "#REQS-FR.REQUIREMENT-channel-stats", parent: REQS-FR.GROUP-statistics, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-user-stats: "User Statistics" [ url: "#REQS-FR.REQUIREMENT-user-stats", parent: REQS-FR.GROUP-statistics, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-stats-snapshots: "Periodic Statistics Snapshots" [ url: "#REQS-FR.REQUIREMENT-stats-snapshots", parent: REQS-FR.GROUP-statistics, PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-config-propagation: "Live Configuration Propagation" [ url: "#REQS-FR.REQUIREMENT-config-propagation", PRIORITY: MUST ]
+REQS-FR.REQUIREMENT-presenter-dashboard: "Presenter Dashboard" [ url: "#REQS-FR.REQUIREMENT-presenter-dashboard", parent: REQS-FR.GROUP-moderating, PRIORITY: COULD ]
+REQS-FR.REQUIREMENT-mc-feedback: "Multiple-Choice Feedback" [ url: "#REQS-FR.REQUIREMENT-mc-feedback", parent: REQS-FR.GROUP-interaction, PRIORITY: COULD ]
+REQS-FR.REQUIREMENT-mobile: "Mobile Device Support" [ url: "#REQS-FR.REQUIREMENT-mobile", parent: REQS-FR.GROUP-client-experience, PRIORITY: COULD ]
+REQS-FR.REQUIREMENT-language-switch: "In-Session Language Switching" [ url: "#REQS-FR.REQUIREMENT-language-switch", parent: REQS-FR.GROUP-client-experience, PRIORITY: SHOULD ]
+REQS-FR.REQUIREMENT-theme-toggle: "Light and Dark Theme" [ url: "#REQS-FR.REQUIREMENT-theme-toggle", parent: REQS-FR.GROUP-client-experience, PRIORITY: COULD ]
+REQS-FR.REQUIREMENT-deleted-placeholder: "Deleted Message Placeholder" [ url: "#REQS-FR.REQUIREMENT-deleted-placeholder", parent: REQS-FR.GROUP-interaction, PRIORITY: SHOULD ]
+REQS-FR.GROUP-access: "Event Access" [ url: "#REQS-FR.GROUP-access" ]
+REQS-FR.GROUP-interaction: "Audience Interaction" [ url: "#REQS-FR.GROUP-interaction" ]
+REQS-FR.GROUP-privacy-controls: "Privacy Controls" [ url: "#REQS-FR.GROUP-privacy-controls" ]
+REQS-FR.GROUP-client-experience: "Client Experience" [ url: "#REQS-FR.GROUP-client-experience" ]
+REQS-FR.GROUP-moderating: Moderation [ url: "#REQS-FR.GROUP-moderating" ]
+REQS-FR.GROUP-streaming: Streaming [ url: "#REQS-FR.GROUP-streaming" ]
+REQS-FR.GROUP-registration: "Registration Exchange" [ url: "#REQS-FR.GROUP-registration" ]
+REQS-FR.GROUP-statistics: Statistics [ url: "#REQS-FR.GROUP-statistics" ]

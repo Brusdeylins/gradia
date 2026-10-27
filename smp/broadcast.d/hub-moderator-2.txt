@@ -1,0 +1,47 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UP.ROLE-moderator: Moderator [ url: "#REQS-UP.ROLE-moderator", type: ROLE, primary: true ]
+REQS-DG.TERM-moderator: Moderator [ url: "#REQS-DG.TERM-moderator", type: TERM ]
+REQS-UP.PERSONA-moderator-chat: Markus [ url: "#REQS-UP.PERSONA-moderator-chat", type: PERSONA ]
+REQS-UP.PERSONA-moderator-qa: Peter [ url: "#REQS-UP.PERSONA-moderator-qa", type: PERSONA ]
+REQS-DW.WORKFLOW-run-broadcast-event: "Run Broadcast Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event", type: WORKFLOW ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event: "Rehearse Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event", type: ACTIVITY ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction: "Moderate Interaction" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction", type: ACTIVITY ]
+REQS-UC.USE-CASE-moderate: "Moderate and Forward Messages" [ url: "#REQS-UC.USE-CASE-moderate", type: USE-CASE ]
+REQS-UC.USE-CASE-moderate-chat: "Moderate the Chat Conversation" [ url: "#REQS-UC.USE-CASE-moderate-chat", type: USE-CASE ]
+REQS-UC.USE-CASE-steer-presenter: "Steer the Presenter" [ url: "#REQS-UC.USE-CASE-steer-presenter", type: USE-CASE ]
+DATA-SM.LIFECYCLE-message.TRANSITION-accept: accept [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-accept", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-reject: reject [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-reject", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-forward: forward [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-forward", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-answer: answer [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-answer", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-suspend: suspend [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-suspend", type: TRANSITION ]
+ARCH-CV.ENTITY-operator: "Event Operator" [ url: "#ARCH-CV.ENTITY-operator", type: ENTITY ]
+
+REQS-UP.ROLE-moderator --(term)--> REQS-DG.TERM-moderator
+REQS-UP.PERSONA-moderator-chat --(roles)--> REQS-UP.ROLE-moderator
+REQS-UP.PERSONA-moderator-qa --(roles)--> REQS-UP.ROLE-moderator
+REQS-DW.WORKFLOW-run-broadcast-event --(actors)--> REQS-UP.ROLE-moderator
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-rehearse-event --(actor)--> REQS-UP.ROLE-moderator
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction --(actor)--> REQS-UP.ROLE-moderator
+REQS-UC.USE-CASE-moderate --(actor)--> REQS-UP.ROLE-moderator
+REQS-UC.USE-CASE-moderate-chat --(actor)--> REQS-UP.ROLE-moderator
+REQS-UC.USE-CASE-steer-presenter --(actor)--> REQS-UP.ROLE-moderator
+DATA-SM.LIFECYCLE-message.TRANSITION-accept --(actor)--> REQS-UP.ROLE-moderator
+DATA-SM.LIFECYCLE-message.TRANSITION-reject --(actor)--> REQS-UP.ROLE-moderator
+DATA-SM.LIFECYCLE-message.TRANSITION-forward --(actor)--> REQS-UP.ROLE-moderator
+DATA-SM.LIFECYCLE-message.TRANSITION-answer --(actor)--> REQS-UP.ROLE-moderator
+DATA-SM.LIFECYCLE-message.TRANSITION-suspend --(actor)--> REQS-UP.ROLE-moderator
+ARCH-CV.ENTITY-operator --(actors)--> REQS-UP.ROLE-moderator

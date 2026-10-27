@@ -1,0 +1,58 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-role: Role [ url: "#DATA-DM.ENTITY-role", type: ENTITY ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY, primary: true ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-DM.ENTITY-authorizationtoken: AuthorizationToken [ url: "#DATA-DM.ENTITY-authorizationtoken", type: ENTITY ]
+DATA-DM.ENTITY-sessiontoken: SessionToken [ url: "#DATA-DM.ENTITY-sessiontoken", type: ENTITY ]
+DATA-DM.ENTITY-userstatistic: UserStatistic [ url: "#DATA-DM.ENTITY-userstatistic", type: ENTITY ]
+REQS-FR.REQUIREMENT-authentication: "User Authentication" [ url: "#REQS-FR.REQUIREMENT-authentication", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-likes: "Like Messages" [ url: "#REQS-FR.REQUIREMENT-likes", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-name-appearance: "Configurable Name Appearance" [ url: "#REQS-FR.REQUIREMENT-name-appearance", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-personalized-url: "Personalized Event Access URL" [ url: "#REQS-FR.REQUIREMENT-personalized-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-registration-import: "Import Registered Attendees" [ url: "#REQS-FR.REQUIREMENT-registration-import", type: REQUIREMENT ]
+REQS-UC.USE-CASE-authenticate: "Authenticate via Email Token" [ url: "#REQS-UC.USE-CASE-authenticate", type: USE-CASE ]
+REQS-UC.USE-CASE-chat-during-event: "Chat During the Event" [ url: "#REQS-UC.USE-CASE-chat-during-event", type: USE-CASE ]
+REQS-UC.USE-CASE-create-event: "Create Event from Registration Import" [ url: "#REQS-UC.USE-CASE-create-event", type: USE-CASE ]
+REQS-UC.USE-CASE-publish-start-finish: "Publish, Start, and Finish Event" [ url: "#REQS-UC.USE-CASE-publish-start-finish", type: USE-CASE ]
+REQS-UC.USE-CASE-administer-event: "Administer Any Event" [ url: "#REQS-UC.USE-CASE-administer-event", type: USE-CASE ]
+ARCH-FV.COMPONENT-auth: "Authentication Service" [ url: "#ARCH-FV.COMPONENT-auth", type: COMPONENT ]
+ARCH-QP.TACTIC-privacy: "Privacy by Design" [ url: "#ARCH-QP.TACTIC-privacy", type: TACTIC ]
+ARCH-DD.DECISION-no-accounts: "Privacy by design with no permanent user accounts" [ url: "#ARCH-DD.DECISION-no-accounts", type: DECISION ]
+
+DATA-DM.ENTITY-user --(requirements)--> REQS-FR.REQUIREMENT-authentication
+DATA-DM.ENTITY-user --(requirements)--> REQS-FR.REQUIREMENT-name-appearance
+DATA-DM.ENTITY-user --(requirements)--> REQS-FR.REQUIREMENT-likes
+DATA-DM.ENTITY-user --(requirements)--> REQS-FR.REQUIREMENT-personalized-url
+DATA-DM.ENTITY-user --(requirements)--> REQS-FR.REQUIREMENT-registration-import
+DATA-DM.ENTITY-user --(use-cases)--> REQS-UC.USE-CASE-authenticate
+DATA-DM.ENTITY-user --(use-cases)--> REQS-UC.USE-CASE-create-event
+DATA-DM.ENTITY-user --(use-cases)--> REQS-UC.USE-CASE-chat-during-event
+DATA-DM.ENTITY-user --(use-cases)--> REQS-UC.USE-CASE-publish-start-finish
+DATA-DM.ENTITY-user --(use-cases)--> REQS-UC.USE-CASE-administer-event
+ARCH-FV.COMPONENT-auth --(owns)--> DATA-DM.ENTITY-user
+ARCH-QP.TACTIC-privacy --(affects)--> DATA-DM.ENTITY-user
+ARCH-DD.DECISION-no-accounts --(affects)--> DATA-DM.ENTITY-user
+DATA-DM.ENTITY-event --(accessList)-->[0..n] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-user --(roles)-->[0..n] DATA-DM.ENTITY-role
+DATA-DM.ENTITY-user --(likes)-->[0..n] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-user --(sentMessages)-->[0..n] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-user --(statistics)-->[0..n] DATA-DM.ENTITY-userstatistic
+DATA-DM.ENTITY-message --(sender)-->[0..1] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-message --(liker)-->[0..n] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-authorizationtoken --(user)-->[1] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-sessiontoken --(user)-->[1] DATA-DM.ENTITY-user

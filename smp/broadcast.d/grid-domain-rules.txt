@@ -1,0 +1,34 @@
+#type grid
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+#config grid-columns-max 4
+
+REQS-DR.RULE-single-session: "Single Active Session per Event" [ url: "#REQS-DR.RULE-single-session", CATEGORY: Constraint, SOURCE: Business ]
+REQS-DR.RULE-access-grant: "Access Requires List or Pattern Match" [ url: "#REQS-DR.RULE-access-grant", CATEGORY: Constraint, SOURCE: Business ]
+REQS-DR.RULE-single-channel: "Single Active Channel" [ url: "#REQS-DR.RULE-single-channel", CATEGORY: Constraint, SOURCE: Domain ]
+REQS-DR.RULE-initial-channel: "Initial Channel Becomes Active" [ url: "#REQS-DR.RULE-initial-channel", CATEGORY: Derivation, SOURCE: Domain ]
+REQS-DR.RULE-single-resource: "Single Active Resource per Channel" [ url: "#REQS-DR.RULE-single-resource", CATEGORY: Constraint, SOURCE: Domain ]
+REQS-DR.RULE-initial-resource: "Initial Resource Becomes Active" [ url: "#REQS-DR.RULE-initial-resource", CATEGORY: Derivation, SOURCE: Domain ]
+REQS-DR.RULE-moderation-gate: "Moderation Determines Initial Visibility" [ url: "#REQS-DR.RULE-moderation-gate", CATEGORY: Action, SOURCE: Business ]
+REQS-DR.RULE-moderator-accept: "Moderator Messages Auto-Accepted" [ url: "#REQS-DR.RULE-moderator-accept", CATEGORY: Action, SOURCE: Business ]
+REQS-DR.RULE-forward-lock: "Forwarded Messages Are Immutable" [ url: "#REQS-DR.RULE-forward-lock", CATEGORY: Constraint, SOURCE: Business ]
+REQS-DR.RULE-type-states: "State Set Depends on Message Type" [ url: "#REQS-DR.RULE-type-states", CATEGORY: Constraint, SOURCE: Domain ]
+REQS-DR.RULE-sentiment-threshold: "Sentiment Auto-Decision Threshold" [ url: "#REQS-DR.RULE-sentiment-threshold", CATEGORY: Derivation, SOURCE: Business ]
+REQS-DR.RULE-anonymize: "Anonymization on Event Finish" [ url: "#REQS-DR.RULE-anonymize", CATEGORY: Action, SOURCE: Law ]
+REQS-DR.RULE-like-count: "Likes Conserved as Count on Finish" [ url: "#REQS-DR.RULE-like-count", CATEGORY: Action, SOURCE: Business ]
+REQS-DR.RULE-token-format: "Token Format and Validity" [ url: "#REQS-DR.RULE-token-format", CATEGORY: Constraint, SOURCE: Business ]
+REQS-DR.RULE-no-accounts: "No Permanent User Accounts" [ url: "#REQS-DR.RULE-no-accounts", CATEGORY: Constraint, SOURCE: Law ]
+REQS-DR.RULE-manager-retained: "Manager Retained for Export" [ url: "#REQS-DR.RULE-manager-retained", CATEGORY: Constraint, SOURCE: Business ]
+REQS-DR.RULE-administrator-access: "Administrator Bypasses the Access List" [ url: "#REQS-DR.RULE-administrator-access", CATEGORY: Constraint, SOURCE: Business ]
+REQS-DR.RULE-administrator-bootstrap: "Administrator Bootstrapped by Configuration" [ url: "#REQS-DR.RULE-administrator-bootstrap", CATEGORY: Constraint, SOURCE: Business ]

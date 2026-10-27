@@ -1,0 +1,49 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DR.RULE-token-format: "Token Format and Validity" [ url: "#REQS-DR.RULE-token-format", type: RULE, primary: true ]
+REQS-DG.TERM-event: Event [ url: "#REQS-DG.TERM-event", type: TERM ]
+REQS-DG.TERM-authtoken: "Authorization Token" [ url: "#REQS-DG.TERM-authtoken", type: TERM ]
+REQS-DG.TERM-registration-system: "Event Registration System" [ url: "#REQS-DG.TERM-registration-system", type: TERM ]
+REQS-FR.REQUIREMENT-automatic-url: "Automatic Event Access URL" [ url: "#REQS-FR.REQUIREMENT-automatic-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-registration-export: "Return Access URLs to Registration" [ url: "#REQS-FR.REQUIREMENT-registration-export", type: REQUIREMENT ]
+REQS-SP.PREMISE-email-at-hand: "Attendees Read Their Email While Logging In" [ url: "#REQS-SP.PREMISE-email-at-hand", type: PREMISE ]
+REQS-SP.PREMISE-email-delivery: "Email Gateway Delivers Tokens Within Minutes" [ url: "#REQS-SP.PREMISE-email-delivery", type: PREMISE ]
+REQS-UC.USE-CASE-authenticate: "Authenticate via Email Token" [ url: "#REQS-UC.USE-CASE-authenticate", type: USE-CASE ]
+REQS-UC.USE-CASE-create-event: "Create Event from Registration Import" [ url: "#REQS-UC.USE-CASE-create-event", type: USE-CASE ]
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume: consume [ url: "#DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume", type: TRANSITION ]
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume-automatic: consume [ url: "#DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume-automatic", type: TRANSITION ]
+DATA-AM.PERMISSION-attendee-prove-email: "Prove the Email Address" [ url: "#DATA-AM.PERMISSION-attendee-prove-email", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-tokens: "Issue Access Tokens" [ url: "#DATA-AM.PERMISSION-manager-tokens", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-auth-tokens: "Administer the Authorization Tokens" [ url: "#DATA-AM.PERMISSION-administrator-auth-tokens", type: PERMISSION ]
+TEST-TC.TEST-CASE-auto-token: "URL Token Skips Login Dialog" [ url: "#TEST-TC.TEST-CASE-auto-token", type: TEST-CASE ]
+TEST-TC.TEST-CASE-url-format: "Returned URL Format" [ url: "#TEST-TC.TEST-CASE-url-format", type: TEST-CASE ]
+
+REQS-DR.RULE-token-format --(governs)--> REQS-DG.TERM-authtoken
+REQS-DR.RULE-token-format --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-token-format --(governs)--> REQS-DG.TERM-registration-system
+REQS-DR.RULE-token-format --(constrains)--> REQS-FR.REQUIREMENT-registration-export
+REQS-DR.RULE-token-format --(constrains)--> REQS-FR.REQUIREMENT-automatic-url
+REQS-DR.RULE-token-format --(premises)--> REQS-SP.PREMISE-email-at-hand
+REQS-DR.RULE-token-format --(premises)--> REQS-SP.PREMISE-email-delivery
+REQS-UC.USE-CASE-authenticate --(rules)--> REQS-DR.RULE-token-format
+REQS-UC.USE-CASE-create-event --(rules)--> REQS-DR.RULE-token-format
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume --(rules)--> REQS-DR.RULE-token-format
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume-automatic --(rules)--> REQS-DR.RULE-token-format
+DATA-AM.PERMISSION-attendee-prove-email --(rules)--> REQS-DR.RULE-token-format
+DATA-AM.PERMISSION-manager-tokens --(rules)--> REQS-DR.RULE-token-format
+DATA-AM.PERMISSION-administrator-auth-tokens --(rules)--> REQS-DR.RULE-token-format
+TEST-TC.TEST-CASE-auto-token --(verifies)--> REQS-DR.RULE-token-format
+TEST-TC.TEST-CASE-url-format --(verifies)--> REQS-DR.RULE-token-format

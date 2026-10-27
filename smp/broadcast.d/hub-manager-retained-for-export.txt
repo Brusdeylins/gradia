@@ -1,0 +1,43 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DR.RULE-manager-retained: "Manager Retained for Export" [ url: "#REQS-DR.RULE-manager-retained", type: RULE, primary: true ]
+REQS-DG.TERM-event: Event [ url: "#REQS-DG.TERM-event", type: TERM ]
+REQS-DG.TERM-manager: Manager [ url: "#REQS-DG.TERM-manager", type: TERM ]
+REQS-DG.TERM-role: Role [ url: "#REQS-DG.TERM-role", type: TERM ]
+REQS-DG.TERM-anonymization: Anonymization [ url: "#REQS-DG.TERM-anonymization", type: TERM ]
+REQS-FR.REQUIREMENT-export-inputs: "Export Attendee Inputs" [ url: "#REQS-FR.REQUIREMENT-export-inputs", type: REQUIREMENT ]
+REQS-DW.WORKFLOW-run-broadcast-event.HANDOFF-hand-over: hand-over [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.HANDOFF-hand-over", type: HANDOFF ]
+REQS-UC.USE-CASE-configure-event: "Configure the Event" [ url: "#REQS-UC.USE-CASE-configure-event", type: USE-CASE ]
+REQS-UC.USE-CASE-export-data: "Export Anonymized Event Data" [ url: "#REQS-UC.USE-CASE-export-data", type: USE-CASE ]
+DATA-AM.PERMISSION-manager-configure-event: "Configure the Event" [ url: "#DATA-AM.PERMISSION-manager-configure-event", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-delete-event: "Delete the Event" [ url: "#DATA-AM.PERMISSION-manager-delete-event", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-export-messages: "Export the Messages" [ url: "#DATA-AM.PERMISSION-manager-export-messages", type: PERMISSION ]
+DATA-AM.PERMISSION-administrator-roles: "Administer the Roles" [ url: "#DATA-AM.PERMISSION-administrator-roles", type: PERMISSION ]
+TEST-TC.TEST-CASE-manager-retained: "Manager Role Survives Finish" [ url: "#TEST-TC.TEST-CASE-manager-retained", type: TEST-CASE ]
+
+REQS-DR.RULE-manager-retained --(governs)--> REQS-DG.TERM-role
+REQS-DR.RULE-manager-retained --(governs)--> REQS-DG.TERM-manager
+REQS-DR.RULE-manager-retained --(governs)--> REQS-DG.TERM-event
+REQS-DR.RULE-manager-retained --(governs)--> REQS-DG.TERM-anonymization
+REQS-DR.RULE-manager-retained --(constrains)--> REQS-FR.REQUIREMENT-export-inputs
+REQS-DW.WORKFLOW-run-broadcast-event.HANDOFF-hand-over --(rules)--> REQS-DR.RULE-manager-retained
+REQS-UC.USE-CASE-configure-event --(rules)--> REQS-DR.RULE-manager-retained
+REQS-UC.USE-CASE-export-data --(rules)--> REQS-DR.RULE-manager-retained
+DATA-AM.PERMISSION-manager-configure-event --(rules)--> REQS-DR.RULE-manager-retained
+DATA-AM.PERMISSION-manager-delete-event --(rules)--> REQS-DR.RULE-manager-retained
+DATA-AM.PERMISSION-manager-export-messages --(rules)--> REQS-DR.RULE-manager-retained
+DATA-AM.PERMISSION-administrator-roles --(rules)--> REQS-DR.RULE-manager-retained
+TEST-TC.TEST-CASE-manager-retained --(verifies)--> REQS-DR.RULE-manager-retained

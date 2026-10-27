@@ -1,0 +1,26 @@
+#type grid
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+#config grid-columns-max 4
+
+ARCH-AT.MAXIM-privacy-first: "Privacy over Convenience" [ url: "#ARCH-AT.MAXIM-privacy-first" ]
+ARCH-AT.MAXIM-scale-out: "Scale Out over Scale Up" [ url: "#ARCH-AT.MAXIM-scale-out" ]
+ARCH-AT.MAXIM-buy-before-build: "Buy before Build" [ url: "#ARCH-AT.MAXIM-buy-before-build" ]
+ARCH-AT.MAXIM-simplicity: "Simplicity over Flexibility" [ url: "#ARCH-AT.MAXIM-simplicity" ]
+ARCH-AT.PRINCIPLE-stateless-tiers: "Stateless Connection Tiers" [ url: "#ARCH-AT.PRINCIPLE-stateless-tiers" ]
+ARCH-AT.PRINCIPLE-no-permanent-identity: "No Permanent Identity" [ url: "#ARCH-AT.PRINCIPLE-no-permanent-identity" ]
+ARCH-AT.PRINCIPLE-logical-resources: "Logical over Physical Resources" [ url: "#ARCH-AT.PRINCIPLE-logical-resources" ]
+ARCH-AT.PRINCIPLE-one-process: "One Service Process" [ url: "#ARCH-AT.PRINCIPLE-one-process" ]
+ARCH-AT.PRINCIPLE-isolated-persistence: "Isolated Persistence" [ url: "#ARCH-AT.PRINCIPLE-isolated-persistence" ]
+ARCH-AT.PRINCIPLE-shared-contracts: "Shared Contracts in Code" [ url: "#ARCH-AT.PRINCIPLE-shared-contracts" ]

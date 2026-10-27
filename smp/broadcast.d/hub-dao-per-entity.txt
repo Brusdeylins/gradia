@@ -1,0 +1,43 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-CP.CODE-PATTERN-permission-check: "Declarative Permission Check" [ url: "#ARCH-CP.CODE-PATTERN-permission-check", type: CODE-PATTERN ]
+ARCH-CP.CODE-PATTERN-dao-per-entity: "DAO per Entity" [ url: "#ARCH-CP.CODE-PATTERN-dao-per-entity", type: CODE-PATTERN, primary: true ]
+ARCH-CP.CODE-PATTERN-versioned-write: "Version-Checked Write" [ url: "#ARCH-CP.CODE-PATTERN-versioned-write", type: CODE-PATTERN ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-channel: Channel [ url: "#DATA-DM.ENTITY-channel", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-DM.ENTITY-authorizationtoken: AuthorizationToken [ url: "#DATA-DM.ENTITY-authorizationtoken", type: ENTITY ]
+DATA-DM.ENTITY-sessiontoken: SessionToken [ url: "#DATA-DM.ENTITY-sessiontoken", type: ENTITY ]
+ARCH-TS.TIER-server.COMPONENT-persistence-layer: "Persistence Layer" [ url: "#ARCH-TS.TIER-server.COMPONENT-persistence-layer", type: COMPONENT ]
+ARCH-TS.TIER-database.COMPONENT-database: Database [ url: "#ARCH-TS.TIER-database.COMPONENT-database", type: COMPONENT ]
+ARCH-QP.TACTIC-typed-contracts: "Shared Typed Contracts" [ url: "#ARCH-QP.TACTIC-typed-contracts", type: TACTIC ]
+ARCH-DD.DECISION-postgresql-store: "PostgreSQL as the single self-hosted relational store" [ url: "#ARCH-DD.DECISION-postgresql-store", type: DECISION ]
+ARCH-DD.DECISION-typed-sql: "Typed SQL builder instead of a full ORM" [ url: "#ARCH-DD.DECISION-typed-sql", type: DECISION ]
+
+ARCH-CP.CODE-PATTERN-dao-per-entity --(applies-to)--> ARCH-FV.COMPONENT-service
+ARCH-CP.CODE-PATTERN-dao-per-entity --(applies-to)--> DATA-DM.ENTITY-event
+ARCH-CP.CODE-PATTERN-dao-per-entity --(applies-to)--> DATA-DM.ENTITY-channel
+ARCH-CP.CODE-PATTERN-dao-per-entity --(applies-to)--> DATA-DM.ENTITY-message
+ARCH-CP.CODE-PATTERN-dao-per-entity --(applies-to)--> DATA-DM.ENTITY-authorizationtoken
+ARCH-CP.CODE-PATTERN-dao-per-entity --(applies-to)--> DATA-DM.ENTITY-sessiontoken
+ARCH-CP.CODE-PATTERN-dao-per-entity --(realizes)--> ARCH-QP.TACTIC-typed-contracts
+ARCH-CP.CODE-PATTERN-dao-per-entity --(decided-by)--> ARCH-DD.DECISION-typed-sql
+ARCH-CP.CODE-PATTERN-dao-per-entity --(decided-by)--> ARCH-DD.DECISION-postgresql-store
+ARCH-CP.CODE-PATTERN-dao-per-entity --(tools)--> ARCH-TS.TIER-server.COMPONENT-persistence-layer
+ARCH-CP.CODE-PATTERN-dao-per-entity --(tools)--> ARCH-TS.TIER-database.COMPONENT-database
+ARCH-CP.CODE-PATTERN-dao-per-entity --(uses)--> ARCH-CP.CODE-PATTERN-permission-check
+ARCH-CP.CODE-PATTERN-versioned-write --(uses)--> ARCH-CP.CODE-PATTERN-dao-per-entity

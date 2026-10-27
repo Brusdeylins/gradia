@@ -1,0 +1,45 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT, KIND: Service ]
+ARCH-FV.COMPONENT-statistics: "Statistics Service" [ url: "#ARCH-FV.COMPONENT-statistics", type: COMPONENT, primary: true, KIND: Module ]
+ARCH-FV.COMPONENT-database: Database [ url: "#ARCH-FV.COMPONENT-database", type: COMPONENT, KIND: Component ]
+REQS-FR.REQUIREMENT-event-stats: "General Event Statistics" [ url: "#REQS-FR.REQUIREMENT-event-stats", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-debug-stats: "Debugging Statistics" [ url: "#REQS-FR.REQUIREMENT-debug-stats", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-channel-stats: "Channel Statistics" [ url: "#REQS-FR.REQUIREMENT-channel-stats", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-user-stats: "User Statistics" [ url: "#REQS-FR.REQUIREMENT-user-stats", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-stats-snapshots: "Periodic Statistics Snapshots" [ url: "#REQS-FR.REQUIREMENT-stats-snapshots", type: REQUIREMENT ]
+DATA-DM.ENTITY-eventstatistic: EventStatistic [ url: "#DATA-DM.ENTITY-eventstatistic", type: ENTITY ]
+DATA-DM.ENTITY-channelstatistic: ChannelStatistic [ url: "#DATA-DM.ENTITY-channelstatistic", type: ENTITY ]
+DATA-DM.ENTITY-userstatistic: UserStatistic [ url: "#DATA-DM.ENTITY-userstatistic", type: ENTITY ]
+ARCH-CO.UNIT-stats-scheduler: "Statistics Scheduler" [ url: "#ARCH-CO.UNIT-stats-scheduler", type: UNIT, KIND: Task ]
+ARCH-OV.CONCERN-monitoring: "Live Statistics Monitoring" [ url: "#ARCH-OV.CONCERN-monitoring", type: CONCERN ]
+ARCH-QP.TACTIC-observability: "Snapshot Observability" [ url: "#ARCH-QP.TACTIC-observability", type: TACTIC ]
+ARCH-DD.DECISION-modular-service: "One modular service process instead of microservices" [ url: "#ARCH-DD.DECISION-modular-service", type: DECISION ]
+
+ARCH-FV.COMPONENT-statistics --(part-of)--> ARCH-FV.COMPONENT-service
+ARCH-FV.COMPONENT-statistics --(realizes)--> REQS-FR.REQUIREMENT-event-stats
+ARCH-FV.COMPONENT-statistics --(realizes)--> REQS-FR.REQUIREMENT-debug-stats
+ARCH-FV.COMPONENT-statistics --(realizes)--> REQS-FR.REQUIREMENT-channel-stats
+ARCH-FV.COMPONENT-statistics --(realizes)--> REQS-FR.REQUIREMENT-user-stats
+ARCH-FV.COMPONENT-statistics --(realizes)--> REQS-FR.REQUIREMENT-stats-snapshots
+ARCH-FV.COMPONENT-statistics --(owns)--> DATA-DM.ENTITY-eventstatistic
+ARCH-FV.COMPONENT-statistics --(owns)--> DATA-DM.ENTITY-channelstatistic
+ARCH-FV.COMPONENT-statistics --(owns)--> DATA-DM.ENTITY-userstatistic
+ARCH-FV.COMPONENT-statistics --(depends-on)--> ARCH-FV.COMPONENT-database
+ARCH-CO.UNIT-stats-scheduler --(hosts)--> ARCH-FV.COMPONENT-statistics
+ARCH-OV.CONCERN-monitoring --(elements)--> ARCH-FV.COMPONENT-statistics
+ARCH-QP.TACTIC-observability --(affects)--> ARCH-FV.COMPONENT-statistics
+ARCH-DD.DECISION-modular-service --(affects)--> ARCH-FV.COMPONENT-statistics

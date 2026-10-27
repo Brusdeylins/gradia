@@ -1,0 +1,67 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DR.RULE-moderation-gate: "Moderation Determines Initial Visibility" [ url: "#REQS-DR.RULE-moderation-gate", type: RULE, primary: true ]
+REQS-DG.TERM-attendee: Attendee [ url: "#REQS-DG.TERM-attendee", type: TERM ]
+REQS-DG.TERM-message: Message [ url: "#REQS-DG.TERM-message", type: TERM ]
+REQS-DG.TERM-question: Question [ url: "#REQS-DG.TERM-question", type: TERM ]
+REQS-DG.TERM-chat: Chat [ url: "#REQS-DG.TERM-chat", type: TERM ]
+REQS-FR.REQUIREMENT-questions: "Ask Questions" [ url: "#REQS-FR.REQUIREMENT-questions", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-chat: "Chat Messages" [ url: "#REQS-FR.REQUIREMENT-chat", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-moderation: "Moderate Chat and Questions" [ url: "#REQS-FR.REQUIREMENT-moderation", type: REQUIREMENT ]
+REQS-SP.PREMISE-interaction-abuse: "Abusive Interaction from the Audience" [ url: "#REQS-SP.PREMISE-interaction-abuse", type: PREMISE ]
+REQS-UC.USE-CASE-ask-question: "Ask a Question" [ url: "#REQS-UC.USE-CASE-ask-question", type: USE-CASE ]
+REQS-UC.USE-CASE-chat-during-event: "Chat During the Event" [ url: "#REQS-UC.USE-CASE-chat-during-event", type: USE-CASE ]
+REQS-UC.USE-CASE-moderate-chat: "Moderate the Chat Conversation" [ url: "#REQS-UC.USE-CASE-moderate-chat", type: USE-CASE ]
+DATA-SM.LIFECYCLE-message.TRANSITION-accept: accept [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-accept", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-accept-sentiment: accept [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-accept-sentiment", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-accept-unmoderated: accept [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-accept-unmoderated", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-reject: reject [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-reject", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-reject-sentiment: reject [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-reject-sentiment", type: TRANSITION ]
+DATA-SM.LIFECYCLE-message.TRANSITION-resubmit: resubmit [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-resubmit", type: TRANSITION ]
+DATA-AM.PERMISSION-attendee-send-message: "Send Messages" [ url: "#DATA-AM.PERMISSION-attendee-send-message", type: PERMISSION ]
+DATA-AM.PERMISSION-attendee-read-message: "Read Visible Messages" [ url: "#DATA-AM.PERMISSION-attendee-read-message", type: PERMISSION ]
+DATA-AM.PERMISSION-attendee-track-own: "Track Own Messages" [ url: "#DATA-AM.PERMISSION-attendee-track-own", type: PERMISSION ]
+DATA-AM.PERMISSION-attendee-edit-own: "Correct Own Messages" [ url: "#DATA-AM.PERMISSION-attendee-edit-own", type: PERMISSION ]
+DATA-AM.PERMISSION-moderator-decide: "Decide Pending Messages" [ url: "#DATA-AM.PERMISSION-moderator-decide", type: PERMISSION ]
+TEST-TC.TEST-CASE-moderated-pending: "Moderated Question Starts Pending" [ url: "#TEST-TC.TEST-CASE-moderated-pending", type: TEST-CASE ]
+TEST-TC.TEST-CASE-unmoderated-accepted: "Unmoderated Chat Starts Accepted" [ url: "#TEST-TC.TEST-CASE-unmoderated-accepted", type: TEST-CASE ]
+TEST-TC.TEST-CASE-name-appearance: "Chat Message Shows Configured Name" [ url: "#TEST-TC.TEST-CASE-name-appearance", type: TEST-CASE ]
+
+REQS-DR.RULE-moderation-gate --(governs)--> REQS-DG.TERM-message
+REQS-DR.RULE-moderation-gate --(governs)--> REQS-DG.TERM-chat
+REQS-DR.RULE-moderation-gate --(governs)--> REQS-DG.TERM-question
+REQS-DR.RULE-moderation-gate --(governs)--> REQS-DG.TERM-attendee
+REQS-DR.RULE-moderation-gate --(constrains)--> REQS-FR.REQUIREMENT-moderation
+REQS-DR.RULE-moderation-gate --(constrains)--> REQS-FR.REQUIREMENT-chat
+REQS-DR.RULE-moderation-gate --(constrains)--> REQS-FR.REQUIREMENT-questions
+REQS-DR.RULE-moderation-gate --(premises)--> REQS-SP.PREMISE-interaction-abuse
+REQS-UC.USE-CASE-ask-question --(rules)--> REQS-DR.RULE-moderation-gate
+REQS-UC.USE-CASE-chat-during-event --(rules)--> REQS-DR.RULE-moderation-gate
+REQS-UC.USE-CASE-moderate-chat --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-SM.LIFECYCLE-message.TRANSITION-accept --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-SM.LIFECYCLE-message.TRANSITION-accept-sentiment --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-SM.LIFECYCLE-message.TRANSITION-accept-unmoderated --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-SM.LIFECYCLE-message.TRANSITION-reject --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-SM.LIFECYCLE-message.TRANSITION-reject-sentiment --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-SM.LIFECYCLE-message.TRANSITION-resubmit --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-AM.PERMISSION-attendee-send-message --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-AM.PERMISSION-attendee-read-message --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-AM.PERMISSION-attendee-track-own --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-AM.PERMISSION-attendee-edit-own --(rules)--> REQS-DR.RULE-moderation-gate
+DATA-AM.PERMISSION-moderator-decide --(rules)--> REQS-DR.RULE-moderation-gate
+TEST-TC.TEST-CASE-moderated-pending --(verifies)--> REQS-DR.RULE-moderation-gate
+TEST-TC.TEST-CASE-unmoderated-accepted --(verifies)--> REQS-DR.RULE-moderation-gate
+TEST-TC.TEST-CASE-name-appearance --(verifies)--> REQS-DR.RULE-moderation-gate

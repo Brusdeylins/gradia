@@ -1,0 +1,35 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+UXUI-DS.STORYBOARD-support-request: "Attendee Gets Support from a Moderator" [ url: "#UXUI-DS.STORYBOARD-support-request", type: STORYBOARD, primary: true ]
+REQS-UP.PERSONA-attendee: Anna [ url: "#REQS-UP.PERSONA-attendee", type: PERSONA ]
+REQS-UP.PERSONA-moderator-chat: Markus [ url: "#REQS-UP.PERSONA-moderator-chat", type: PERSONA ]
+REQS-UC.USE-CASE-moderate-chat.SCENARIO-moderate-chat-answer: "Answer an Attendee Directly" [ url: "#REQS-UC.USE-CASE-moderate-chat.SCENARIO-moderate-chat-answer", type: SCENARIO ]
+UXUI-DP.DIALOG-PATTERN-video-sidebar: Video-with-Sidebar [ url: "#UXUI-DP.DIALOG-PATTERN-video-sidebar", type: DIALOG-PATTERN ]
+UXUI-DP.DIALOG-PATTERN-message-stream: "Live Message Stream" [ url: "#UXUI-DP.DIALOG-PATTERN-message-stream", type: DIALOG-PATTERN ]
+UXUI-DP.DIALOG-PATTERN-composer: "Inline Composer" [ url: "#UXUI-DP.DIALOG-PATTERN-composer", type: DIALOG-PATTERN ]
+UXUI-DP.DIALOG-PATTERN-kanban-board: "Kanban Moderation Board" [ url: "#UXUI-DP.DIALOG-PATTERN-kanban-board", type: DIALOG-PATTERN ]
+UXUI-VD.MOCKUP-mockup-attendee-support: "Attendee Support View" [ url: "#UXUI-VD.MOCKUP-mockup-attendee-support", type: MOCKUP ]
+
+UXUI-DS.STORYBOARD-support-request --(actors)-->[1] REQS-UP.PERSONA-attendee
+UXUI-DS.STORYBOARD-support-request --(actors)-->[1] REQS-UP.PERSONA-moderator-chat
+UXUI-DS.STORYBOARD-support-request --(scenario)-->[1] REQS-UC.USE-CASE-moderate-chat.SCENARIO-moderate-chat-answer
+UXUI-DS.STORYBOARD-support-request --(actor)-->[2] REQS-UP.PERSONA-attendee
+UXUI-DS.STORYBOARD-support-request --(patterns)-->[1] UXUI-DP.DIALOG-PATTERN-video-sidebar
+UXUI-DS.STORYBOARD-support-request --(patterns)-->[2] UXUI-DP.DIALOG-PATTERN-composer
+UXUI-DS.STORYBOARD-support-request --(actor)-->[2] REQS-UP.PERSONA-moderator-chat
+UXUI-DS.STORYBOARD-support-request --(patterns)-->[1] UXUI-DP.DIALOG-PATTERN-kanban-board
+UXUI-DS.STORYBOARD-support-request --(patterns)-->[1] UXUI-DP.DIALOG-PATTERN-message-stream
+UXUI-VD.MOCKUP-mockup-attendee-support --(storyboard)-->[1] UXUI-DS.STORYBOARD-support-request

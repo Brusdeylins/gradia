@@ -1,0 +1,32 @@
+#type grid
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+#config grid-columns-max 4
+
+ARCH-DD.DECISION-mqtt-transport: "Use MQTT over WebSockets as the live transport" [ url: "#ARCH-DD.DECISION-mqtt-transport", STATUS: Accepted ]
+ARCH-DD.DECISION-self-host: "Self-host on Hetzner instead of public cloud" [ url: "#ARCH-DD.DECISION-self-host", STATUS: Accepted ]
+ARCH-DD.DECISION-no-accounts: "Privacy by design with no permanent user accounts" [ url: "#ARCH-DD.DECISION-no-accounts", STATUS: Accepted ]
+ARCH-DD.DECISION-email-token: "Email one-time token as the authentication factor" [ url: "#ARCH-DD.DECISION-email-token", STATUS: Accepted ]
+ARCH-DD.DECISION-channel-resource: "Decouple logical Channels from physical provider Resources" [ url: "#ARCH-DD.DECISION-channel-resource", STATUS: Accepted ]
+ARCH-DD.DECISION-provider-streaming: "Embed provider-delivered video instead of self-hosted streaming" [ url: "#ARCH-DD.DECISION-provider-streaming", STATUS: Accepted ]
+ARCH-DD.DECISION-modular-service: "One modular service process instead of microservices" [ url: "#ARCH-DD.DECISION-modular-service", STATUS: Accepted ]
+ARCH-DD.DECISION-typed-common: "TypeScript with a shared common module across client and server" [ url: "#ARCH-DD.DECISION-typed-common", STATUS: Accepted ]
+ARCH-DD.DECISION-vue-client: "Vue.js single-page client with headless widgets" [ url: "#ARCH-DD.DECISION-vue-client", STATUS: Accepted ]
+ARCH-DD.DECISION-haproxy-edge: "HAProxy as a two-stage router and proxy edge" [ url: "#ARCH-DD.DECISION-haproxy-edge", STATUS: Accepted ]
+ARCH-DD.DECISION-network-segments: "Three network segments with an isolated database subnet" [ url: "#ARCH-DD.DECISION-network-segments", STATUS: Accepted ]
+ARCH-DD.DECISION-compose-orchestration: "Single-host Docker Compose instead of a cluster orchestrator" [ url: "#ARCH-DD.DECISION-compose-orchestration", STATUS: Accepted ]
+ARCH-DD.DECISION-postgresql-store: "PostgreSQL as the single self-hosted relational store" [ url: "#ARCH-DD.DECISION-postgresql-store", STATUS: Accepted ]
+ARCH-DD.DECISION-typed-sql: "Typed SQL builder instead of a full ORM" [ url: "#ARCH-DD.DECISION-typed-sql", STATUS: Accepted ]
+ARCH-DD.DECISION-logical-dumps: "Logical dumps instead of continuous archiving for backup" [ url: "#ARCH-DD.DECISION-logical-dumps", STATUS: Accepted ]
+ARCH-DD.DECISION-cdn-edge: "Serve the static client from a CDN edge outside the data center" [ url: "#ARCH-DD.DECISION-cdn-edge", STATUS: Accepted ]

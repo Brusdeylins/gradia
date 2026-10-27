@@ -1,0 +1,49 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-QP.TACTIC-connection-scaling: "Connection Scaling" [ url: "#ARCH-QP.TACTIC-connection-scaling", type: TACTIC, primary: true, QUALITY: Scalability ]
+REQS-NR.REQUIREMENT-attendee-scale: "Concurrent Attendee Scale" [ url: "#REQS-NR.REQUIREMENT-attendee-scale", type: REQUIREMENT ]
+REQS-NR.REQUIREMENT-scalability: "Horizontal Scalability" [ url: "#REQS-NR.REQUIREMENT-scalability", type: REQUIREMENT ]
+ARCH-AT.MAXIM-scale-out: "Scale Out over Scale Up" [ url: "#ARCH-AT.MAXIM-scale-out", type: MAXIM ]
+ARCH-AT.PRINCIPLE-stateless-tiers: "Stateless Connection Tiers" [ url: "#ARCH-AT.PRINCIPLE-stateless-tiers", type: PRINCIPLE ]
+ARCH-AP.PATTERN-stateless-pool: "Load-Balanced Stateless Pool" [ url: "#ARCH-AP.PATTERN-stateless-pool", type: PATTERN ]
+ARCH-FV.COMPONENT-router: Router [ url: "#ARCH-FV.COMPONENT-router", type: COMPONENT ]
+ARCH-FV.COMPONENT-proxy: Proxy [ url: "#ARCH-FV.COMPONENT-proxy", type: COMPONENT ]
+ARCH-FV.COMPONENT-relay: Relay [ url: "#ARCH-FV.COMPONENT-relay", type: COMPONENT ]
+ARCH-CO.UNIT-router: "Router Process" [ url: "#ARCH-CO.UNIT-router", type: UNIT ]
+ARCH-CO.UNIT-proxy-pool: "Proxy Pool" [ url: "#ARCH-CO.UNIT-proxy-pool", type: UNIT ]
+ARCH-CO.UNIT-relay-pool: "Relay Pool" [ url: "#ARCH-CO.UNIT-relay-pool", type: UNIT ]
+ARCH-DV.NODE-router: "Edge Router" [ url: "#ARCH-DV.NODE-router", type: NODE ]
+ARCH-DV.NODE-proxy: "Proxy Servers" [ url: "#ARCH-DV.NODE-proxy", type: NODE ]
+ARCH-DV.NODE-relay: "Relay Brokers" [ url: "#ARCH-DV.NODE-relay", type: NODE ]
+ARCH-OV.CONCERN-scaling: "Horizontal Scaling" [ url: "#ARCH-OV.CONCERN-scaling", type: CONCERN ]
+ARCH-TS.TIER-server.COMPONENT-container-orchestration: "Container Orchestration" [ url: "#ARCH-TS.TIER-server.COMPONENT-container-orchestration", type: COMPONENT ]
+
+ARCH-QP.TACTIC-connection-scaling --(addresses)--> REQS-NR.REQUIREMENT-attendee-scale
+ARCH-QP.TACTIC-connection-scaling --(addresses)--> REQS-NR.REQUIREMENT-scalability
+ARCH-QP.TACTIC-connection-scaling --(guided-by)--> ARCH-AT.MAXIM-scale-out
+ARCH-QP.TACTIC-connection-scaling --(guided-by)--> ARCH-AT.PRINCIPLE-stateless-tiers
+ARCH-QP.TACTIC-connection-scaling --(patterns)--> ARCH-AP.PATTERN-stateless-pool
+ARCH-QP.TACTIC-connection-scaling --(affects)--> ARCH-FV.COMPONENT-router
+ARCH-QP.TACTIC-connection-scaling --(affects)--> ARCH-FV.COMPONENT-proxy
+ARCH-QP.TACTIC-connection-scaling --(affects)--> ARCH-FV.COMPONENT-relay
+ARCH-QP.TACTIC-connection-scaling --(affects)--> ARCH-CO.UNIT-router
+ARCH-QP.TACTIC-connection-scaling --(affects)--> ARCH-CO.UNIT-proxy-pool
+ARCH-QP.TACTIC-connection-scaling --(affects)--> ARCH-CO.UNIT-relay-pool
+ARCH-QP.TACTIC-connection-scaling --(affects)--> ARCH-DV.NODE-router
+ARCH-QP.TACTIC-connection-scaling --(affects)--> ARCH-DV.NODE-proxy
+ARCH-QP.TACTIC-connection-scaling --(affects)--> ARCH-DV.NODE-relay
+ARCH-QP.TACTIC-connection-scaling --(operated-by)--> ARCH-OV.CONCERN-scaling
+ARCH-QP.TACTIC-connection-scaling --(tools)--> ARCH-TS.TIER-server.COMPONENT-container-orchestration

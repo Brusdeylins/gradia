@@ -1,0 +1,30 @@
+#type grid
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+#config grid-columns-max 4
+
+REQS-SP.PREMISE-audience-known: "Registered Audience Known in Advance" [ url: "#REQS-SP.PREMISE-audience-known", TYPE: Assumption, FAILURE-LIKELIHOOD: Low, FAILURE-IMPACT: High ]
+REQS-SP.PREMISE-email-at-hand: "Attendees Read Their Email While Logging In" [ url: "#REQS-SP.PREMISE-email-at-hand", TYPE: Assumption, FAILURE-LIKELIHOOD: Medium, FAILURE-IMPACT: Medium ]
+REQS-SP.PREMISE-audience-bound: "Ten Thousand Attendees Is the Upper Bound" [ url: "#REQS-SP.PREMISE-audience-bound", TYPE: Assumption, FAILURE-LIKELIHOOD: Low, FAILURE-IMPACT: High ]
+REQS-SP.PREMISE-websocket-passage: "Attendee Networks Pass WebSocket Traffic" [ url: "#REQS-SP.PREMISE-websocket-passage", TYPE: Assumption, FAILURE-LIKELIHOOD: Medium, FAILURE-IMPACT: High ]
+REQS-SP.PREMISE-two-languages: "German and English Cover All Events" [ url: "#REQS-SP.PREMISE-two-languages", TYPE: Assumption, FAILURE-LIKELIHOOD: Low, FAILURE-IMPACT: Low ]
+REQS-SP.PREMISE-provider-delivery: "Streaming Providers Deliver the Video" [ url: "#REQS-SP.PREMISE-provider-delivery", TYPE: Dependency, FAILURE-LIKELIHOOD: Medium, FAILURE-IMPACT: High ]
+REQS-SP.PREMISE-registration-exchange: "Registration System Exchanges Attendee Data" [ url: "#REQS-SP.PREMISE-registration-exchange", TYPE: Dependency, FAILURE-LIKELIHOOD: Low, FAILURE-IMPACT: Medium ]
+REQS-SP.PREMISE-email-delivery: "Email Gateway Delivers Tokens Within Minutes" [ url: "#REQS-SP.PREMISE-email-delivery", TYPE: Dependency, FAILURE-LIKELIHOOD: Medium, FAILURE-IMPACT: High ]
+REQS-SP.PREMISE-translation-service: "Translation Service Available During Events" [ url: "#REQS-SP.PREMISE-translation-service", TYPE: Dependency, FAILURE-LIKELIHOOD: Medium, FAILURE-IMPACT: Low ]
+REQS-SP.PREMISE-eu-hosting: "EU Hosting on Self-Operated Infrastructure" [ url: "#REQS-SP.PREMISE-eu-hosting", TYPE: Dependency, FAILURE-LIKELIHOOD: Low, FAILURE-IMPACT: High ]
+REQS-SP.PREMISE-start-surge: "Connection Surge at Event Start" [ url: "#REQS-SP.PREMISE-start-surge", TYPE: Risk, FAILURE-LIKELIHOOD: High, FAILURE-IMPACT: High ]
+REQS-SP.PREMISE-url-leakage: "Access URLs Forwarded Beyond the Audience" [ url: "#REQS-SP.PREMISE-url-leakage", TYPE: Risk, FAILURE-LIKELIHOOD: Medium, FAILURE-IMPACT: Medium ]
+REQS-SP.PREMISE-message-personal-data: "Message Texts Contain Personal Data" [ url: "#REQS-SP.PREMISE-message-personal-data", TYPE: Risk, FAILURE-LIKELIHOOD: High, FAILURE-IMPACT: Medium ]
+REQS-SP.PREMISE-interaction-abuse: "Abusive Interaction from the Audience" [ url: "#REQS-SP.PREMISE-interaction-abuse", TYPE: Risk, FAILURE-LIKELIHOOD: Medium, FAILURE-IMPACT: Medium ]

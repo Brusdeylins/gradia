@@ -1,0 +1,39 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-steer-presenter: "Steer the Presenter" [ url: "#REQS-UC.USE-CASE-steer-presenter", type: USE-CASE, primary: true ]
+REQS-UP.ROLE-moderator: Moderator [ url: "#REQS-UP.ROLE-moderator", type: ROLE ]
+REQS-UP.PERSONA-moderator-qa: Peter [ url: "#REQS-UP.PERSONA-moderator-qa", type: PERSONA ]
+REQS-UJ.JOURNEY-moderate.STEP-support: "Moderate and support the presenter" [ url: "#REQS-UJ.JOURNEY-moderate.STEP-support", type: STEP ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction: "Moderate Interaction" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction", type: ACTIVITY ]
+REQS-FR.REQUIREMENT-presenter-hints: "Presenter Hints and Alerts" [ url: "#REQS-FR.REQUIREMENT-presenter-hints", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-config-propagation: "Live Configuration Propagation" [ url: "#REQS-FR.REQUIREMENT-config-propagation", type: REQUIREMENT ]
+DATA-AM.PERMISSION-attendee-follow-agenda: "Follow the Agenda" [ url: "#DATA-AM.PERMISSION-attendee-follow-agenda", type: PERMISSION ]
+DATA-AM.PERMISSION-moderator-enter-event: "Enter the Event" [ url: "#DATA-AM.PERMISSION-moderator-enter-event", type: PERMISSION ]
+DATA-AM.PERMISSION-moderator-steer-presenter: "Steer the Presenter" [ url: "#DATA-AM.PERMISSION-moderator-steer-presenter", type: PERMISSION ]
+UXUI-IC.PRINCIPLE-live-reactivity: "Live Reactivity" [ url: "#UXUI-IC.PRINCIPLE-live-reactivity", type: PRINCIPLE ]
+ARCH-CV.ENTITY-operator: "Event Operator" [ url: "#ARCH-CV.ENTITY-operator", type: ENTITY ]
+
+REQS-UC.USE-CASE-steer-presenter --(actor)--> REQS-UP.ROLE-moderator
+REQS-UC.USE-CASE-steer-presenter --(personas)--> REQS-UP.PERSONA-moderator-qa
+REQS-UC.USE-CASE-steer-presenter --(journeys)--> REQS-UJ.JOURNEY-moderate.STEP-support
+REQS-UC.USE-CASE-steer-presenter --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-moderate-interaction
+REQS-UC.USE-CASE-steer-presenter --(requirements)--> REQS-FR.REQUIREMENT-presenter-hints
+REQS-UC.USE-CASE-steer-presenter --(requirements)--> REQS-FR.REQUIREMENT-config-propagation
+DATA-AM.PERMISSION-attendee-follow-agenda --(use-cases)--> REQS-UC.USE-CASE-steer-presenter
+DATA-AM.PERMISSION-moderator-enter-event --(use-cases)--> REQS-UC.USE-CASE-steer-presenter
+DATA-AM.PERMISSION-moderator-steer-presenter --(use-cases)--> REQS-UC.USE-CASE-steer-presenter
+UXUI-IC.PRINCIPLE-live-reactivity --(use-cases)--> REQS-UC.USE-CASE-steer-presenter
+ARCH-CV.ENTITY-operator --(use-cases)--> REQS-UC.USE-CASE-steer-presenter

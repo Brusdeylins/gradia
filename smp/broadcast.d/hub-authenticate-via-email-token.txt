@@ -1,0 +1,77 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-join-event: "Join Event and Watch Stream" [ url: "#REQS-UC.USE-CASE-join-event", type: USE-CASE ]
+REQS-UC.USE-CASE-authenticate: "Authenticate via Email Token" [ url: "#REQS-UC.USE-CASE-authenticate", type: USE-CASE, primary: true ]
+REQS-UP.ROLE-attendee: Attendee [ url: "#REQS-UP.ROLE-attendee", type: ROLE ]
+REQS-UJ.JOURNEY-attend.STEP-authenticate: "Authenticate via email token" [ url: "#REQS-UJ.JOURNEY-attend.STEP-authenticate", type: STEP ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event: "Attend Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event", type: ACTIVITY ]
+REQS-FR.REQUIREMENT-authentication: "User Authentication" [ url: "#REQS-FR.REQUIREMENT-authentication", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-parallel-access: "Limit Parallel Access" [ url: "#REQS-FR.REQUIREMENT-parallel-access", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-personalized-url: "Personalized Event Access URL" [ url: "#REQS-FR.REQUIREMENT-personalized-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-automatic-url: "Automatic Event Access URL" [ url: "#REQS-FR.REQUIREMENT-automatic-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-gdpr-eu: "GDPR-Compliant EU Processing" [ url: "#REQS-FR.REQUIREMENT-gdpr-eu", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-user-consent: "Explicit User Consent" [ url: "#REQS-FR.REQUIREMENT-user-consent", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-info-messages: "Login and Interaction Messages" [ url: "#REQS-FR.REQUIREMENT-info-messages", type: REQUIREMENT ]
+REQS-DR.RULE-single-session: "Single Active Session per Event" [ url: "#REQS-DR.RULE-single-session", type: RULE ]
+REQS-DR.RULE-access-grant: "Access Requires List or Pattern Match" [ url: "#REQS-DR.RULE-access-grant", type: RULE ]
+REQS-DR.RULE-token-format: "Token Format and Validity" [ url: "#REQS-DR.RULE-token-format", type: RULE ]
+DATA-DM.ENTITY-role: Role [ url: "#DATA-DM.ENTITY-role", type: ENTITY ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-DM.ENTITY-authorizationtoken: AuthorizationToken [ url: "#DATA-DM.ENTITY-authorizationtoken", type: ENTITY ]
+DATA-DM.ENTITY-sessiontoken: SessionToken [ url: "#DATA-DM.ENTITY-sessiontoken", type: ENTITY ]
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-send: send [ url: "#DATA-SM.LIFECYCLE-authtoken.TRANSITION-send", type: TRANSITION ]
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume: consume [ url: "#DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume", type: TRANSITION ]
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume-automatic: consume [ url: "#DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume-automatic", type: TRANSITION ]
+DATA-AM.PERMISSION-attendee-enter-event: "Enter the Event" [ url: "#DATA-AM.PERMISSION-attendee-enter-event", type: PERMISSION ]
+DATA-AM.PERMISSION-attendee-prove-email: "Prove the Email Address" [ url: "#DATA-AM.PERMISSION-attendee-prove-email", type: PERMISSION ]
+UXUI-IC.PRINCIPLE-frictionless-join: "Frictionless Joining" [ url: "#UXUI-IC.PRINCIPLE-frictionless-join", type: PRINCIPLE ]
+UXUI-IC.PRINCIPLE-familiar-conventions: "Familiar Conventions" [ url: "#UXUI-IC.PRINCIPLE-familiar-conventions", type: PRINCIPLE ]
+ARCH-CV.ENTITY-attendee: Attendee [ url: "#ARCH-CV.ENTITY-attendee", type: ENTITY ]
+ARCH-CV.ENTITY-email: "Email Gateway" [ url: "#ARCH-CV.ENTITY-email", type: ENTITY ]
+TEST-TC.TEST-CASE-valid-token: "Valid Token Grants Access" [ url: "#TEST-TC.TEST-CASE-valid-token", type: TEST-CASE ]
+TEST-TC.TEST-CASE-unauthorized: "Unauthorized Email Rejected" [ url: "#TEST-TC.TEST-CASE-unauthorized", type: TEST-CASE ]
+TEST-TC.TEST-CASE-auto-token: "URL Token Skips Login Dialog" [ url: "#TEST-TC.TEST-CASE-auto-token", type: TEST-CASE ]
+
+REQS-UC.USE-CASE-join-event --(includes)--> REQS-UC.USE-CASE-authenticate
+REQS-UC.USE-CASE-authenticate --(actor)--> REQS-UP.ROLE-attendee
+REQS-UC.USE-CASE-authenticate --(journeys)--> REQS-UJ.JOURNEY-attend.STEP-authenticate
+REQS-UC.USE-CASE-authenticate --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event
+REQS-UC.USE-CASE-authenticate --(requirements)--> REQS-FR.REQUIREMENT-authentication
+REQS-UC.USE-CASE-authenticate --(requirements)--> REQS-FR.REQUIREMENT-user-consent
+REQS-UC.USE-CASE-authenticate --(requirements)--> REQS-FR.REQUIREMENT-parallel-access
+REQS-UC.USE-CASE-authenticate --(requirements)--> REQS-FR.REQUIREMENT-personalized-url
+REQS-UC.USE-CASE-authenticate --(requirements)--> REQS-FR.REQUIREMENT-automatic-url
+REQS-UC.USE-CASE-authenticate --(requirements)--> REQS-FR.REQUIREMENT-info-messages
+REQS-UC.USE-CASE-authenticate --(requirements)--> REQS-FR.REQUIREMENT-gdpr-eu
+REQS-UC.USE-CASE-authenticate --(rules)--> REQS-DR.RULE-access-grant
+REQS-UC.USE-CASE-authenticate --(rules)--> REQS-DR.RULE-single-session
+REQS-UC.USE-CASE-authenticate --(rules)--> REQS-DR.RULE-token-format
+DATA-DM.ENTITY-role --(use-cases)--> REQS-UC.USE-CASE-authenticate
+DATA-DM.ENTITY-user --(use-cases)--> REQS-UC.USE-CASE-authenticate
+DATA-DM.ENTITY-authorizationtoken --(use-cases)--> REQS-UC.USE-CASE-authenticate
+DATA-DM.ENTITY-sessiontoken --(use-cases)--> REQS-UC.USE-CASE-authenticate
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-send --(use-cases)--> REQS-UC.USE-CASE-authenticate
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume --(use-cases)--> REQS-UC.USE-CASE-authenticate
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume-automatic --(use-cases)--> REQS-UC.USE-CASE-authenticate
+DATA-AM.PERMISSION-attendee-enter-event --(use-cases)--> REQS-UC.USE-CASE-authenticate
+DATA-AM.PERMISSION-attendee-prove-email --(use-cases)--> REQS-UC.USE-CASE-authenticate
+UXUI-IC.PRINCIPLE-frictionless-join --(use-cases)--> REQS-UC.USE-CASE-authenticate
+UXUI-IC.PRINCIPLE-familiar-conventions --(use-cases)--> REQS-UC.USE-CASE-authenticate
+ARCH-CV.ENTITY-attendee --(use-cases)--> REQS-UC.USE-CASE-authenticate
+ARCH-CV.ENTITY-email --(use-cases)--> REQS-UC.USE-CASE-authenticate
+TEST-TC.TEST-CASE-valid-token --(verifies)--> REQS-UC.USE-CASE-authenticate
+TEST-TC.TEST-CASE-unauthorized --(verifies)--> REQS-UC.USE-CASE-authenticate
+TEST-TC.TEST-CASE-auto-token --(verifies)--> REQS-UC.USE-CASE-authenticate

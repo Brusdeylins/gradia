@@ -1,0 +1,43 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UP.ROLE-attendee: Attendee [ url: "#REQS-UP.ROLE-attendee", type: ROLE, primary: true ]
+REQS-DG.TERM-attendee: Attendee [ url: "#REQS-DG.TERM-attendee", type: TERM ]
+REQS-UP.PERSONA-attendee: Anna [ url: "#REQS-UP.PERSONA-attendee", type: PERSONA ]
+REQS-DW.WORKFLOW-run-broadcast-event: "Run Broadcast Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event", type: WORKFLOW ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event: "Attend Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event", type: ACTIVITY ]
+REQS-UC.USE-CASE-join-event: "Join Event and Watch Stream" [ url: "#REQS-UC.USE-CASE-join-event", type: USE-CASE ]
+REQS-UC.USE-CASE-authenticate: "Authenticate via Email Token" [ url: "#REQS-UC.USE-CASE-authenticate", type: USE-CASE ]
+REQS-UC.USE-CASE-ask-question: "Ask a Question" [ url: "#REQS-UC.USE-CASE-ask-question", type: USE-CASE ]
+REQS-UC.USE-CASE-chat-during-event: "Chat During the Event" [ url: "#REQS-UC.USE-CASE-chat-during-event", type: USE-CASE ]
+DATA-SM.LIFECYCLE-message.TRANSITION-resubmit: resubmit [ url: "#DATA-SM.LIFECYCLE-message.TRANSITION-resubmit", type: TRANSITION ]
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-send: send [ url: "#DATA-SM.LIFECYCLE-authtoken.TRANSITION-send", type: TRANSITION ]
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume: consume [ url: "#DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume", type: TRANSITION ]
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume-automatic: consume [ url: "#DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume-automatic", type: TRANSITION ]
+ARCH-CV.ENTITY-attendee: Attendee [ url: "#ARCH-CV.ENTITY-attendee", type: ENTITY ]
+
+REQS-UP.ROLE-attendee --(term)--> REQS-DG.TERM-attendee
+REQS-UP.PERSONA-attendee --(roles)--> REQS-UP.ROLE-attendee
+REQS-DW.WORKFLOW-run-broadcast-event --(actors)--> REQS-UP.ROLE-attendee
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-attend-event --(actor)--> REQS-UP.ROLE-attendee
+REQS-UC.USE-CASE-join-event --(actor)--> REQS-UP.ROLE-attendee
+REQS-UC.USE-CASE-authenticate --(actor)--> REQS-UP.ROLE-attendee
+REQS-UC.USE-CASE-ask-question --(actor)--> REQS-UP.ROLE-attendee
+REQS-UC.USE-CASE-chat-during-event --(actor)--> REQS-UP.ROLE-attendee
+DATA-SM.LIFECYCLE-message.TRANSITION-resubmit --(actor)--> REQS-UP.ROLE-attendee
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-send --(actor)--> REQS-UP.ROLE-attendee
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume --(actor)--> REQS-UP.ROLE-attendee
+DATA-SM.LIFECYCLE-authtoken.TRANSITION-consume-automatic --(actor)--> REQS-UP.ROLE-attendee
+ARCH-CV.ENTITY-attendee --(actors)--> REQS-UP.ROLE-attendee

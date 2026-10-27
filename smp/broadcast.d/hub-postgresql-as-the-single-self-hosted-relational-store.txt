@@ -1,0 +1,39 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-DD.DECISION-postgresql-store: "PostgreSQL as the single self-hosted relational store" [ url: "#ARCH-DD.DECISION-postgresql-store", type: DECISION, primary: true, STATUS: Accepted ]
+REQS-NR.REQUIREMENT-gdpr: "GDPR Compliance" [ url: "#REQS-NR.REQUIREMENT-gdpr", type: REQUIREMENT ]
+REQS-NR.REQUIREMENT-recovery: "Event Setup Recovery" [ url: "#REQS-NR.REQUIREMENT-recovery", type: REQUIREMENT ]
+REQS-NR.REQUIREMENT-cost: "Per-Event Cost Efficiency" [ url: "#REQS-NR.REQUIREMENT-cost", type: REQUIREMENT ]
+REQS-SP.PREMISE-eu-hosting: "EU Hosting on Self-Operated Infrastructure" [ url: "#REQS-SP.PREMISE-eu-hosting", type: PREMISE ]
+ARCH-AT.MAXIM-buy-before-build: "Buy before Build" [ url: "#ARCH-AT.MAXIM-buy-before-build", type: MAXIM ]
+ARCH-FV.COMPONENT-database: Database [ url: "#ARCH-FV.COMPONENT-database", type: COMPONENT ]
+ARCH-CO.UNIT-database: "Database Server" [ url: "#ARCH-CO.UNIT-database", type: UNIT ]
+ARCH-DV.TIER-database-tier: Database [ url: "#ARCH-DV.TIER-database-tier", type: TIER ]
+ARCH-DV.NODE-database: "Database Server" [ url: "#ARCH-DV.NODE-database", type: NODE ]
+ARCH-TS.TIER-database.COMPONENT-database: Database [ url: "#ARCH-TS.TIER-database.COMPONENT-database", type: COMPONENT ]
+ARCH-CP.CODE-PATTERN-dao-per-entity: "DAO per Entity" [ url: "#ARCH-CP.CODE-PATTERN-dao-per-entity", type: CODE-PATTERN ]
+
+ARCH-DD.DECISION-postgresql-store --(driven-by)--> REQS-NR.REQUIREMENT-gdpr
+ARCH-DD.DECISION-postgresql-store --(driven-by)--> REQS-NR.REQUIREMENT-recovery
+ARCH-DD.DECISION-postgresql-store --(driven-by)--> REQS-NR.REQUIREMENT-cost
+ARCH-DD.DECISION-postgresql-store --(driven-by)--> REQS-SP.PREMISE-eu-hosting
+ARCH-DD.DECISION-postgresql-store --(guided-by)--> ARCH-AT.MAXIM-buy-before-build
+ARCH-DD.DECISION-postgresql-store --(affects)--> ARCH-FV.COMPONENT-database
+ARCH-DD.DECISION-postgresql-store --(affects)--> ARCH-CO.UNIT-database
+ARCH-DD.DECISION-postgresql-store --(affects)--> ARCH-DV.NODE-database
+ARCH-DD.DECISION-postgresql-store --(affects)--> ARCH-DV.TIER-database-tier
+ARCH-DD.DECISION-postgresql-store --(decides)--> ARCH-TS.TIER-database.COMPONENT-database
+ARCH-CP.CODE-PATTERN-dao-per-entity --(decided-by)--> ARCH-DD.DECISION-postgresql-store

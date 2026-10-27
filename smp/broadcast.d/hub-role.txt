@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-DG.TERM-attendee: Attendee [ url: "#REQS-DG.TERM-attendee", type: TERM ]
+REQS-DG.TERM-manager: Manager [ url: "#REQS-DG.TERM-manager", type: TERM ]
+REQS-DG.TERM-moderator: Moderator [ url: "#REQS-DG.TERM-moderator", type: TERM ]
+REQS-DG.TERM-presenter: Presenter [ url: "#REQS-DG.TERM-presenter", type: TERM ]
+REQS-DG.TERM-administrator: Administrator [ url: "#REQS-DG.TERM-administrator", type: TERM ]
+REQS-DG.TERM-role: Role [ url: "#REQS-DG.TERM-role", type: TERM, primary: true ]
+REQS-DR.RULE-anonymize: "Anonymization on Event Finish" [ url: "#REQS-DR.RULE-anonymize", type: RULE ]
+REQS-DR.RULE-no-accounts: "No Permanent User Accounts" [ url: "#REQS-DR.RULE-no-accounts", type: RULE ]
+REQS-DR.RULE-manager-retained: "Manager Retained for Export" [ url: "#REQS-DR.RULE-manager-retained", type: RULE ]
+REQS-DR.RULE-administrator-bootstrap: "Administrator Bootstrapped by Configuration" [ url: "#REQS-DR.RULE-administrator-bootstrap", type: RULE ]
+DATA-DM.ENTITY-role: Role [ url: "#DATA-DM.ENTITY-role", type: ENTITY ]
+
+REQS-DG.TERM-attendee --(broader)--> REQS-DG.TERM-role
+REQS-DG.TERM-manager --(broader)--> REQS-DG.TERM-role
+REQS-DG.TERM-moderator --(broader)--> REQS-DG.TERM-role
+REQS-DG.TERM-presenter --(broader)--> REQS-DG.TERM-role
+REQS-DG.TERM-administrator --(broader)--> REQS-DG.TERM-role
+REQS-DR.RULE-anonymize --(governs)--> REQS-DG.TERM-role
+REQS-DR.RULE-no-accounts --(governs)--> REQS-DG.TERM-role
+REQS-DR.RULE-manager-retained --(governs)--> REQS-DG.TERM-role
+REQS-DR.RULE-administrator-bootstrap --(governs)--> REQS-DG.TERM-role
+DATA-DM.ENTITY-role --(terms)--> REQS-DG.TERM-role

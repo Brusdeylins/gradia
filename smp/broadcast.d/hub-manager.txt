@@ -1,0 +1,53 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UP.ROLE-manager: Manager [ url: "#REQS-UP.ROLE-manager", type: ROLE, primary: true ]
+REQS-DG.TERM-manager: Manager [ url: "#REQS-DG.TERM-manager", type: TERM ]
+REQS-UP.PERSONA-manager: Manfred [ url: "#REQS-UP.PERSONA-manager", type: PERSONA ]
+REQS-DW.WORKFLOW-run-broadcast-event: "Run Broadcast Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event", type: WORKFLOW ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event: "Plan Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event", type: ACTIVITY ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-invite-attendees: "Invite Attendees" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-invite-attendees", type: ACTIVITY ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live: "Start Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live", type: ACTIVITY ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-finish-event: "Finish Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-finish-event", type: ACTIVITY ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-archive-results: "Archive Results" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-archive-results", type: ACTIVITY ]
+REQS-UC.USE-CASE-configure-event: "Configure the Event" [ url: "#REQS-UC.USE-CASE-configure-event", type: USE-CASE ]
+REQS-UC.USE-CASE-switch-provider: "Switch Streaming Provider" [ url: "#REQS-UC.USE-CASE-switch-provider", type: USE-CASE ]
+REQS-UC.USE-CASE-create-event: "Create Event from Registration Import" [ url: "#REQS-UC.USE-CASE-create-event", type: USE-CASE ]
+REQS-UC.USE-CASE-publish-start-finish: "Publish, Start, and Finish Event" [ url: "#REQS-UC.USE-CASE-publish-start-finish", type: USE-CASE ]
+REQS-UC.USE-CASE-export-data: "Export Anonymized Event Data" [ url: "#REQS-UC.USE-CASE-export-data", type: USE-CASE ]
+DATA-SM.LIFECYCLE-event.TRANSITION-publish: publish [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-publish", type: TRANSITION ]
+DATA-SM.LIFECYCLE-event.TRANSITION-start: start [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-start", type: TRANSITION ]
+DATA-SM.LIFECYCLE-event.TRANSITION-start-unpublished: start [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-start-unpublished", type: TRANSITION ]
+DATA-SM.LIFECYCLE-event.TRANSITION-finish: finish [ url: "#DATA-SM.LIFECYCLE-event.TRANSITION-finish", type: TRANSITION ]
+ARCH-CV.ENTITY-operator: "Event Operator" [ url: "#ARCH-CV.ENTITY-operator", type: ENTITY ]
+
+REQS-UP.ROLE-manager --(term)--> REQS-DG.TERM-manager
+REQS-UP.PERSONA-manager --(roles)--> REQS-UP.ROLE-manager
+REQS-DW.WORKFLOW-run-broadcast-event --(actors)--> REQS-UP.ROLE-manager
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event --(actor)--> REQS-UP.ROLE-manager
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-invite-attendees --(actor)--> REQS-UP.ROLE-manager
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-go-live --(actor)--> REQS-UP.ROLE-manager
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-finish-event --(actor)--> REQS-UP.ROLE-manager
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-archive-results --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-configure-event --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-switch-provider --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-create-event --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-publish-start-finish --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-export-data --(actor)--> REQS-UP.ROLE-manager
+DATA-SM.LIFECYCLE-event.TRANSITION-publish --(actor)--> REQS-UP.ROLE-manager
+DATA-SM.LIFECYCLE-event.TRANSITION-start --(actor)--> REQS-UP.ROLE-manager
+DATA-SM.LIFECYCLE-event.TRANSITION-start-unpublished --(actor)--> REQS-UP.ROLE-manager
+DATA-SM.LIFECYCLE-event.TRANSITION-finish --(actor)--> REQS-UP.ROLE-manager
+ARCH-CV.ENTITY-operator --(actors)--> REQS-UP.ROLE-manager

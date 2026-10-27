@@ -1,0 +1,38 @@
+#type grid
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+#config grid-columns-max 4
+
+REQS-DG.TERM-event: Event [ url: "#REQS-DG.TERM-event", TYPE: Entity ]
+REQS-DG.TERM-attendee: Attendee [ url: "#REQS-DG.TERM-attendee", TYPE: Actor ]
+REQS-DG.TERM-user: User [ url: "#REQS-DG.TERM-user", TYPE: Entity ]
+REQS-DG.TERM-manager: Manager [ url: "#REQS-DG.TERM-manager", TYPE: Actor ]
+REQS-DG.TERM-moderator: Moderator [ url: "#REQS-DG.TERM-moderator", TYPE: Actor ]
+REQS-DG.TERM-presenter: Presenter [ url: "#REQS-DG.TERM-presenter", TYPE: Actor ]
+REQS-DG.TERM-administrator: Administrator [ url: "#REQS-DG.TERM-administrator", TYPE: Actor ]
+REQS-DG.TERM-role: Role [ url: "#REQS-DG.TERM-role", TYPE: Entity ]
+REQS-DG.TERM-channel: Channel [ url: "#REQS-DG.TERM-channel", TYPE: Entity ]
+REQS-DG.TERM-resource: Resource [ url: "#REQS-DG.TERM-resource", TYPE: Entity ]
+REQS-DG.TERM-provider: "Streaming Provider" [ url: "#REQS-DG.TERM-provider", TYPE: Actor ]
+REQS-DG.TERM-message: Message [ url: "#REQS-DG.TERM-message", TYPE: Entity ]
+REQS-DG.TERM-question: Question [ url: "#REQS-DG.TERM-question", TYPE: Entity ]
+REQS-DG.TERM-chat: Chat [ url: "#REQS-DG.TERM-chat", TYPE: Entity ]
+REQS-DG.TERM-support: Support [ url: "#REQS-DG.TERM-support", TYPE: Entity ]
+REQS-DG.TERM-like: Like [ url: "#REQS-DG.TERM-like", TYPE: Entity ]
+REQS-DG.TERM-authtoken: "Authorization Token" [ url: "#REQS-DG.TERM-authtoken", TYPE: Entity ]
+REQS-DG.TERM-sessiontoken: "Session Token" [ url: "#REQS-DG.TERM-sessiontoken", TYPE: Entity ]
+REQS-DG.TERM-accesslist: "Access List" [ url: "#REQS-DG.TERM-accesslist", TYPE: Entity ]
+REQS-DG.TERM-registration-system: "Event Registration System" [ url: "#REQS-DG.TERM-registration-system", TYPE: Actor ]
+REQS-DG.TERM-anonymization: Anonymization [ url: "#REQS-DG.TERM-anonymization", TYPE: Activity ]
+REQS-DG.TERM-sentiment: "Sentiment Analysis" [ url: "#REQS-DG.TERM-sentiment", TYPE: Activity ]

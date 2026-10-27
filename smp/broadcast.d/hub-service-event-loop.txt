@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+ARCH-CO.UNIT-proxy-pool: "Proxy Pool" [ url: "#ARCH-CO.UNIT-proxy-pool", type: UNIT, KIND: Pool ]
+ARCH-CO.UNIT-relay-pool: "Relay Pool" [ url: "#ARCH-CO.UNIT-relay-pool", type: UNIT, KIND: Pool ]
+ARCH-CO.UNIT-service-loop: "Service Event Loop" [ url: "#ARCH-CO.UNIT-service-loop", type: UNIT, primary: true, KIND: EventLoop ]
+ARCH-CO.UNIT-stats-scheduler: "Statistics Scheduler" [ url: "#ARCH-CO.UNIT-stats-scheduler", type: UNIT, KIND: Task ]
+ARCH-CO.UNIT-database: "Database Server" [ url: "#ARCH-CO.UNIT-database", type: UNIT, KIND: Process ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT, KIND: Service ]
+ARCH-FV.COMPONENT-auth: "Authentication Service" [ url: "#ARCH-FV.COMPONENT-auth", type: COMPONENT, KIND: Module ]
+ARCH-FV.COMPONENT-translation: "Translation Service" [ url: "#ARCH-FV.COMPONENT-translation", type: COMPONENT, KIND: Module ]
+ARCH-DV.NODE-service: "Service Containers" [ url: "#ARCH-DV.NODE-service", type: NODE, KIND: Container ]
+ARCH-QP.TACTIC-reactivity: "Real-Time Reactivity" [ url: "#ARCH-QP.TACTIC-reactivity", type: TACTIC ]
+ARCH-DD.DECISION-modular-service: "One modular service process instead of microservices" [ url: "#ARCH-DD.DECISION-modular-service", type: DECISION ]
+
+ARCH-CO.UNIT-proxy-pool --(coordinates-with)--> ARCH-CO.UNIT-service-loop
+ARCH-CO.UNIT-relay-pool --(coordinates-with)--> ARCH-CO.UNIT-service-loop
+ARCH-CO.UNIT-service-loop --(hosts)--> ARCH-FV.COMPONENT-service
+ARCH-CO.UNIT-service-loop --(hosts)--> ARCH-FV.COMPONENT-auth
+ARCH-CO.UNIT-service-loop --(hosts)--> ARCH-FV.COMPONENT-translation
+ARCH-CO.UNIT-service-loop --(coordinates-with)--> ARCH-CO.UNIT-database
+ARCH-CO.UNIT-stats-scheduler --(part-of)--> ARCH-CO.UNIT-service-loop
+ARCH-DV.NODE-service --(hosts)--> ARCH-CO.UNIT-service-loop
+ARCH-QP.TACTIC-reactivity --(affects)--> ARCH-CO.UNIT-service-loop
+ARCH-DD.DECISION-modular-service --(affects)--> ARCH-CO.UNIT-service-loop

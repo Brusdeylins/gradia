@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-FR.GROUP-moderating: Moderation [ url: "#REQS-FR.GROUP-moderating", type: GROUP ]
+REQS-FR.REQUIREMENT-questions: "Ask Questions" [ url: "#REQS-FR.REQUIREMENT-questions", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-chat: "Chat Messages" [ url: "#REQS-FR.REQUIREMENT-chat", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-server-sentiment: "Server-Side Sentiment Analysis" [ url: "#REQS-FR.REQUIREMENT-server-sentiment", type: REQUIREMENT, primary: true ]
+REQS-SP.PREMISE-interaction-abuse: "Abusive Interaction from the Audience" [ url: "#REQS-SP.PREMISE-interaction-abuse", type: PREMISE ]
+REQS-DR.RULE-sentiment-threshold: "Sentiment Auto-Decision Threshold" [ url: "#REQS-DR.RULE-sentiment-threshold", type: RULE ]
+REQS-UC.USE-CASE-ask-question: "Ask a Question" [ url: "#REQS-UC.USE-CASE-ask-question", type: USE-CASE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+TEST-TC.TEST-CASE-sentiment-reject: "Sentiment Auto-Reject Below Threshold" [ url: "#TEST-TC.TEST-CASE-sentiment-reject", type: TEST-CASE ]
+TEST-TC.TEST-CASE-sentiment-accept: "Sentiment Auto-Accept Above Threshold" [ url: "#TEST-TC.TEST-CASE-sentiment-accept", type: TEST-CASE ]
+
+REQS-FR.REQUIREMENT-server-sentiment --(group)--> REQS-FR.GROUP-moderating
+REQS-FR.REQUIREMENT-server-sentiment --(depends-on)--> REQS-FR.REQUIREMENT-chat
+REQS-FR.REQUIREMENT-server-sentiment --(depends-on)--> REQS-FR.REQUIREMENT-questions
+REQS-FR.REQUIREMENT-server-sentiment --(premises)--> REQS-SP.PREMISE-interaction-abuse
+REQS-DR.RULE-sentiment-threshold --(constrains)--> REQS-FR.REQUIREMENT-server-sentiment
+REQS-UC.USE-CASE-ask-question --(requirements)--> REQS-FR.REQUIREMENT-server-sentiment
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-server-sentiment
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-server-sentiment
+TEST-TC.TEST-CASE-sentiment-reject --(verifies)--> REQS-FR.REQUIREMENT-server-sentiment
+TEST-TC.TEST-CASE-sentiment-accept --(verifies)--> REQS-FR.REQUIREMENT-server-sentiment

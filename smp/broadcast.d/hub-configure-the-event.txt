@@ -1,0 +1,67 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-UC.USE-CASE-configure-event: "Configure the Event" [ url: "#REQS-UC.USE-CASE-configure-event", type: USE-CASE, primary: true ]
+REQS-UP.ROLE-manager: Manager [ url: "#REQS-UP.ROLE-manager", type: ROLE ]
+REQS-UJ.JOURNEY-operate.STEP-configure: "Configure and run the event" [ url: "#REQS-UJ.JOURNEY-operate.STEP-configure", type: STEP ]
+REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event: "Plan Event" [ url: "#REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event", type: ACTIVITY ]
+REQS-FR.REQUIREMENT-name-appearance: "Configurable Name Appearance" [ url: "#REQS-FR.REQUIREMENT-name-appearance", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-question-tags: "Tag Question Messages" [ url: "#REQS-FR.REQUIREMENT-question-tags", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-info-messages: "Login and Interaction Messages" [ url: "#REQS-FR.REQUIREMENT-info-messages", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-multi-provider: "Multiple Streaming Providers" [ url: "#REQS-FR.REQUIREMENT-multi-provider", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-event-portability: "Import and Export Event" [ url: "#REQS-FR.REQUIREMENT-event-portability", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-config-propagation: "Live Configuration Propagation" [ url: "#REQS-FR.REQUIREMENT-config-propagation", type: REQUIREMENT ]
+REQS-DR.RULE-single-channel: "Single Active Channel" [ url: "#REQS-DR.RULE-single-channel", type: RULE ]
+REQS-DR.RULE-single-resource: "Single Active Resource per Channel" [ url: "#REQS-DR.RULE-single-resource", type: RULE ]
+REQS-DR.RULE-no-accounts: "No Permanent User Accounts" [ url: "#REQS-DR.RULE-no-accounts", type: RULE ]
+REQS-DR.RULE-manager-retained: "Manager Retained for Export" [ url: "#REQS-DR.RULE-manager-retained", type: RULE ]
+DATA-AM.PERMISSION-manager-configure-event: "Configure the Event" [ url: "#DATA-AM.PERMISSION-manager-configure-event", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-delete-event: "Delete the Event" [ url: "#DATA-AM.PERMISSION-manager-delete-event", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-channels: "Lay Out the Channels" [ url: "#DATA-AM.PERMISSION-manager-channels", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-resources: "Switch the Resource" [ url: "#DATA-AM.PERMISSION-manager-resources", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-roles: "Grant Event Roles" [ url: "#DATA-AM.PERMISSION-manager-roles", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-access-list: "Maintain the Access List" [ url: "#DATA-AM.PERMISSION-manager-access-list", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-tags: "Curate the Tags" [ url: "#DATA-AM.PERMISSION-manager-tags", type: PERMISSION ]
+DATA-AM.PERMISSION-manager-agenda: "Curate the Agenda" [ url: "#DATA-AM.PERMISSION-manager-agenda", type: PERMISSION ]
+UXUI-IC.PRINCIPLE-live-reactivity: "Live Reactivity" [ url: "#UXUI-IC.PRINCIPLE-live-reactivity", type: PRINCIPLE ]
+UXUI-IC.PRINCIPLE-validate-before-live: "Validate Before Going Live" [ url: "#UXUI-IC.PRINCIPLE-validate-before-live", type: PRINCIPLE ]
+ARCH-CV.ENTITY-operator: "Event Operator" [ url: "#ARCH-CV.ENTITY-operator", type: ENTITY ]
+ARCH-CV.ENTITY-provider: "Streaming Provider" [ url: "#ARCH-CV.ENTITY-provider", type: ENTITY ]
+
+REQS-UC.USE-CASE-configure-event --(actor)--> REQS-UP.ROLE-manager
+REQS-UC.USE-CASE-configure-event --(journeys)--> REQS-UJ.JOURNEY-operate.STEP-configure
+REQS-UC.USE-CASE-configure-event --(activities)--> REQS-DW.WORKFLOW-run-broadcast-event.ACTIVITY-plan-event
+REQS-UC.USE-CASE-configure-event --(requirements)--> REQS-FR.REQUIREMENT-multi-provider
+REQS-UC.USE-CASE-configure-event --(requirements)--> REQS-FR.REQUIREMENT-name-appearance
+REQS-UC.USE-CASE-configure-event --(requirements)--> REQS-FR.REQUIREMENT-question-tags
+REQS-UC.USE-CASE-configure-event --(requirements)--> REQS-FR.REQUIREMENT-info-messages
+REQS-UC.USE-CASE-configure-event --(requirements)--> REQS-FR.REQUIREMENT-config-propagation
+REQS-UC.USE-CASE-configure-event --(requirements)--> REQS-FR.REQUIREMENT-event-portability
+REQS-UC.USE-CASE-configure-event --(rules)--> REQS-DR.RULE-single-channel
+REQS-UC.USE-CASE-configure-event --(rules)--> REQS-DR.RULE-single-resource
+REQS-UC.USE-CASE-configure-event --(rules)--> REQS-DR.RULE-no-accounts
+REQS-UC.USE-CASE-configure-event --(rules)--> REQS-DR.RULE-manager-retained
+DATA-AM.PERMISSION-manager-configure-event --(use-cases)--> REQS-UC.USE-CASE-configure-event
+DATA-AM.PERMISSION-manager-delete-event --(use-cases)--> REQS-UC.USE-CASE-configure-event
+DATA-AM.PERMISSION-manager-channels --(use-cases)--> REQS-UC.USE-CASE-configure-event
+DATA-AM.PERMISSION-manager-resources --(use-cases)--> REQS-UC.USE-CASE-configure-event
+DATA-AM.PERMISSION-manager-roles --(use-cases)--> REQS-UC.USE-CASE-configure-event
+DATA-AM.PERMISSION-manager-access-list --(use-cases)--> REQS-UC.USE-CASE-configure-event
+DATA-AM.PERMISSION-manager-tags --(use-cases)--> REQS-UC.USE-CASE-configure-event
+DATA-AM.PERMISSION-manager-agenda --(use-cases)--> REQS-UC.USE-CASE-configure-event
+UXUI-IC.PRINCIPLE-live-reactivity --(use-cases)--> REQS-UC.USE-CASE-configure-event
+UXUI-IC.PRINCIPLE-validate-before-live --(use-cases)--> REQS-UC.USE-CASE-configure-event
+ARCH-CV.ENTITY-operator --(use-cases)--> REQS-UC.USE-CASE-configure-event
+ARCH-CV.ENTITY-provider --(use-cases)--> REQS-UC.USE-CASE-configure-event

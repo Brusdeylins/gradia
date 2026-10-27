@@ -1,0 +1,90 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY, primary: true ]
+DATA-DM.ENTITY-agendapoint: AgendaPoint [ url: "#DATA-DM.ENTITY-agendapoint", type: ENTITY ]
+DATA-DM.ENTITY-channel: Channel [ url: "#DATA-DM.ENTITY-channel", type: ENTITY ]
+DATA-DM.ENTITY-user: User [ url: "#DATA-DM.ENTITY-user", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+DATA-DM.ENTITY-questiontag: QuestionTag [ url: "#DATA-DM.ENTITY-questiontag", type: ENTITY ]
+DATA-DM.ENTITY-authorizationtoken: AuthorizationToken [ url: "#DATA-DM.ENTITY-authorizationtoken", type: ENTITY ]
+DATA-DM.ENTITY-sessiontoken: SessionToken [ url: "#DATA-DM.ENTITY-sessiontoken", type: ENTITY ]
+DATA-DM.ENTITY-eventstatistic: EventStatistic [ url: "#DATA-DM.ENTITY-eventstatistic", type: ENTITY ]
+DATA-DM.ENTITY-userstatistic: UserStatistic [ url: "#DATA-DM.ENTITY-userstatistic", type: ENTITY ]
+REQS-FR.REQUIREMENT-authentication: "User Authentication" [ url: "#REQS-FR.REQUIREMENT-authentication", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-questions: "Ask Questions" [ url: "#REQS-FR.REQUIREMENT-questions", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-chat: "Chat Messages" [ url: "#REQS-FR.REQUIREMENT-chat", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-replies: "Reply to Chat Messages" [ url: "#REQS-FR.REQUIREMENT-replies", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-name-appearance: "Configurable Name Appearance" [ url: "#REQS-FR.REQUIREMENT-name-appearance", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-client-sentiment: "Client-Side Sentiment Analysis" [ url: "#REQS-FR.REQUIREMENT-client-sentiment", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-server-sentiment: "Server-Side Sentiment Analysis" [ url: "#REQS-FR.REQUIREMENT-server-sentiment", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-moderation: "Moderate Chat and Questions" [ url: "#REQS-FR.REQUIREMENT-moderation", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-presenter-hints: "Presenter Hints and Alerts" [ url: "#REQS-FR.REQUIREMENT-presenter-hints", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-manage-app: "Manage Embedded Application" [ url: "#REQS-FR.REQUIREMENT-manage-app", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-individual-url: "Individual Event Access URL" [ url: "#REQS-FR.REQUIREMENT-individual-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-automatic-url: "Automatic Event Access URL" [ url: "#REQS-FR.REQUIREMENT-automatic-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-user-consent: "Explicit User Consent" [ url: "#REQS-FR.REQUIREMENT-user-consent", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-info-messages: "Login and Interaction Messages" [ url: "#REQS-FR.REQUIREMENT-info-messages", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-event-portability: "Import and Export Event" [ url: "#REQS-FR.REQUIREMENT-event-portability", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-config-propagation: "Live Configuration Propagation" [ url: "#REQS-FR.REQUIREMENT-config-propagation", type: REQUIREMENT ]
+REQS-UC.USE-CASE-join-event: "Join Event and Watch Stream" [ url: "#REQS-UC.USE-CASE-join-event", type: USE-CASE ]
+REQS-UC.USE-CASE-moderate: "Moderate and Forward Messages" [ url: "#REQS-UC.USE-CASE-moderate", type: USE-CASE ]
+REQS-UC.USE-CASE-switch-provider: "Switch Streaming Provider" [ url: "#REQS-UC.USE-CASE-switch-provider", type: USE-CASE ]
+REQS-UC.USE-CASE-create-event: "Create Event from Registration Import" [ url: "#REQS-UC.USE-CASE-create-event", type: USE-CASE ]
+REQS-UC.USE-CASE-publish-start-finish: "Publish, Start, and Finish Event" [ url: "#REQS-UC.USE-CASE-publish-start-finish", type: USE-CASE ]
+REQS-UC.USE-CASE-export-data: "Export Anonymized Event Data" [ url: "#REQS-UC.USE-CASE-export-data", type: USE-CASE ]
+DATA-SM.LIFECYCLE-event: Event [ url: "#DATA-SM.LIFECYCLE-event", type: LIFECYCLE ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT ]
+ARCH-OV.CONCERN-backup: "Database Backup" [ url: "#ARCH-OV.CONCERN-backup", type: CONCERN ]
+ARCH-QP.TACTIC-recovery: "Dump-Based Recovery" [ url: "#ARCH-QP.TACTIC-recovery", type: TACTIC ]
+
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-individual-url
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-authentication
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-automatic-url
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-user-consent
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-info-messages
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-name-appearance
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-chat
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-replies
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-questions
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-moderation
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-client-sentiment
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-server-sentiment
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-presenter-hints
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-manage-app
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-config-propagation
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-event-portability
+DATA-DM.ENTITY-event --(use-cases)--> REQS-UC.USE-CASE-create-event
+DATA-DM.ENTITY-event --(use-cases)--> REQS-UC.USE-CASE-publish-start-finish
+DATA-DM.ENTITY-event --(use-cases)--> REQS-UC.USE-CASE-join-event
+DATA-DM.ENTITY-event --(use-cases)--> REQS-UC.USE-CASE-switch-provider
+DATA-DM.ENTITY-event --(use-cases)--> REQS-UC.USE-CASE-moderate
+DATA-DM.ENTITY-event --(use-cases)--> REQS-UC.USE-CASE-export-data
+DATA-SM.LIFECYCLE-event --(entity)--> DATA-DM.ENTITY-event
+ARCH-FV.COMPONENT-service --(owns)--> DATA-DM.ENTITY-event
+ARCH-OV.CONCERN-backup --(elements)--> DATA-DM.ENTITY-event
+ARCH-QP.TACTIC-recovery --(affects)--> DATA-DM.ENTITY-event
+DATA-DM.ENTITY-event --(channels)-->[0..n] DATA-DM.ENTITY-channel
+DATA-DM.ENTITY-event --(accessList)-->[0..n] DATA-DM.ENTITY-user
+DATA-DM.ENTITY-event --(messages)-->[0..n] DATA-DM.ENTITY-message
+DATA-DM.ENTITY-event --(statistics)-->[0..n] DATA-DM.ENTITY-eventstatistic
+DATA-DM.ENTITY-event --(userStatistics)-->[0..n] DATA-DM.ENTITY-userstatistic
+DATA-DM.ENTITY-event --(availableQuestionTags)-->[0..n] DATA-DM.ENTITY-questiontag
+DATA-DM.ENTITY-event --(activeAgendaPoint)-->[0..1] DATA-DM.ENTITY-agendapoint
+DATA-DM.ENTITY-event --(agendaPoints)-->[0..n] DATA-DM.ENTITY-agendapoint
+DATA-DM.ENTITY-message --(event)-->[1] DATA-DM.ENTITY-event
+DATA-DM.ENTITY-authorizationtoken --(event)-->[1] DATA-DM.ENTITY-event
+DATA-DM.ENTITY-sessiontoken --(event)-->[1] DATA-DM.ENTITY-event
+DATA-DM.ENTITY-userstatistic --(event)-->[1] DATA-DM.ENTITY-event

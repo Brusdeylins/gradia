@@ -1,0 +1,41 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 6
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+DATA-DM.ENTITY-channel: Channel [ url: "#DATA-DM.ENTITY-channel", type: ENTITY ]
+DATA-DM.ENTITY-resource: Resource [ url: "#DATA-DM.ENTITY-resource", type: ENTITY, primary: true ]
+DATA-DM.ENTITY-resourceproviderparam: ResourceProviderParam [ url: "#DATA-DM.ENTITY-resourceproviderparam", type: ENTITY ]
+REQS-FR.REQUIREMENT-resource-url: "Direct Resource Access URL" [ url: "#REQS-FR.REQUIREMENT-resource-url", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-multi-provider: "Multiple Streaming Providers" [ url: "#REQS-FR.REQUIREMENT-multi-provider", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-provider-switch: "Live Provider Switching" [ url: "#REQS-FR.REQUIREMENT-provider-switch", type: REQUIREMENT ]
+REQS-UC.USE-CASE-join-event: "Join Event and Watch Stream" [ url: "#REQS-UC.USE-CASE-join-event", type: USE-CASE ]
+REQS-UC.USE-CASE-switch-provider: "Switch Streaming Provider" [ url: "#REQS-UC.USE-CASE-switch-provider", type: USE-CASE ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT ]
+ARCH-QP.TACTIC-failover: "Live Failover Continuity" [ url: "#ARCH-QP.TACTIC-failover", type: TACTIC ]
+ARCH-QP.TACTIC-stream-passthrough: "Provider Stream Passthrough" [ url: "#ARCH-QP.TACTIC-stream-passthrough", type: TACTIC ]
+ARCH-DD.DECISION-channel-resource: "Decouple logical Channels from physical provider Resources" [ url: "#ARCH-DD.DECISION-channel-resource", type: DECISION ]
+ARCH-DD.DECISION-provider-streaming: "Embed provider-delivered video instead of self-hosted streaming" [ url: "#ARCH-DD.DECISION-provider-streaming", type: DECISION ]
+
+DATA-DM.ENTITY-resource --(requirements)--> REQS-FR.REQUIREMENT-multi-provider
+DATA-DM.ENTITY-resource --(requirements)--> REQS-FR.REQUIREMENT-provider-switch
+DATA-DM.ENTITY-resource --(requirements)--> REQS-FR.REQUIREMENT-resource-url
+DATA-DM.ENTITY-resource --(use-cases)--> REQS-UC.USE-CASE-join-event
+DATA-DM.ENTITY-resource --(use-cases)--> REQS-UC.USE-CASE-switch-provider
+ARCH-FV.COMPONENT-service --(owns)--> DATA-DM.ENTITY-resource
+ARCH-QP.TACTIC-failover --(affects)--> DATA-DM.ENTITY-resource
+ARCH-QP.TACTIC-stream-passthrough --(affects)--> DATA-DM.ENTITY-resource
+ARCH-DD.DECISION-channel-resource --(affects)--> DATA-DM.ENTITY-resource
+ARCH-DD.DECISION-provider-streaming --(affects)--> DATA-DM.ENTITY-resource
+DATA-DM.ENTITY-channel --(resources)-->[1..n] DATA-DM.ENTITY-resource
+DATA-DM.ENTITY-resource --(params)-->[0..n] DATA-DM.ENTITY-resourceproviderparam

@@ -1,0 +1,37 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 2
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+UXUI-VD.MOCKUP-mockup-attendee-chat: "Attendee Chat View" [ url: "#UXUI-VD.MOCKUP-mockup-attendee-chat", type: MOCKUP, primary: true ]
+REQS-UP.PERSONA-attendee: Anna [ url: "#REQS-UP.PERSONA-attendee", type: PERSONA ]
+UXUI-DS.STORYBOARD-chat-interaction: "Attendee Reads and Posts Chat" [ url: "#UXUI-DS.STORYBOARD-chat-interaction", type: STORYBOARD ]
+UXUI-VD.ELEMENT-color-palette: "Brand Color Palette" [ url: "#UXUI-VD.ELEMENT-color-palette", type: ELEMENT ]
+UXUI-VD.ELEMENT-theme: "Light and Dark Theme" [ url: "#UXUI-VD.ELEMENT-theme", type: ELEMENT ]
+UXUI-VD.ELEMENT-wordmark: "Broadcast Wordmark" [ url: "#UXUI-VD.ELEMENT-wordmark", type: ELEMENT ]
+UXUI-VD.ELEMENT-typography: "Self-Hosted Typography" [ url: "#UXUI-VD.ELEMENT-typography", type: ELEMENT ]
+UXUI-VD.ELEMENT-iconography: "Fontawesome Iconography" [ url: "#UXUI-VD.ELEMENT-iconography", type: ELEMENT ]
+UXUI-VD.ELEMENT-spacing: "Responsive Spacing Scale" [ url: "#UXUI-VD.ELEMENT-spacing", type: ELEMENT ]
+UXUI-VD.ELEMENT-shape: "Card and Bubble Shape" [ url: "#UXUI-VD.ELEMENT-shape", type: ELEMENT ]
+UXUI-VD.ELEMENT-imagery: "Stream Imagery Treatment" [ url: "#UXUI-VD.ELEMENT-imagery", type: ELEMENT ]
+
+UXUI-VD.MOCKUP-mockup-attendee-chat --(actors)--> REQS-UP.PERSONA-attendee
+UXUI-VD.MOCKUP-mockup-attendee-chat --(storyboard)--> UXUI-DS.STORYBOARD-chat-interaction
+UXUI-VD.MOCKUP-mockup-attendee-chat --(elements)--> UXUI-VD.ELEMENT-color-palette
+UXUI-VD.MOCKUP-mockup-attendee-chat --(elements)--> UXUI-VD.ELEMENT-theme
+UXUI-VD.MOCKUP-mockup-attendee-chat --(elements)--> UXUI-VD.ELEMENT-wordmark
+UXUI-VD.MOCKUP-mockup-attendee-chat --(elements)--> UXUI-VD.ELEMENT-typography
+UXUI-VD.MOCKUP-mockup-attendee-chat --(elements)--> UXUI-VD.ELEMENT-iconography
+UXUI-VD.MOCKUP-mockup-attendee-chat --(elements)--> UXUI-VD.ELEMENT-spacing
+UXUI-VD.MOCKUP-mockup-attendee-chat --(elements)--> UXUI-VD.ELEMENT-shape
+UXUI-VD.MOCKUP-mockup-attendee-chat --(elements)--> UXUI-VD.ELEMENT-imagery

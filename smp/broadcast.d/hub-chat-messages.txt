@@ -1,0 +1,53 @@
+#type hub
+#config size-canvas-margin 8
+#config size-node-height-scale 1.75
+#config size-font-type 19
+#config size-font-edge 19
+#config size-font-arity 19
+#config size-edge-track-gap 20
+#config graph-channel-width-max 1000
+#config hub-node-gap 10
+#config hub-node-count-max 3
+#config grid-gap-horizontal 24
+#config grid-gap-vertical 12
+#config grid-columns-min 4
+#config size-node-width-max 440
+
+REQS-FR.GROUP-interaction: "Audience Interaction" [ url: "#REQS-FR.GROUP-interaction", type: GROUP ]
+REQS-FR.REQUIREMENT-chat: "Chat Messages" [ url: "#REQS-FR.REQUIREMENT-chat", type: REQUIREMENT, primary: true ]
+REQS-FR.REQUIREMENT-likes: "Like Messages" [ url: "#REQS-FR.REQUIREMENT-likes", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-replies: "Reply to Chat Messages" [ url: "#REQS-FR.REQUIREMENT-replies", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-client-sentiment: "Client-Side Sentiment Analysis" [ url: "#REQS-FR.REQUIREMENT-client-sentiment", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-server-sentiment: "Server-Side Sentiment Analysis" [ url: "#REQS-FR.REQUIREMENT-server-sentiment", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-message-editing: "Edit and Delete Messages" [ url: "#REQS-FR.REQUIREMENT-message-editing", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-moderation: "Moderate Chat and Questions" [ url: "#REQS-FR.REQUIREMENT-moderation", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-moderator-messages: "Moderator-Authored Messages" [ url: "#REQS-FR.REQUIREMENT-moderator-messages", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-export-inputs: "Export Attendee Inputs" [ url: "#REQS-FR.REQUIREMENT-export-inputs", type: REQUIREMENT ]
+REQS-FR.REQUIREMENT-sort-filter: "Sort and Filter Messages" [ url: "#REQS-FR.REQUIREMENT-sort-filter", type: REQUIREMENT ]
+REQS-NR.REQUIREMENT-throttling: "Interaction Abuse Throttling" [ url: "#REQS-NR.REQUIREMENT-throttling", type: REQUIREMENT ]
+REQS-SP.PREMISE-websocket-passage: "Attendee Networks Pass WebSocket Traffic" [ url: "#REQS-SP.PREMISE-websocket-passage", type: PREMISE ]
+REQS-DR.RULE-moderation-gate: "Moderation Determines Initial Visibility" [ url: "#REQS-DR.RULE-moderation-gate", type: RULE ]
+REQS-UC.USE-CASE-chat-during-event: "Chat During the Event" [ url: "#REQS-UC.USE-CASE-chat-during-event", type: USE-CASE ]
+DATA-DM.ENTITY-event: Event [ url: "#DATA-DM.ENTITY-event", type: ENTITY ]
+DATA-DM.ENTITY-message: Message [ url: "#DATA-DM.ENTITY-message", type: ENTITY ]
+ARCH-FV.COMPONENT-service: Service [ url: "#ARCH-FV.COMPONENT-service", type: COMPONENT ]
+TEST-TC.TEST-CASE-name-appearance: "Chat Message Shows Configured Name" [ url: "#TEST-TC.TEST-CASE-name-appearance", type: TEST-CASE ]
+
+REQS-FR.REQUIREMENT-chat --(group)--> REQS-FR.GROUP-interaction
+REQS-FR.REQUIREMENT-chat --(premises)--> REQS-SP.PREMISE-websocket-passage
+REQS-FR.REQUIREMENT-likes --(depends-on)--> REQS-FR.REQUIREMENT-chat
+REQS-FR.REQUIREMENT-replies --(depends-on)--> REQS-FR.REQUIREMENT-chat
+REQS-FR.REQUIREMENT-client-sentiment --(depends-on)--> REQS-FR.REQUIREMENT-chat
+REQS-FR.REQUIREMENT-server-sentiment --(depends-on)--> REQS-FR.REQUIREMENT-chat
+REQS-FR.REQUIREMENT-message-editing --(depends-on)--> REQS-FR.REQUIREMENT-chat
+REQS-FR.REQUIREMENT-moderation --(depends-on)--> REQS-FR.REQUIREMENT-chat
+REQS-FR.REQUIREMENT-moderator-messages --(depends-on)--> REQS-FR.REQUIREMENT-chat
+REQS-FR.REQUIREMENT-export-inputs --(depends-on)--> REQS-FR.REQUIREMENT-chat
+REQS-FR.REQUIREMENT-sort-filter --(depends-on)--> REQS-FR.REQUIREMENT-chat
+REQS-NR.REQUIREMENT-throttling --(qualifies)--> REQS-FR.REQUIREMENT-chat
+REQS-DR.RULE-moderation-gate --(constrains)--> REQS-FR.REQUIREMENT-chat
+REQS-UC.USE-CASE-chat-during-event --(requirements)--> REQS-FR.REQUIREMENT-chat
+DATA-DM.ENTITY-event --(requirements)--> REQS-FR.REQUIREMENT-chat
+DATA-DM.ENTITY-message --(requirements)--> REQS-FR.REQUIREMENT-chat
+ARCH-FV.COMPONENT-service --(realizes)--> REQS-FR.REQUIREMENT-chat
+TEST-TC.TEST-CASE-name-appearance --(verifies)--> REQS-FR.REQUIREMENT-chat
