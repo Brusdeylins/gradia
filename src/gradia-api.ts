@@ -5,7 +5,7 @@
 */
 
 /*  internal dependencies  */
-import { Graph }                                   from "./gradia-api-model.js"
+import { Graph, edgeKinds }                        from "./gradia-api-model.js"
 import { parse }                                   from "./gradia-api-parser.js"
 import { Config, configDefaults, parseDirectives, validateConfig }
     from "./gradia-api-config.js"
@@ -16,17 +16,22 @@ import { renderSVG }                               from "./gradia-api-render-svg
 import { render as renderGraph }                   from "./gradia-api-type-graph.js"
 import { render as renderHub }                     from "./gradia-api-type-hub.js"
 import { render as renderGrid }                    from "./gradia-api-type-grid.js"
+import { render as renderSequence }                from "./gradia-api-type-sequence.js"
 
 /*  re-export the graph model and configuration companion types  */
-export type { Attr, Node, Edge, Graph }            from "./gradia-api-model.js"
+export type { Attr, Node, Edge, EdgeKind, Graph }  from "./gradia-api-model.js"
 export type { Config }                             from "./gradia-api-config.js"
 
-/*  the supported diagram types, their renderers, and whether they let
-    the edges crossing a container boundary continue to the inner nodes  */
+/*  the supported diagram types, their renderers, whether they lay out
+    the members of a container, whether they let the edges crossing a
+    container boundary continue to the inner nodes, and whether they
+    render the edge kinds other than the synchronous default and the
+    edge timings  */
 const renderers = {
-    graph: { render: renderGraph, gated: true  },
-    hub:   { render: renderHub,   gated: false },
-    grid:  { render: renderGrid,  gated: false }
+    graph:    { render: renderGraph,    nestable: true,  gated: true,  kinds: false },
+    hub:      { render: renderHub,      nestable: true,  gated: false, kinds: false },
+    grid:     { render: renderGrid,     nestable: true,  gated: false, kinds: false },
+    sequence: { render: renderSequence, nestable: false, gated: false, kinds: true  }
 } satisfies Record<string, DiagramTypeSpec>
 export type DiagramType = keyof typeof renderers
 export const diagramTypes = Object.keys(renderers) as DiagramType[]
@@ -103,8 +108,22 @@ export class Gradia {
                     throw new Error(`endpoint "${id}" of edge ` +
                         `"${edge.source}" --> "${edge.target}" is not a declared node`)
 
+        /*  validate the edge kinds and timings: a known kind, and other
+            than the synchronous default, as well as any timing, only for
+            a diagram type rendering them  */
+        for (const edge of graph.edges) {
+            const what = `edge "${edge.source}" --> "${edge.target}"`
+            if (edge.kind !== undefined && !edgeKinds.includes(edge.kind))
+                throw new Error(`invalid kind "${edge.kind}" of ${what}`)
+            if (edge.kind !== undefined && edge.kind !== "sync" && !renderers[type].kinds)
+                throw new Error(`diagram type "${type}" does not support the kind "${edge.kind}" of ${what}`)
+            for (const key of [ "duration", "time" ] as const)
+                if (edge[key] !== undefined && !renderers[type].kinds)
+                    throw new Error(`diagram type "${type}" does not support the ${key} of ${what}`)
+        }
+
         /*  determine (and validate) the containment tree of the graph  */
-        const containment = containmentOf(graph, diagramTypes)
+        const containment = containmentOf(graph, diagramTypes.filter((t) => renderers[t].nestable))
 
         /*  lay out the graph model (with its containers as nested
             levels): either as a whole, or partitioned into its named

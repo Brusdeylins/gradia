@@ -29,15 +29,29 @@ export interface LevelContext {
     gates?:     Map<string, GateSide>
 }
 
+/*  reject the containers for a diagram type laying out a flat graph
+    only: a member of a container, a node annotated as a container, and
+    a containment level with fixed-size placeholders  */
+export const rejectContainers = (type: string, nodes: Node[], level: LevelContext): void => {
+    if ((level.fixedSize?.size ?? 0) > 0
+        || nodes.some((node) => parentOf(node) !== undefined || containerTypeOf(node) !== undefined))
+        throw new Error(`diagram type "${type}" does not support containers`)
+}
+
 /*  a diagram type renderer  */
 export type Renderer = (graph: Graph, config: Config, level?: LevelContext) => Promise<Layout>
 
-/*  a diagram type: its renderer and whether it supports gate nodes
-    (and hence lets the edges crossing a container boundary continue
-    to the inner nodes, instead of ending at the container border)  */
+/*  a diagram type: its renderer, whether it lays out the members of a
+    container (and hence is valid as a "container" annotation), whether
+    it supports gate nodes (and hence lets the edges crossing a
+    container boundary continue to the inner nodes, instead of ending at
+    the container border), and whether it renders the edge kinds and
+    timings  */
 export interface DiagramTypeSpec {
-    render: Renderer
-    gated:  boolean
+    render:   Renderer
+    nestable: boolean
+    gated:    boolean
+    kinds:    boolean
 }
 
 /*  the containment tree of a graph  */
@@ -113,7 +127,7 @@ export interface Bounds {
 }
 
 /*  determine the bounding box of a laid out graph (its nodes, edges,
-    container boxes, and the additionally given polylines)  */
+    shapes, container boxes, and the additionally given polylines)  */
 export const boundsOf = (layout: Layout, extra: Poly[] = []): Bounds => {
     const { nodes, cx, cy, boxW, boxH, polys } = layout
     let [ minX, minY, maxX, maxY ] = [ Infinity, Infinity, -Infinity, -Infinity ]
@@ -130,6 +144,12 @@ export const boundsOf = (layout: Layout, extra: Poly[] = []): Bounds => {
             maxX = Math.max(maxX, px)
             maxY = Math.max(maxY, py)
         }
+    }
+    for (const { box: [ x1, y1, x2, y2 ] } of layout.shapes ?? []) {
+        minX = Math.min(minX, x1)
+        minY = Math.min(minY, y1)
+        maxX = Math.max(maxX, x2)
+        maxY = Math.max(maxY, y2)
     }
     for (const c of layout.containers ?? []) {
         minX = Math.min(minX, c.x)

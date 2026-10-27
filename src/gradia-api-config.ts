@@ -25,6 +25,7 @@ export const configDefaults = {
     "color-node-self-name":      "#444444",
     "color-node-self-box":       "#e0e0e0",
     "color-node-self-border":    "#707070",
+    "color-node-lifeline":       "#c0d0e0",
     "color-group-name":          "#6699cc",
     "color-group-box":           "#f4f8fc",
     "color-group-border":        "#c0d0e0",

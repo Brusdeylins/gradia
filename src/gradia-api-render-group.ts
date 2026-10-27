@@ -9,6 +9,7 @@ import { Node, Graph }                         from "./gradia-api-model.js"
 import { Config }                              from "./gradia-api-config.js"
 import { Poly, FS_GROUP, textWidth, Layout, GroupBox, ContainerBox }
     from "./gradia-api-render-base.js"
+import { shiftShape }                          from "./gradia-api-render-shape.js"
 import { defaultStyleOf }                      from "./gradia-api-render-node.js"
 import { Containment, rootOf, boundsOf }       from "./gradia-api-render-container.js"
 
@@ -119,6 +120,8 @@ export const composeGroups = (parts: GroupPart[], layouts: Layout[], config: Con
         groups,
         containers: layouts.flatMap((layout, i) => (layout.containers ?? []).map((c): ContainerBox =>
             ({ ...c, x: c.x + dxs[i], y: c.y + dys[i] }))),
+        shapes:     layouts.flatMap((layout, i) => (layout.shapes ?? []).map((shape) =>
+            shiftShape(shape, dxs[i], dys[i]))),
         bundled:    layouts.flatMap((layout) => layout.edges.map((_, i) => layout.bundled?.[i] ?? false)),
         crowded:    layouts.some((layout) => layout.crowded === true)
     }

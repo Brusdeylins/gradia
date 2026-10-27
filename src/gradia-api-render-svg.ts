@@ -14,6 +14,7 @@ import { Config, ConfigEmbedded, ConfigFontSize, resolveFont, cssValueOf, cssSiz
 import { Poly, NodeStyle, Layout, GroupBox, ContainerBox,
     FS_GROUP, ARITY_OFF, ARITY_PAD, ARITY_GAP, arityHeight, textWidth, escapeXML }
     from "./gradia-api-render-base.js"
+import { Shape }                                            from "./gradia-api-render-shape.js"
 import { linesOfNode, urlOf, typeOf, defaultStyleOf, containerHead,
     MIN_H, NAME_H, ATTR_H, ATTR_P, TYPE_H, TYPE_D, HEAD_H }
     from "./gradia-api-render-node.js"
@@ -54,6 +55,7 @@ interface Styler {
     text: (fill: ConfigEmbedded, size: ConfigFontSize | number,
         options?: { bold?: boolean, middle?: boolean, halo?: boolean }) => string
     box:  (fill: ConfigEmbedded, stroke: ConfigEmbedded, width: number) => string
+    line: (stroke: ConfigEmbedded, width: number) => string
 }
 
 /*  a rectangular area, given by its top-left and bottom-right corners  */
@@ -189,6 +191,11 @@ const labelPlacer = (
     for (const c of layout.containers ?? [])
         occupied.push([ c.x + TAG_DX, c.y + TAG_DY,
             c.x + TAG_DX + textWidth(c.node.name, FS_GROUP), c.y + containerHead(c.node, config) ])
+
+    /*  let the labels also dodge the free-standing texts  */
+    for (const shape of layout.shapes ?? [])
+        if (shape.kind === "text")
+            occupied.push(shape.box)
 
     /*  collect the edge line segments and the hops bulging above them,
         kept per edge, so a label can tell its own route from the foreign ones  */
@@ -596,6 +603,15 @@ const renderContainer = (c: ContainerBox, styler: Styler, config: Config): strin
     return [ `<a href="${escapeXML(url)}" xlink:href="${escapeXML(url)}">`, ...parts, "</a>" ]
 }
 
+/*  generate the SVG fragment for a single free-standing shape  */
+const renderShape = (shape: Shape, styler: Styler): string =>
+    shape.kind === "text" ?
+        `<text x="${shape.x}" y="${shape.y}"${shape.anchor === "end" ? " text-anchor=\"end\"" : ""} ` +
+        `class="${styler.text(shape.fill, shape.size, { halo: true })}">${escapeXML(shape.text)}</text>` :
+        `<path d="M ${shape.x} ${shape.y} ${shape.d}" class="${shape.fill !== undefined ?
+            styler.box(shape.fill, shape.stroke, shape.width) : styler.line(shape.stroke, shape.width)}"` +
+        `${shape.dash !== undefined ? ` stroke-dasharray="${escapeXML(shape.dash)}"` : ""}/>`
+
 /*  render a laid out graph into an SVG document (the seed determines the
     identifier prefix of the document, see "idPrefix" above)  */
 export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Config>,
@@ -614,6 +630,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     /*  derive the collision-free identifiers of this SVG document  */
     const prefix  = idPrefix(seed)
     const idArrow = `${prefix}-arrow`
+    const idOpen  = `${prefix}-arrow-open`
 
     /*  resolve the configured font into the rendered font family stack  */
     const { family, embed, weight } = resolveFont(config)
@@ -643,7 +660,9 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
             (options.halo ? `; stroke: ${color("color-edge-halo")}; stroke-width: 4.5; ` +
                 "paint-order: stroke; stroke-linejoin: round" : "")),
         box: (fill, stroke, width) => classOf(
-            `fill: ${color(fill)}; stroke: ${color(stroke)}; stroke-width: ${width}`)
+            `fill: ${color(fill)}; stroke: ${color(stroke)}; stroke-width: ${width}`),
+        line: (stroke, width) => classOf(
+            `fill: none; stroke: ${color(stroke)}; stroke-width: ${width}; stroke-linecap: round; stroke-linejoin: round`)
     }
     const classEdge  = classOf(`fill: none; stroke: ${color("color-edge-line")}; stroke-width: 3`)
     const classArrow = classOf(`fill: ${color("color-edge-line")}`)
@@ -673,11 +692,25 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     const outOf   = groupsAt((poly) => poly[0])
     const grouped = new Set([ ...into.values(), ...outOf.values() ].flat())
     const repeat  = new Set(Array.from(into.values()).flatMap((l) => l.slice(1)))
+
+    /*  a return or create edge is drawn dashed, and an asynchronous,
+        return, or create edge ends in an open arrow head, an outlined
+        triangle filled with the halo color, so it covers the line ending
+        at its tip (its marker and classes are defined only on demand, so
+        diagrams without such edges stay unchanged)  */
+    const kindOf    = (i: number) => edges[i].kind ?? "sync"
+    const dashed    = (i: number) => kindOf(i) === "return" || kindOf(i) === "create"
+    const hollow    = (i: number) => dashed(i) || kindOf(i) === "async"
+    const open      = polys.some((_, i) => hollow(i))
+    const classOpen = open ? classOf(`fill: ${color("color-edge-halo")}; stroke: ${color("color-edge-line")}; ` +
+        "stroke-width: 1.2; stroke-linejoin: round") : ""
+    const classDash = polys.some((_, i) => dashed(i)) ?
+        classOf(`fill: none; stroke: ${color("color-edge-line")}; stroke-width: 3; stroke-dasharray: 10 6`) : ""
     const svgEdges = polys.map((poly, i) =>
         `<path d="${pathOf(poly, hops[i],
             config["size-edge-corner-radius"], config["size-edge-hop-radius"], junction, layout.crowded === true)}" ` +
-        `class="${classEdge}"` +
-        (repeat.has(i) ? "/>" : ` marker-end="url(#${idArrow})"/>`))
+        `class="${dashed(i) ? classDash : classEdge}"` +
+        (repeat.has(i) ? "/>" : ` marker-end="url(#${hollow(i) ? idOpen : idArrow})"/>`))
     const svgJunctions = junctions.map(([ x, y ]) =>
         `<circle cx="${x}" cy="${y}" r="${JUNCTION_R}" class="${classArrow}"/>`)
 
@@ -725,12 +758,20 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     const svgGroups     = groups.flatMap((group) => renderGroup(group, styler))
     const svgContainers = containers.flatMap((c) => renderContainer(c, styler, config))
 
+    /*  generate the SVG fragments for the free-standing shapes (drawn
+        above the boxes and below the edges and nodes, in their order,
+        except the texts, drawn above the nodes like the edge labels)  */
+    const shapes    = layout.shapes ?? []
+    const svgShapes = shapes.filter((shape) => shape.kind !== "text").map((shape) => renderShape(shape, styler))
+    const svgTexts  = shapes.filter((shape) => shape.kind === "text").map((shape) => renderShape(shape, styler))
+
     /*  determine the overall bounding box of all rendered elements  */
     const groupBoxes: Box[] = groups.map((group) =>
         [ group.x, group.y, group.x + group.w, group.y + group.h ])
     const containerBoxes: Box[] = containers.map((c) =>
         [ c.x, c.y, c.x + c.w, c.y + c.h ])
-    const vb = viewBoxOf(layout, [ ...occupied, ...groupBoxes, ...containerBoxes ], config["size-canvas-margin"])
+    const vb = viewBoxOf(layout, [ ...occupied, ...groupBoxes, ...containerBoxes, ...shapes.map((shape) => shape.box) ],
+        config["size-canvas-margin"])
 
     /*  assemble the final SVG document (with one CSS rule per line)  */
     return [
@@ -751,12 +792,21 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
             "orient=\"auto-start-reverse\">",
         `<path d="M 0 1 L 9 5 L 0 9 z" class="${classArrow}"/>`,
         "</marker>",
+        ...(open ? [
+            `<marker id="${idOpen}" viewBox="0 0 10 10" refX="9" refY="5" ` +
+                "markerWidth=\"21\" markerHeight=\"21\" markerUnits=\"userSpaceOnUse\" " +
+                "orient=\"auto-start-reverse\">",
+            `<path d="M 0.6 1 L 9 5 L 0.6 9 z" class="${classOpen}"/>`,
+            "</marker>"
+        ] : []),
         "</defs>",
         ...svgGroups,
         ...svgContainers,
+        ...svgShapes,
         ...svgEdges,
         ...svgJunctions,
         ...svgNodes,
+        ...svgTexts,
         ...svgLabels,
         "</svg>",
         ""

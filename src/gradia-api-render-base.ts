@@ -7,6 +7,7 @@
 /*  internal dependencies  */
 import { Node, Edge }             from "./gradia-api-model.js"
 import { Config, ConfigEmbedded } from "./gradia-api-config.js"
+import type { Shape }             from "./gradia-api-render-shape.js"
 
 /*  rendering font size constant of the group tags (the font sizes of
     the node and edge texts and the further geometry are configurable,
@@ -127,6 +128,7 @@ export interface Layout {
     styleOf?:    (node: Node) => NodeStyle
     groups?:     GroupBox[]
     containers?: ContainerBox[]
+    shapes?:     Shape[]
     bundled?:    boolean[]
     crowded?:    boolean
 }

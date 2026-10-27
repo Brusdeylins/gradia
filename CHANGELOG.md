@@ -5,6 +5,16 @@ ChangeLog
 1.4.5 (2026-10-27)
 ------------------
 
+-   FEATURE [code, othr]: add the diagram type "sequence" (participants on top of dashed
+    lifelines, messages top-down in declaration order, self messages looping on their lifeline),
+    based on free-standing "shapes" of a "Layout", the new "color-node-lifeline" option, and the
+    "nestable" flag of the diagram type registry (contributed by Matthias Brusdeylins in PR #8).
+
+-   FEATURE [code, othr]: add edge attributes "{ kind: sync|async|return }" after the target node,
+    rendered by the "sequence" diagram type as message kinds (hollow arrow head for asynchronous
+    messages, dashed line and hollow arrow head for returns) plus activation bars derived from the
+    call/return pairs.
+
 -   FEATURE [infr, othr]: add a small Broadcast based regression test suite (the "smp/broadcast.d"
     diagrams plus the "regression-before", "regression-after", and "regression-clean" targets).
 

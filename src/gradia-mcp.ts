@@ -41,6 +41,27 @@ component relationships, data flows, dependency graphs, and similar structures.
   described below.
 - "grid": a compact grid of tiles for an edge-less graph. The nodes are placed
   in declaration order onto a roughly square, row-major grid.
+- "sequence": a sequence diagram: the nodes are the participants on top of
+  their lifelines, left-to-right in declaration order or in ascending order of
+  their "order" attributes (the nodes without one following), and the edges
+  are the messages, top-down in declaration order. It rejects the input with
+  an error if it contains a container. A message is a synchronous call (edge
+  kind "sync", the default: solid line, filled arrow head), an asynchronous
+  message ("async": solid line, hollow arrow head), or a return ("return":
+  dashed line, hollow arrow head). A return answers the latest unanswered call
+  from its sender to its receiver, and such an answered call activates its
+  callee until its return, drawn as an activation bar on the lifeline (a
+  caller without an own activation gets an implicit one). A creation
+  ("create": dashed line, hollow arrow head, counting as a call) ends at the
+  box of the created participant, placed onto that message instead of the top
+  row. A destruction ("destroy": solid line, filled arrow head) ends at a cross
+  ending the lifeline of its receiver; to itself, it is drawn as the cross
+  only. A participant can only be created by its first message and cannot
+  take part in any message after its destruction. A "duration" of a call
+  answered by a return (e.g. "{0..200ms}") is drawn as a bracket beside the
+  caller lifeline from the call to the return, with the text beside it; a call
+  without such a return cannot carry one. A "time" of any message (e.g.
+  "t=now") is drawn as the text beside the sender lifeline at its start.
 
 ### Diagram Type Constraints
 
@@ -81,16 +102,17 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
 { ... } (zero or more times), and alternatives are separated by |.
 
     <graph>          ::= { <statement> | <newline> }
-    <statement>      ::= <node> { <edge> <node> } ( <newline> | <eof> )
+    <statement>      ::= <node> { <edge> <node> [ <edge-attrs> ] } ( <newline> | <eof> )
     <node>           ::= <atom> [ ":" <atom> ] [ <attributes> ]
     <attributes>     ::= "[" <attribute> { "," <attribute> } "]"
+    <edge-attrs>     ::= "{" <attribute> { "," <attribute> } "}"
     <attribute>      ::= <atom> ":" <atom>
     <edge>           ::= "--" [ "(" <edge-name> ")" "--" ] ">" [ "[" <edge-arity> "]" ]
     <edge-name>      ::= <string> | <name-word>
     <edge-arity>     ::= <string> | <arity-word>
     <atom>           ::= <bareword> | <string>
     <bareword>       ::= <bareword-char> { <bareword-char> }
-    <bareword-char>  ::= <char> - ( <whitespace> | "[" | "]" | "(" | ")" | "," | ":" | "\\"" | ">" | "#" )
+    <bareword-char>  ::= <char> - ( <whitespace> | "[" | "]" | "(" | ")" | "{" | "}" | "," | ":" | "\\"" | ">" | "#" )
     <name-word>      ::= <name-char> { <name-char> }
     <name-char>      ::= <char> - ( <whitespace> | "(" | ")" | "\\"" )
     <arity-word>     ::= <arity-char> { <arity-char> }
@@ -101,7 +123,7 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
     <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                        | "#type" <whitespace> { <whitespace> } <type>
     <option>         ::= <letter> { <letter> | <digit> | "-" }
-    <type>           ::= "graph" | "hub" | "grid"
+    <type>           ::= "graph" | "hub" | "grid" | "sequence"
     <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
     <newline>        ::= "\\n"
     <whitespace>     ::= " " | "\\t" | "\\r"
@@ -137,6 +159,13 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
   following node, i.e., the chain is equivalent to "a --> b" and "b --> c".
 - The <edge-name> is rendered as the label of the edge and the <edge-arity> as
   its cardinality label.
+- The <edge-attrs> following a node belong to the <edge> leading into that node,
+  i.e., in "a --> b { kind: async } --> c" they belong to the edge "a --> b".
+  The recognized keys are "kind", with the values "sync" (the default),
+  "async", "return", "create", and "destroy", plus "duration" and "time",
+  with arbitrary texts. Only the "sequence" type renders them, while the other
+  types reject a kind other than "sync", as well as a "duration" or "time",
+  with an error. Any other key is rejected with an error, too.
 - Seven attribute keys are reserved and consumed by the renderer instead of
   being displayed as a regular "<key>: <val>" line:
   - "url: <url>" renders the node box as a hyperlink. Only relative URLs and

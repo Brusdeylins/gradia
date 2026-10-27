@@ -17,12 +17,23 @@ export interface Node {
     attrs:  Attr[]
 }
 
-/*  a directed graph edge with optional name and arity  */
+/*  the kinds of an edge, i.e., of a message in a "sequence" diagram
+    (a synchronous call, an asynchronous message, a return, or the
+    creation or destruction of its receiver)  */
+export type EdgeKind = "sync" | "async" | "return" | "create" | "destroy"
+export const edgeKinds: EdgeKind[] = [ "sync", "async", "return", "create", "destroy" ]
+
+/*  a directed graph edge with optional name, arity, kind, and timing
+    (a duration constraint up to its return and a time constraint or
+    observation at its start, in a "sequence" diagram)  */
 export interface Edge {
-    source: string
-    target: string
-    name?:  string
-    arity?: string
+    source:    string
+    target:    string
+    name?:     string
+    arity?:    string
+    kind?:     EdgeKind
+    duration?: string
+    time?:     string
 }
 
 /*  the graph model of nodes (keyed by their id) and edges  */

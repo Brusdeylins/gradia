@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="20 20 1870 1010" width="1870" height="1010">
+<defs>
+<style>
+.gradia-3167da4d { fill: none; stroke: var(--gradia-color-edge-line, #999999); stroke-width: 3 }
+.gradia-6c7500cd { fill: var(--gradia-color-edge-line, #999999) }
+.gradia-9dd6c3b4 { fill: var(--gradia-color-edge-halo, #ffffff); stroke: var(--gradia-color-edge-line, #999999); stroke-width: 1.2; stroke-linejoin: round }
+.gradia-8e1fb7ed { fill: none; stroke: var(--gradia-color-edge-line, #999999); stroke-width: 3; stroke-dasharray: 10 6 }
+.gradia-17299245 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-edge, 16px); text-anchor: middle; fill: var(--gradia-color-edge-name, #333333); stroke: var(--gradia-color-edge-halo, #ffffff); stroke-width: 4.5; paint-order: stroke; stroke-linejoin: round }
+.gradia-c318c042 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-node-regular-border, #c0d0e0); stroke-width: 4 }
+.gradia-7838a2f5 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); text-anchor: middle; fill: var(--gradia-color-node-regular-name, #336699) }
+.gradia-f36ab1ca { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-node, 30px); font-weight: 600; text-anchor: middle; fill: var(--gradia-color-node-regular-name, #336699) }
+.gradia-59c9f7f9 { fill: none; stroke: var(--gradia-color-node-lifeline, #c0d0e0); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
+.gradia-613ab0f0 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-node-regular-border, #c0d0e0); stroke-width: 2 }
+.gradia-cb45cba8 { fill: none; stroke: var(--gradia-color-edge-line, #999999); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round }
+.gradia-d27516e0 { fill: none; stroke: var(--gradia-color-edge-line, #999999); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
+.gradia-874272fb { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-edge, 16px); fill: var(--gradia-color-edge-name, #333333); stroke: var(--gradia-color-edge-halo, #ffffff); stroke-width: 4.5; paint-order: stroke; stroke-linejoin: round }
+</style>
+<marker id="gradia-57f5bdee7f54-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+<path d="M 0 1 L 9 5 L 0 9 z" class="gradia-6c7500cd"/>
+</marker>
+<marker id="gradia-57f5bdee7f54-arrow-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+<path d="M 0.6 1 L 9 5 L 0.6 9 z" class="gradia-9dd6c3b4"/>
+</marker>
+</defs>
+<path d="M 167.5 133 v 877" class="gradia-59c9f7f9" stroke-dasharray="8 6"/>
+<path d="M 482.5 133 v 877" class="gradia-59c9f7f9" stroke-dasharray="8 6"/>
+<path d="M 797.5 133 v 877" class="gradia-59c9f7f9" stroke-dasharray="8 6"/>
+<path d="M 1112.5 586 v 224" class="gradia-59c9f7f9" stroke-dasharray="8 6"/>
+<path d="M 1427.5 133 v 877" class="gradia-59c9f7f9" stroke-dasharray="8 6"/>
+<path d="M 1742.5 133 v 877" class="gradia-59c9f7f9" stroke-dasharray="8 6"/>
+<path d="M 161.5 189 h 12 v 789 h -12 z" class="gradia-613ab0f0"/>
+<path d="M 476.5 189 h 12 v 789 h -12 z" class="gradia-613ab0f0"/>
+<path d="M 482.5 285 h 12 v 56 h -12 z" class="gradia-613ab0f0"/>
+<path d="M 791.5 437 h 12 v 485 h -12 z" class="gradia-613ab0f0"/>
+<path d="M 1106.5 586 h 12 v 56 h -12 z" class="gradia-613ab0f0"/>
+<path d="M 1421.5 698 h 12 v 56 h -12 z" class="gradia-613ab0f0"/>
+<path d="M 1100.5 798 l 24 24 m 0 -24 l -24 24" class="gradia-cb45cba8"/>
+<path d="M 466.5 437 h -8 v 485 h 8" class="gradia-d27516e0"/>
+<path d="M 173.5 189 L 476.5 189" class="gradia-3167da4d" marker-end="url(#gradia-57f5bdee7f54-arrow)"/>
+<path d="M 488.5 245 L 543.5 245 Q 563.5 245 563.5 265 L 563.5 265 Q 563.5 285 543.5 285 L 494.5 285" class="gradia-3167da4d" marker-end="url(#gradia-57f5bdee7f54-arrow)"/>
+<path d="M 494.5 341 L 543.5 341 Q 563.5 341 563.5 361 L 563.5 361 Q 563.5 381 543.5 381 L 488.5 381" class="gradia-8e1fb7ed" marker-end="url(#gradia-57f5bdee7f54-arrow-open)"/>
+<path d="M 488.5 437 L 791.5 437" class="gradia-3167da4d" marker-end="url(#gradia-57f5bdee7f54-arrow)"/>
+<path d="M 803.5 539.5 L 985 539.5" class="gradia-8e1fb7ed" marker-end="url(#gradia-57f5bdee7f54-arrow-open)"/>
+<path d="M 1106.5 642 L 803.5 642" class="gradia-8e1fb7ed" marker-end="url(#gradia-57f5bdee7f54-arrow-open)"/>
+<path d="M 803.5 698 L 1421.5 698" class="gradia-3167da4d" marker-end="url(#gradia-57f5bdee7f54-arrow)"/>
+<path d="M 1421.5 754 L 803.5 754" class="gradia-8e1fb7ed" marker-end="url(#gradia-57f5bdee7f54-arrow-open)"/>
+<path d="M 803.5 810 L 1100.5 810" class="gradia-3167da4d" marker-end="url(#gradia-57f5bdee7f54-arrow)"/>
+<path d="M 803.5 866 L 1742.5 866" class="gradia-3167da4d" marker-end="url(#gradia-57f5bdee7f54-arrow-open)"/>
+<path d="M 791.5 922 L 488.5 922" class="gradia-8e1fb7ed" marker-end="url(#gradia-57f5bdee7f54-arrow-open)"/>
+<path d="M 476.5 978 L 173.5 978" class="gradia-8e1fb7ed" marker-end="url(#gradia-57f5bdee7f54-arrow-open)"/>
+<rect x="40" y="40" width="255" height="93" rx="6" class="gradia-c318c042"/>
+<text x="167.5" y="74.3" class="gradia-7838a2f5">ACTOR</text>
+<text x="167.5" y="110.3" class="gradia-f36ab1ca">Web Client</text>
+<rect x="355" y="40" width="255" height="93" rx="6" class="gradia-c318c042"/>
+<text x="482.5" y="74.3" class="gradia-7838a2f5">BOUNDARY</text>
+<text x="482.5" y="110.3" class="gradia-f36ab1ca">API Gateway</text>
+<rect x="670" y="40" width="255" height="93" rx="6" class="gradia-c318c042"/>
+<text x="797.5" y="74.3" class="gradia-7838a2f5">CONTROL</text>
+<text x="797.5" y="110.3" class="gradia-f36ab1ca">Order Service</text>
+<rect x="985" y="493" width="255" height="93" rx="6" class="gradia-c318c042"/>
+<text x="1112.5" y="527.3" class="gradia-7838a2f5">ENTITY</text>
+<text x="1112.5" y="563.3" class="gradia-f36ab1ca">Order</text>
+<rect x="1300" y="40" width="255" height="93" rx="6" class="gradia-c318c042"/>
+<text x="1427.5" y="74.3" class="gradia-7838a2f5">ENTITY</text>
+<text x="1427.5" y="110.3" class="gradia-f36ab1ca">Order Database</text>
+<rect x="1615" y="40" width="255" height="93" rx="6" class="gradia-c318c042"/>
+<text x="1742.5" y="97.3" class="gradia-f36ab1ca">Audit Log</text>
+<text x="452.5" y="685.1" text-anchor="end" class="gradia-874272fb">{&lt; 300ms}</text>
+<text x="143.5" y="194.6" text-anchor="end" class="gradia-874272fb">t=now</text>
+<text x="325" y="183" class="gradia-17299245">POST /orders</text>
+<text x="546.74" y="239" class="gradia-17299245">validate token</text>
+<text x="614.26" y="368" class="gradia-17299245">token valid</text>
+<text x="640" y="431" class="gradia-17299245">createOrder</text>
+<text x="894.25" y="533.5" class="gradia-17299245">new Order</text>
+<text x="955" y="636" class="gradia-17299245">order</text>
+<text x="1112.5" y="692" class="gradia-17299245">INSERT order</text>
+<text x="1112.5" y="748" class="gradia-17299245">order id</text>
+<text x="952" y="804" class="gradia-17299245">dispose</text>
+<text x="1273" y="860" class="gradia-17299245">order created</text>
+<text x="640" y="916" class="gradia-17299245">201 Created</text>
+<text x="325" y="972" class="gradia-17299245">201 Created</text>
+</svg>

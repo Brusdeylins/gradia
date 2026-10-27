@@ -5,7 +5,7 @@
 */
 
 /*  internal dependencies  */
-import { Attr, Graph } from "./gradia-api-model.js"
+import { Attr, Edge, EdgeKind, Graph, edgeKinds } from "./gradia-api-model.js"
 
 /*  the token stream elements  */
 interface Token {
@@ -27,7 +27,7 @@ const tokenize = (input: string): Token[] => {
     /*  reusable regular expressions  */
     const reEdge   = /--(?:\((?:"((?:[^"\\\n]|\\.)*)"|([^()"\s]+))\)--)?>(?:\[(?:"((?:[^"\\\n]|\\.)*)"|([^[\]"\s]+))\])?/y
     const reString = /"((?:[^"\\\n]|\\.)*)"/y
-    const reWord   = /(?:(?!--)[^\s[\](),:">#])+/y
+    const reWord   = /(?:(?!--)[^\s[\](){},:">#])+/y
 
     /*  helper functions  */
     const match   = (re: RegExp): RegExpExecArray | null => {
@@ -75,7 +75,7 @@ const tokenize = (input: string): Token[] => {
         }
         else if (ch === "\"")
             throw new Error(`unterminated string at line ${line}, column ${col}`)
-        else if ("[](),:".includes(ch)) {
+        else if ("[](){},:".includes(ch)) {
             tokens.push({ type: "punct", text: ch, line, col })
             col++
             i++
@@ -178,6 +178,35 @@ export const parse = (input: string): Graph => {
         return id
     }
 
+    /*  parse the optional attributes of an edge, following its target
+        node, of which only its "kind", "duration", and "time" are
+        recognized  */
+    const parseEdgeAttrs = (edge: Edge): void => {
+        if (!accept("{"))
+            return
+        while (true) {
+            const start = tokens[pos]
+            const key   = parseAtom()
+            if (!accept(":"))
+                bail("\":\" in key/value attribute")
+            const val = parseAtom()
+            if (key === "kind") {
+                if (!edgeKinds.includes(val as EdgeKind))
+                    throw new Error(`invalid edge kind "${val}" (expected ${edgeKinds.map((k) => `"${k}"`).join(", ")}) ` +
+                        `at line ${start.line}, column ${start.col}`)
+                edge.kind = val as EdgeKind
+            }
+            else if (key === "duration" || key === "time")
+                edge[key] = val
+            else
+                throw new Error(`unknown edge attribute "${key}" at line ${start.line}, column ${start.col}`)
+            if (!accept(","))
+                break
+        }
+        if (!accept("}"))
+            bail("\"}\" after edge attributes")
+    }
+
     /*  parse the statements (one node/edge chain per line)  */
     while (pos < tokens.length) {
         /*  skip the empty lines  */
@@ -192,7 +221,9 @@ export const parse = (input: string): Graph => {
         while (t !== null && t.type === "edge") {
             pos++
             const target = parseNodeRef()
-            graph.edges.push({ source, target, name: t.name, arity: t.arity })
+            const edge: Edge = { source, target, name: t.name, arity: t.arity }
+            parseEdgeAttrs(edge)
+            graph.edges.push(edge)
             source = target
             t      = peek()
         }

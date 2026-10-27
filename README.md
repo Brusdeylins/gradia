@@ -14,7 +14,7 @@ About
 -----
 
 **Gradia** is a small API and CLI for rendering directed graphs,
-described in a concise textual input language, as SVG diagrams. Three
+described in a concise textual input language, as SVG diagrams. Four
 diagram types are supported which fit the scenario of visualizing object
 graphs:
 
@@ -23,11 +23,12 @@ graphs:
 - `hub`: a hub graph, placing one primary hub node between its input and
   output nodes.
 - `grid`: a compact grid of tiles for an edge-less graph.
+- `sequence`: a sequence diagram of participants and their messages.
 
 Examples
 --------
 
-Here are examples of the three graph diagram renderings:
+Here are examples of the graph diagram renderings:
 
 - [broadcast-graph](smp/broadcast-graph.txt):
 
@@ -44,6 +45,10 @@ Here are examples of the three graph diagram renderings:
 - [container-sample](smp/container-sample.txt) (nested containers):
 
   ![container-sample](smp/container-sample.svg)
+
+- [sequence-sample](smp/sequence-sample.txt) (sequence diagram):
+
+  ![sequence-sample](smp/sequence-sample.svg)
 
 Playground
 ----------
@@ -63,7 +68,7 @@ Usage
 -----
 
 ```sh
-$ gradia [-t graph|hub|grid] [-f <format>] [-c <name>=<value>] -o <file>.svg <graph>.txt
+$ gradia [-t graph|hub|grid|sequence] [-f <format>] [-c <name>=<value>] -o <file>.svg <graph>.txt
 ```
 
 The diagram type is selected with the `-t` command-line option or, when
@@ -80,7 +85,7 @@ MCP Service
 -----------
 
 ```sh
-$ gradia --mcp [-t graph|hub|grid] [-f <format>] [-c <name>=<value>]
+$ gradia --mcp [-t graph|hub|grid|sequence] [-f <format>] [-c <name>=<value>]
 ```
 
 With the `-m`/`--mcp` option, **Gradia** instead runs as a [Model Context
@@ -127,16 +132,17 @@ separated by `|`.
 
 ```bnf
 <graph>          ::= { <statement> | <newline> }
-<statement>      ::= <node> { <edge> <node> } ( <newline> | <eof> )
+<statement>      ::= <node> { <edge> <node> [ <edge-attrs> ] } ( <newline> | <eof> )
 <node>           ::= <atom> [ ":" <atom> ] [ <attributes> ]
 <attributes>     ::= "[" <attribute> { "," <attribute> } "]"
+<edge-attrs>     ::= "{" <attribute> { "," <attribute> } "}"
 <attribute>      ::= <atom> ":" <atom>
 <edge>           ::= "--" [ "(" <edge-name> ")" "--" ] ">" [ "[" <edge-arity> "]" ]
 <edge-name>      ::= <string> | <name-word>
 <edge-arity>     ::= <string> | <arity-word>
 <atom>           ::= <bareword> | <string>
 <bareword>       ::= <bareword-char> { <bareword-char> }
-<bareword-char>  ::= <char> - ( <whitespace> | "[" | "]" | "(" | ")" | "," | ":" | "\"" | ">" | "#" )
+<bareword-char>  ::= <char> - ( <whitespace> | "[" | "]" | "(" | ")" | "{" | "}" | "," | ":" | "\"" | ">" | "#" )
 <name-word>      ::= <name-char> { <name-char> }
 <name-char>      ::= <char> - ( <whitespace> | "(" | ")" | "\"" )
 <arity-word>     ::= <arity-char> { <arity-char> }
@@ -147,7 +153,7 @@ separated by `|`.
 <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                    | "#type" <whitespace> { <whitespace> } <type>
 <option>         ::= <letter> { <letter> | <digit> | "-" }
-<type>           ::= "graph" | "hub" | "grid"
+<type>           ::= "graph" | "hub" | "grid" | "sequence"
 <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
 <newline>        ::= "\n"
 <whitespace>     ::= " " | "\t" | "\r"
@@ -196,6 +202,15 @@ separated by `|`.
 
 - The `<edge-name>` is rendered as the label of the edge and the
   `<edge-arity>` as its cardinality label.
+
+- The `<edge-attrs>` following a node belong to the `<edge>` leading
+  into that node, i.e., in `a --> b { kind: async } --> c` they belong
+  to the edge `a --> b`. The recognized keys are `kind`, with the values
+  `sync` (the default), `async`, `return`, `create`, and `destroy`, plus
+  `duration` and `time`, with arbitrary texts. Only the diagram type
+  `sequence` renders them (see below), while the other diagram types
+  reject a kind other than `sync`, as well as a `duration` or `time`,
+  with an error. Any other key is rejected with an error, too.
 
 - Seven attribute keys are reserved and consumed by the renderer instead
   of being displayed as a regular `<key>: <val>` line:
@@ -285,6 +300,51 @@ This second placement is rendered as a dashed "self" box, colored by the
 The diagram type `grid` rejects the input with an error as soon as the
 graph contains at least one edge.
 
+The diagram type `sequence` rejects the input with an error as soon as
+the graph contains a container. Its participants (the nodes) are ordered
+by declaration or by their `order` attributes (left-to-right in ascending
+order, the nodes without one following), its messages (the edges) run
+top-down in declaration order, and a message from a participant to
+itself loops on its own lifeline. The dashed lifelines are colored by
+the `color-node-lifeline` option.
+
+The `kind` of an edge selects the kind of its message: a synchronous
+call (`sync`, the default) is drawn as a solid line with a filled arrow
+head, an asynchronous message (`async`) as a solid line with a hollow
+arrow head, and a return (`return`) as a dashed line with a hollow arrow
+head. A return answers the latest still unanswered synchronous call
+from its sender back to its receiver, and such an answered call
+activates its callee until its return, drawn as an activation bar on
+top of the lifeline (nested and shifted to the right for a call
+arriving at an already active participant). A caller without an
+activation of its own gets an implicit one, held until all of its calls
+have returned. Unanswered calls and asynchronous messages activate
+nothing. The activation bars are colored like the regular node boxes.
+
+A creation (`create`) is drawn as a dashed line with a hollow arrow
+head, ending at the box of the participant it creates, which is placed
+onto that message instead of the top row, with its lifeline starting
+below it. A creation counts as a call, i.e., a return answering it
+activates the created participant. A destruction (`destroy`) is drawn
+as a solid line with a filled arrow head, ending at a cross on the
+lifeline of its receiver, which ends there (together with all of its
+activations). A destruction from a participant to itself is drawn as
+its cross only (without its name and arity). A participant can only be
+created by the first message it takes part in, and cannot take part in
+any message after its destruction, otherwise the input is rejected with
+an error.
+
+A `duration` of a call (or creation) is a duration constraint up to
+its return, drawn as a bracket beside the lifeline of the caller (on
+the side facing away from the callee), spanning from the call to the
+arrival of the return answering it, with the given text beside it. A
+call without such a return cannot carry a `duration`, otherwise the
+input is rejected with an error. A `time` of any message is a time
+constraint or observation at its start, drawn as the given text beside
+the lifeline of its sender (on the side facing away from its receiver).
+Both texts are drawn exactly as given, e.g., `"{0..200ms}"` or
+`"t=now"`.
+
 As the groups of a grouped graph, and the members of every container,
 are laid out individually with the selected (or, for a container, the
 annotated) diagram type, these constraints apply to every single group
@@ -296,10 +356,11 @@ group and every `hub` container needs its own primary node.
 
 ### Directives
 
-A `#type` directive sets the diagram type (`graph`, `hub`, or `grid`),
-which otherwise is settable through the `-t`/`--type` command-line
-option (which takes precedence). The last occurrence wins and an invalid
-type is silently ignored. Without both, the type defaults to `graph`.
+A `#type` directive sets the diagram type (`graph`, `hub`, `grid`, or
+`sequence`), which otherwise is settable through the `-t`/`--type`
+command-line option (which takes precedence). The last occurrence wins
+and an invalid type is silently ignored. Without both, the type defaults
+to `graph`.
 
 A `#config` directive sets one of the rendering options, which otherwise
 are settable through the corresponding `--config <option>=<value>`
@@ -307,20 +368,21 @@ command-line options (`font-embed` being command-line only, see below).
 The recognized options, and their default values, are:
 
 ```
-font-family                Helvetica    size-node-width-min        220
-font-embed                 false        size-node-width-max        0
-color-node-regular-name    #336699      size-node-height-scale     2.25
-color-node-regular-box     #e0f0ff      size-edge-corner-radius    20
-color-node-regular-border  #c0d0e0      size-edge-hop-radius       8
-color-node-primary-name    #ffffff      size-edge-track-gap        12
-color-node-primary-box     #336699      size-edge-port-gap         24
-color-node-primary-border  #003366      group-box-padding          30
-color-node-ghost-name      #666666      group-box-gap              40
-color-node-ghost-box       #f0f0f0      container-box-padding      30
-color-node-ghost-border    #a0a0a0      graph-columns-max          4
-color-node-self-name       #444444      graph-channel-width-max    140
-color-node-self-box        #e0e0e0      graph-channel-width-min    24
-color-node-self-border     #707070      graph-gutter-height-max    90
+font-family                Helvetica    size-canvas-margin         40
+font-embed                 false        size-node-width-min        220
+color-node-regular-name    #336699      size-node-width-max        0
+color-node-regular-box     #e0f0ff      size-node-height-scale     2.25
+color-node-regular-border  #c0d0e0      size-edge-corner-radius    20
+color-node-primary-name    #ffffff      size-edge-hop-radius       8
+color-node-primary-box     #336699      size-edge-track-gap        12
+color-node-primary-border  #003366      size-edge-port-gap         24
+color-node-ghost-name      #666666      group-box-padding          30
+color-node-ghost-box       #f0f0f0      group-box-gap              40
+color-node-ghost-border    #a0a0a0      container-box-padding      30
+color-node-self-name       #444444      graph-columns-max          4
+color-node-self-box        #e0e0e0      graph-channel-width-max    140
+color-node-self-border     #707070      graph-channel-width-min    24
+color-node-lifeline        #c0d0e0      graph-gutter-height-max    90
 color-group-name           #6699cc      graph-gutter-height-min    20
 color-group-box            #f4f8fc      graph-node-separation      30
 color-group-border         #c0d0e0      graph-rank-separation      60
@@ -336,7 +398,6 @@ size-font-type             16           grid-gap-horizontal        40
 size-font-prop             22           grid-gap-vertical          20
 size-font-edge             16           grid-node-width-equal      true
 size-font-arity            16           grid-node-height-equal     true
-size-canvas-margin         40
 ```
 
 The `size-*`, `group-*`, `container-*`, `graph-*`, `hub-*`, and
