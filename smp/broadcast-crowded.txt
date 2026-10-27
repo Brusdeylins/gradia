@@ -1,0 +1,90 @@
+#type graph
+
+#config color-node-regular-name   #336699
+#config color-node-regular-box    #e0f0ff
+#config color-node-regular-border #c0d0e0
+#config color-node-primary-name   #ffffff
+#config color-node-primary-box    #336699
+#config color-node-primary-border #003366
+#config color-edge-line           #999999
+#config color-edge-name           #333333
+#config color-edge-arity          #333333
+
+#config size-node-width-min       300
+#config size-node-width-max       440
+#config size-edge-port-gap        18
+#config graph-node-degree-max     8
+
+Attendee [ url: "#attendee", type: ROLE ]
+Moderator [ url: "#moderator", type: ROLE ]
+Presenter [ url: "#presenter", type: ROLE ]
+Manager [ url: "#manager", type: ROLE ]
+Administrator [ url: "#administrator", type: ROLE ]
+Event [ url: "#event", type: ENTITY, primary: true ]
+AgendaPoint [ url: "#agendapoint", type: ENTITY ]
+Channel [ url: "#channel", type: ENTITY ]
+Resource [ url: "#resource", type: ENTITY ]
+ResourceProviderParam [ url: "#resourceproviderparam", type: ENTITY ]
+Role [ url: "#role", type: ENTITY ]
+User [ url: "#user", type: ENTITY ]
+Message [ url: "#message", type: ENTITY ]
+MessageText [ url: "#messagetext", type: ENTITY ]
+QuestionTag [ url: "#questiontag", type: ENTITY ]
+AuthorizationToken [ url: "#authorizationtoken", type: ENTITY ]
+SessionToken [ url: "#sessiontoken", type: ENTITY ]
+EventStatistic [ url: "#eventstatistic", type: ENTITY ]
+ChannelStatistic [ url: "#channelstatistic", type: ENTITY ]
+UserStatistic [ url: "#userstatistic", type: ENTITY ]
+
+Attendee --("Enter the Event")--> Event
+Attendee --("Prove the Email Address")--> AuthorizationToken
+Attendee --("Watch the Active Channel")--> Channel
+Attendee --("Play the Active Resource")--> Resource
+Attendee --("Follow the Agenda")--> AgendaPoint
+Attendee --("Send Messages")--> Message
+Attendee --("Read Visible Messages")--> Message
+Attendee --("Track Own Messages")--> Message
+Attendee --("Correct Own Messages")--> Message
+Attendee --("Like Messages")--> Message
+Attendee --("Use Public Tags")--> QuestionTag
+Moderator --("Enter the Event")--> Event
+Moderator --("Steer the Presenter")--> Event
+Moderator --("Review All Messages")--> Message
+Moderator --("Decide Pending Messages")--> Message
+Moderator --("Forward Questions")--> Message
+Moderator --("Process Forwarded Questions")--> Message
+Moderator --("Author Messages")--> Message
+Moderator --("Use All Tags")--> QuestionTag
+Presenter --("Enter the Event")--> Event
+Presenter --("Confirm the Alert")--> Event
+Presenter --("Read Forwarded Questions")--> Message
+Presenter --("Process Forwarded Questions")--> Message
+Manager --("Configure the Event")--> Event
+Manager --("Run the Event")--> Event
+Manager --("Delete the Event")--> Event
+Manager --("Lay Out the Channels")--> Channel
+Manager --("Switch the Resource")--> Resource
+Manager --("Grant Event Roles")--> Role
+Manager --("Maintain the Access List")--> User
+Manager --("Issue Access Tokens")--> AuthorizationToken
+Manager --("Curate the Tags")--> QuestionTag
+Manager --("Curate the Agenda")--> AgendaPoint
+Manager --("Export the Messages")--> Message
+Manager --("Inspect the Event Statistics")--> EventStatistic
+Manager --("Inspect the Channel Statistics")--> ChannelStatistic
+Manager --("Inspect the Viewer Statistics")--> UserStatistic
+Administrator --("Administer Every Event")--> Event
+Administrator --("Administer the Agenda")--> AgendaPoint
+Administrator --("Administer the Channels")--> Channel
+Administrator --("Administer the Resources")--> Resource
+Administrator --("Administer the Provider Parameters")--> ResourceProviderParam
+Administrator --("Administer the Roles")--> Role
+Administrator --("Administer the Users")--> User
+Administrator --("Administer the Messages")--> Message
+Administrator --("Administer the Message Texts")--> MessageText
+Administrator --("Administer the Tags")--> QuestionTag
+Administrator --("Administer the Authorization Tokens")--> AuthorizationToken
+Administrator --("Administer the Sessions")--> SessionToken
+Administrator --("Administer the Event Statistics")--> EventStatistic
+Administrator --("Administer the Channel Statistics")--> ChannelStatistic
+Administrator --("Administer the Viewer Statistics")--> UserStatistic
