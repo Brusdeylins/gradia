@@ -22,12 +22,29 @@ const TRACK_GAP_MIN = 8
     one, as such a label sits ARITY_PAD below the line of the port above
     it, whose arrow head reaches down by half its height, and needs two
     more ARITY_PAD of air between the two, so it stays attributable to
-    its own arrow instead of drifting into the neighboring one  */
-export const portGapOf = (edges: Edge[], config: Config): number =>
-    edges.some((edge) => edge.arity !== undefined) ?
+    its own arrow instead of drifting into the neighboring one, and
+    likewise to what a name label demands on a node side holding a
+    merged port of a named bundle, as the label then sits beside it  */
+export const portGapOf = (edges: Edge[], sides: { s: Side, t: Side }[], config: Config,
+    merged?: (edge: number, role: "s" | "t") => string | undefined): (id: string, side: Side) => number => {
+    const gap    = edges.some((edge) => edge.arity !== undefined) ?
         Math.max(config["size-edge-port-gap"],
             Math.ceil(3 * ARITY_PAD + arityHeight(config) + ARROW_H / 2)) :
         config["size-edge-port-gap"]
+    const named  = Math.max(gap, Math.ceil(3 * ARITY_PAD + config["size-font-edge"] + 4 + ARROW_H / 2))
+    const raised = new Set<string>()
+    if (merged !== undefined) {
+        edges.forEach((edge, i) => {
+            if (edge.name === undefined)
+                return
+            if (merged(i, "s") !== undefined)
+                raised.add(`${edge.source}:${sides[i].s}`)
+            if (merged(i, "t") !== undefined)
+                raised.add(`${edge.target}:${sides[i].t}`)
+        })
+    }
+    return (id, side) => raised.has(`${id}:${side}`) ? named : gap
+}
 
 /*  drop duplicate and collinear intermediate points of a polyline  */
 export const simplifyPoly = (pts: Poly): Poly => {
@@ -65,12 +82,14 @@ interface PortRef {
 /*  distribute the edge attachment ports along each node side, ordered
     by the vertical position the edge approaches from (the approachY
     override where given, the opposite endpoint center otherwise) and
-    separated by at most portGap (less, if the node box is too small
-    to hold them all). A port with a fixed vertical offset from the
-    box center (fixedY, the edge ends attaching to a container box at
-    the position of the inner gate node) is placed exactly there and
-    the distributed ports of the same side are dealt into the gaps
-    around it  */
+    separated by at most the port gap of their node side (less, if the
+    node box is too small to hold them all). A port with a fixed
+    vertical offset from the box center (fixedY, the edge ends
+    attaching to a container box at the position of the inner gate
+    node) is placed exactly there and the distributed ports of the same
+    side are dealt into the gaps around it. The edge ends merged into
+    one port take the place of a single port, ordered by the mean of
+    their approaches  */
 export const assignPorts = (
     edges:      Edge[],
     sides:      { s: Side, t: Side }[],
@@ -78,9 +97,10 @@ export const assignPorts = (
     cy:         (id: string) => number,
     boxW:       Map<string, number>,
     boxH:       Map<string, number>,
-    portGap:    number,
+    portGap:    (id: string, side: Side) => number,
     approachY?: (edge: number) => number | undefined,
-    fixedY?:    (edge: number, role: "s" | "t") => number | undefined
+    fixedY?:    (edge: number, role: "s" | "t") => number | undefined,
+    merged?:    (edge: number, role: "s" | "t") => string | undefined
 ): Map<string, { x: number, y: number }> => {
     /*  group the edge endpoints by the node side they attach to  */
     const portGroups = new Map<string, PortRef[]>()
@@ -96,19 +116,31 @@ export const assignPorts = (
         addPort(`${edge.target}:${sides[i].t}`, i, "t")
     })
 
-    /*  place the ports of each group, ordered by the opposite endpoint  */
+    /*  place the ports of each group, ordered by the opposite endpoint
+        (a merge reduced to its first edge end, standing for all of them,
+        whose port the others share at the end)  */
     const portPos = new Map<string, { x: number, y: number }>()
-    for (const [ key, group ] of portGroups) {
+    const first   = new Map<string, PortRef>()
+    const mates   = new Map<PortRef, PortRef[]>()
+    for (const [ key, all ] of portGroups) {
+        const group = all.filter((p) => {
+            const m = fixedY?.(p.edge, p.role) === undefined ? merged?.(p.edge, p.role) : undefined
+            if (m !== undefined && !first.has(m))
+                first.set(m, p)
+            const rep = m !== undefined ? first.get(m)! : p
+            mates.set(rep, [ ...(mates.get(rep) ?? []), p ])
+            return rep === p
+        })
         const sep     = key.lastIndexOf(":")  /*  ids may contain a colon themselves  */
         const id      = key.slice(0, sep)
-        const side    = key.slice(sep + 1)
+        const side    = key.slice(sep + 1) as Side
 
         /*  spread the north side ports along the top side, in reverse
             edge order, so the innermost of the nested self-loops
             attaches closest to the top-right box corner  */
         if (side === "n") {
             group.sort((a, b) => b.edge - a.edge)
-            const spacing = Math.min(portGap, (boxW.get(id)! - PORT_PAD) / group.length)
+            const spacing = Math.min(portGap(id, side), (boxW.get(id)! - PORT_PAD) / group.length)
             group.forEach((p, idx) => {
                 portPos.set(`${p.edge}:${p.role}`, {
                     x: cx(id) + (idx - (group.length - 1) / 2) * spacing,
@@ -138,11 +170,13 @@ export const assignPorts = (
         const free    = group.filter((p) => fixedOf(p) === undefined)
         const otherOf = (p: PortRef) =>
             p.role === "s" ? edges[p.edge].target : edges[p.edge].source
-        const keyOf   = (p: PortRef) =>
+        const approach = (p: PortRef) =>
             approachY?.(p.edge) ?? cy(otherOf(p))
+        const keyOf   = (p: PortRef) =>
+            mates.get(p)!.reduce((sum, q) => sum + approach(q), 0) / mates.get(p)!.length
         free.sort((a, b) => (keyOf(a) - keyOf(b)) || (a.edge - b.edge))
         const n       = free.length + taken.length
-        const spacing = Math.min(portGap, (boxH.get(id)! - PORT_PAD) / n)
+        const spacing = Math.min(portGap(id, side), (boxH.get(id)! - PORT_PAD) / n)
         if (taken.length === 0) {
             free.forEach((p, idx) => place(p, cy(id) + (idx - (n - 1) / 2) * spacing))
             continue
@@ -182,6 +216,9 @@ export const assignPorts = (
             k += r
         })
     }
+    for (const [ rep, list ] of mates)
+        for (const q of list)
+            portPos.set(`${q.edge}:${q.role}`, portPos.get(`${rep.edge}:${rep.role}`)!)
     return portPos
 }
 
@@ -189,7 +226,8 @@ export const assignPorts = (
     cross-axis position posIn and leaving it at posOut (mirrored users
     enter from the far instead of the near side, hairpin users leave
     on the very side they entered from), with the keys of the bundles
-    it may join in a crowded channel/gutter (one per shared edge end)  */
+    it may join in a crowded channel/gutter (one per shared edge end),
+    or the key of the bundle its port was merged into  */
 export interface TrackUser {
     edge:     number
     posIn:    number
@@ -197,6 +235,7 @@ export interface TrackUser {
     mirror:   boolean
     hairpin?: boolean
     bundles?: string[]
+    unit?:    string
 }
 
 /*  a track unit: one track user or a bundle of users sharing a track,
@@ -470,10 +509,11 @@ const overlapDepth = (users: TrackUser[]): number => {
 }
 
 /*  group the users of a crowded channel/gutter into bundles sharing a
-    track: the bundle keys (qualified by the sides the users enter and
-    leave on) are dealt out largest first, each to its users not yet
-    dealt out, if at least two; all other users stay single, except a
-    straight passing one, which needs no track and is dropped  */
+    track: the users bound to a bundle form it first, then the bundle
+    keys (qualified by the sides the users enter and leave on) are dealt
+    out largest first, each to its users not yet dealt out, if at least
+    two; all other users stay single, except a straight passing one,
+    which needs no track and is dropped  */
 const bundleUnits = (users: TrackUser[]): TrackUnit[] => {
     const members = new Map<string, TrackUser[]>()
     const add     = (key: string, u: TrackUser) => {
@@ -483,16 +523,21 @@ const bundleUnits = (users: TrackUser[]): TrackUnit[] => {
         else
             list.push(u)
     }
-    for (const u of users)
-        for (const key of u.bundles ?? [])
-            add(`${u.mirror ? "m" : "-"}${u.hairpin ? "h" : "-"}:${key}`, u)
+    for (const u of users) {
+        if (u.unit !== undefined)
+            add(`=:${u.unit}`, u)
+        else
+            for (const key of u.bundles ?? [])
+                add(`${u.mirror ? "m" : "-"}${u.hairpin ? "h" : "-"}:${key}`, u)
+    }
+    const bound = (key: string) => key.startsWith("=:") ? 1 : 0
     const keys  = Array.from(members.keys()).sort((a, b) =>
-        members.get(b)!.length - members.get(a)!.length)
+        (bound(b) - bound(a)) || (members.get(b)!.length - members.get(a)!.length))
     const dealt = new Set<TrackUser>()
     const units: TrackUnit[] = []
     for (const key of keys) {
         const list = members.get(key)!.filter((u) => !dealt.has(u))
-        if (list.length < 2)
+        if (list.length < (bound(key) ? 1 : 2))
             continue
         for (const u of list)
             dealt.add(u)
@@ -515,16 +560,18 @@ export interface TrackAssignment {
 
 /*  assign the parallel tracks within a channel or gutter (see packTracks)
     and spread them centered within it. A crowded channel/gutter, whose
-    tracks do not fit at the full track gap, bundles its users sharing
-    an edge end onto one track each, spreads its tracks at least at the
-    minimum track gap, and reports the size they need within the frame  */
+    tracks do not fit at the full track gap (or which has users bound to
+    a bundle), bundles its users sharing an edge end onto one track each,
+    spreads its tracks at least at the minimum track gap, and reports the
+    size they need within the frame  */
 export const assignTracks = (users: TrackUser[], width: number, pad: number, gap: number,
     frame: number): TrackAssignment => {
     /*  users overlapping at one position need own tracks in any order,
         so a deep enough overlap proves a crowded channel/gutter without
         determining its costly order  */
     const depth   = overlapDepth(users)
-    const crowded = gap > 0 && depth > 1 && depth > 1 + (width - pad) / gap
+    const crowded = users.some((u) => u.unit !== undefined)
+        || (gap > 0 && depth > 1 && depth > 1 + (width - pad) / gap)
     let   { trackOf, tracks } = crowded ? { trackOf: new Map<TrackUnit, number>(), tracks: 0 } :
         packTracks(users.map((u) => unitOf([ u ])))
     let   step    = Math.min(gap, (width - pad) / Math.max(tracks - 1, 1))

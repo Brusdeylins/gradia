@@ -7,7 +7,7 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }                       from "./gradia-api-model.js"
 import { Config }                                  from "./gradia-api-config.js"
-import { Poly, NodeStyle, Layout, ARITY_OFF, textWidth, arrowRoom }
+import { Poly, NodeStyle, Layout, ARITY_OFF, textWidth, arrowRoom, stubRoom, extentOf }
     from "./gradia-api-render-base.js"
 import { isPrimary, measureNodes, defaultStyleOf } from "./gradia-api-render-node.js"
 import { LevelContext }                            from "./gradia-api-render-container.js"
@@ -107,7 +107,8 @@ const classifyTopology = (graph: Graph): {
     output nodes), for a containment level with the container placeholders
     at their fixed sizes and the edge ends attaching to them at their
     fixed ports  */
-export const render = async (graph: Graph, config: Config, level: LevelContext = {}): Promise<Layout> => {
+export const render = async (graph: Graph, config: Config, level: LevelContext = {},
+    merged?: (edge: number, role: "s" | "t") => string | undefined): Promise<Layout> => {
     /*  validate the constrained input topology and classify the
         declared nodes into the input and output columns  */
     const { center, inputs, outputs, nodes, edges } = classifyTopology(graph)
@@ -133,22 +134,42 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         and the one whose attachments exceed the configured per-side
         maximum additionally step-wise by one separation per additional
         edge, so the ports of a node never pack tighter than configured,
-        however small its content height is (the fixed-size boxes of a
-        containment level are exempt)  */
+        however small its content height is (the edge ends merged into one
+        port counting as one, and the fixed-size boxes of a containment
+        level are exempt)  */
     const { boxW, boxH, contentH } = measureNodes(nodes, config, () => scale / 2, level.fixedSize)
-    const portGap = portGapOf(edges, config)
+    const portGap = portGapOf(edges, sides, config, merged)
     const portCnt = new Map<string, number>()
     edges.forEach((edge, i) => {
         portCnt.set(`${sides[i].s}:${edge.source}`, (portCnt.get(`${sides[i].s}:${edge.source}`) ?? 0) + 1)
         portCnt.set(`${sides[i].t}:${edge.target}`, (portCnt.get(`${sides[i].t}:${edge.target}`) ?? 0) + 1)
     })
+    if (merged !== undefined) {
+        const seen = new Set<string>()
+        edges.forEach((edge, i) => {
+            for (const [ role, id ] of [ [ "s", edge.source ], [ "t", edge.target ] ] as const) {
+                const m = merged(i, role)
+                if (m === undefined)
+                    continue
+                const key = `${sides[i][role]}:${id}`
+                if (seen.has(m))
+                    portCnt.set(key, portCnt.get(key)! - 1)
+                else
+                    seen.add(m)
+            }
+        })
+    }
     for (const node of nodes) {
         if (level.fixedSize?.has(node.id))
             continue
-        const cnt   = Math.max(portCnt.get(`w:${node.id}`) ?? 0, portCnt.get(`e:${node.id}`) ?? 0)
-        const extra = Math.max(0, cnt - config["hub-node-degree-max"])
-        boxH.set(node.id, Math.max(
-            boxH.get(node.id)! + extra * portGap, cnt * portGap + PORT_PAD))
+        let [ extra, full ] = [ 0, 0 ]
+        for (const side of [ "w", "e" ] as const) {
+            const cnt = portCnt.get(`${side}:${node.id}`) ?? 0
+            const gap = portGap(node.id, side)
+            extra = Math.max(extra, Math.max(0, cnt - config["hub-node-degree-max"]) * gap)
+            full  = Math.max(full,  cnt * gap)
+        }
+        boxH.set(node.id, Math.max(boxH.get(node.id)! + extra, full + PORT_PAD))
     }
 
     /*  a stack of more nodes than the configured maximum wraps into two
@@ -177,9 +198,10 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         carries its ports at fixed positions anywhere along its side,
         so its lane spans its entire height)  */
     const laneOf = (id: string): number => {
-        const cnt = Math.max(portCnt.get(`w:${id}`) ?? 0, portCnt.get(`e:${id}`) ?? 0)
+        const span = Math.max(...([ "w", "e" ] as const).map((side) =>
+            ((portCnt.get(`${side}:${id}`) ?? 0) - 1) * portGap(id, side)))
         return level.fixedSize?.has(id) ? boxH.get(id)! / 2 :
-            Math.min(boxH.get(id)! / 2, (cnt - 1) * portGap / 2 + LANE_PAD)
+            Math.min(boxH.get(id)! / 2, span / 2 + LANE_PAD)
     }
 
     /*  fixed three-column layout: stack the input nodes in the first
@@ -264,13 +286,14 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
 
     /*  distribute the edge attachment ports along each node side  */
     let portPos = assignPorts(edges, sides, cx, cy, boxW, boxH, portGap,
-        undefined, level.fixedPort)
+        undefined, level.fixedPort, merged)
 
     /*  assign the vertical tracks within each channel (see assignTracks
         for the crossing-avoiding ordering scheme; a hub graph has no backward
         edges, hence no channel user is ever mirrored, and a crowded
         channel bundles the edges of the same name sharing their target
-        with the same arity, or else their source)  */
+        with the same arity, or else their source, with the edges of a
+        merged port bound to their bundle)  */
     const chanUsers: TrackUser[][] = [ [], [] ]
     edges.forEach((edge, i) => {
         chanUsers[chanOf(edge)].push({
@@ -279,19 +302,24 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             posOut:  portPos.get(`${i}:t`)!.y,
             mirror:  false,
             bundles: [ `t:${JSON.stringify([ edge.target, edge.arity ?? null, edge.name ?? null ])}`,
-                `s:${JSON.stringify([ edge.source, edge.name ?? null ])}` ]
+                `s:${JSON.stringify([ edge.source, edge.name ?? null ])}` ],
+            unit:    merged?.(i, "t") ?? merged?.(i, "s")
         })
     })
     const chanOff = new Map<string, number>()
-    const bundled = new Set<number>()
+    const bundled = new Map<number, string>()
     const frame   = Math.max(CHAN_W1, 2 * arrowRoom(config))
     let   grown   = false
     chanUsers.forEach((users, c) => {
-        const tracks = assignTracks(users, chanW[c], CHAN_PAD, config["size-edge-track-gap"], frame)
+        /*  a channel holding a bundle running through one merged port keeps
+            that run long enough for the labels of the bundle placed there  */
+        const reach  = users.reduce((max, u) =>
+            u.unit !== undefined ? Math.max(max, 2 * stubRoom(edges[u.edge], config)) : max, frame)
+        const tracks = assignTracks(users, chanW[c], CHAN_PAD, config["size-edge-track-gap"], reach)
         for (const [ edge, off ] of tracks.offsets)
             chanOff.set(`${c}:${edge}`, off)
-        for (const edge of tracks.bundled.keys())
-            bundled.add(edge)
+        for (const [ edge, key ] of tracks.bundled)
+            bundled.set(edge, key)
         if (tracks.need > chanW[c]) {
             chanW[c] = tracks.need
             grown    = true
@@ -304,7 +332,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     if (grown) {
         placeColumns()
         portPos = assignPorts(edges, sides, cx, cy, boxW, boxH, portGap,
-            undefined, level.fixedPort)
+            undefined, level.fixedPort, merged)
     }
 
     /*  determine the X position of an edge's assigned track within a channel  */
@@ -323,6 +351,31 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             pts = [ [ sp.x, sp.y ], [ ch, sp.y ], [ ch, tp.y ], [ tp.x, tp.y ] ]
         return simplifyPoly(pts)
     })
+
+    /*  let the bundles (of edges of the same name) leading to the same
+        node with the same arity run into it as one, and the bundles coming
+        from the same node run out of it as one: merge the edge ends of
+        every such bundle (not attaching at a fixed port) into one port,
+        which frees the ports of the others, and lay out anew, but keep
+        this only if it does not enlarge the diagram  */
+    const ends  = new Map<string, string>()
+    const count = new Map<string, number>()
+    for (const [ i, key ] of bundled) {
+        const role = key.startsWith("t:") ? "t" : "s"
+        if (level.fixedPort?.(i, role) !== undefined)
+            continue
+        const end = `${chanOf(edges[i])}:${key}`
+        ends.set(`${i}:${role}`, end)
+        count.set(end, (count.get(end) ?? 0) + 1)
+    }
+    for (const [ end, key ] of ends)
+        if (count.get(key)! < 2)
+            ends.delete(end)
+    if (merged === undefined && ends.size > 0) {
+        const layout = await render(graph, config, level, (edge, role) => ends.get(`${edge}:${role}`))
+        if (extentOf(layout) <= extentOf({ nodes, cx, cy, boxW, boxH, polys }))
+            return layout
+    }
 
     /*  hand over the laid out graph for SVG rendering (the output copy
         of a twice-placed node is rendered as a dashed grey "ghost" box,

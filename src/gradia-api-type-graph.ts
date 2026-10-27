@@ -10,7 +10,7 @@ import { DagreLayout } from "@antv/layout"
 /*  internal dependencies  */
 import { Graph, Node, Edge }                 from "./gradia-api-model.js"
 import { Config }                            from "./gradia-api-config.js"
-import { Poly, ARITY_OFF, textWidth, arrowRoom, Layout }
+import { Poly, ARITY_OFF, textWidth, arrowRoom, stubRoom, extentOf, Layout }
     from "./gradia-api-render-base.js"
 import { measureNodes, orderOf }             from "./gradia-api-render-node.js"
 import { LevelContext, GateSide }            from "./gradia-api-render-container.js"
@@ -506,6 +506,11 @@ const targetKey = (c: number, edge: Edge, via?: number): string =>
 const sourceKey = (c: number, edge: Edge, via?: number): string =>
     `s:${c}:${via ?? ""}:${JSON.stringify([ edge.source, edge.name ?? null ])}`
 
+/*  the merged edge ends: the key of the bundle whose edges run into
+    their target node, or out of their source node, as one, merging
+    their edge ends at that node into one port  */
+type Merge = (edge: number, role: "s" | "t") => string | undefined
+
 /*  assign the parallel tracks within the channels and gutters and derive
     the resulting track coordinate functions (see assignTracks for the
     crossing-avoiding ordering scheme, with backward edges entering the
@@ -513,55 +518,67 @@ const sourceKey = (c: number, edge: Edge, via?: number): string =>
     scheme, just transposed: edges dropping in from above enter from the
     near side, edges rising from below are the mirrored users), together
     with the needs of the crowded channels and gutters and the edges
-    bundled within them  */
+    bundled within the channels (with the key of their bundle, by the
+    channel and the edge)  */
 const assignTrackCoords = (
     edges:   Edge[],
     plans:   RoutePlan[],
     portPos: Map<string, { x: number, y: number }>,
     grid:    Grid,
-    config:  Config
+    config:  Config,
+    merged?: Merge
 ): { chanX: (c: number, edge: number) => number, gutY: (g: number, edge: number) => number,
-    need: Need, bundled: Set<number> } => {
+    need: Need, bundled: Set<number>, keys: Map<string, string> } => {
     const { colWidth, rowHeight, chanCap, gutCap, chanW, gutH, colCX, rowCY } = grid
     const gutBase = (g: number) => rowCY[g] + rowHeight[g] / 2 + gutH[g] / 2
     const gap     = config["size-edge-track-gap"]
     const need: Need = { chan: new Map<number, number>(), gut: new Map<number, number>() }
     const bundled    = new Set<number>()
+    const keys       = new Map<string, string>()
 
     /*  assign the vertical tracks within the inter-column channels (the
         leg of a self-loop spans up to its detour above the box, and a
         gutter-ending edge takes no track in its gate-side channel), with
-        the self-loops never bundled, as their detours would coincide  */
+        the self-loops never bundled, as their detours would coincide, and
+        the edges with merged ports bound to their bundle beside the port  */
     const chanUsers = new Map<number, TrackUser[]>()
     edges.forEach((edge, i) => {
         const { chans, guts, flags, gate } = plans[i]
-        const sp = portPos.get(`${i}:s`)!
-        const tp = portPos.get(`${i}:t`)!
+        const sp   = portPos.get(`${i}:s`)!
+        const tp   = portPos.get(`${i}:t`)!
+        const tEnd = merged?.(i, "t")
+        const sEnd = merged?.(i, "s")
         if (edge.source === edge.target)
             pushTo(chanUsers, chans[0], { edge: i, posIn: sp.y, posOut: tp.y - LOOP_TOP, ...flags[0] })
         else if (chans.length === 1)
             pushTo(chanUsers, chans[0], { edge: i, posIn: sp.y, posOut: tp.y, ...flags[0],
-                bundles: [ targetKey(chans[0], edge), sourceKey(chans[0], edge) ] })
+                bundles: [ targetKey(chans[0], edge), sourceKey(chans[0], edge) ], unit: tEnd ?? sEnd })
         else {
             const gy = gutBase(guts[0])
             if (gate !== "s")
                 pushTo(chanUsers, chans[0], { edge: i, posIn: sp.y, posOut: gy,   ...flags[0],
-                    bundles: [ targetKey(chans[1], edge, guts[0]), sourceKey(chans[0], edge) ] })
+                    bundles: [ targetKey(chans[1], edge, guts[0]), sourceKey(chans[0], edge) ], unit: sEnd })
             if (gate !== "t")
                 pushTo(chanUsers, chans[1], { edge: i, posIn: gy,   posOut: tp.y, ...flags[1],
-                    bundles: [ targetKey(chans[1], edge), sourceKey(chans[0], edge, guts[0]) ] })
+                    bundles: [ targetKey(chans[1], edge), sourceKey(chans[0], edge, guts[0]) ], unit: tEnd })
         }
     })
     const chanOff = new Map<string, number>()
     const frame   = Math.max(CHAN_W1, 2 * arrowRoom(config))
     for (const [ c, users ] of chanUsers) {
-        const tracks = assignTracks(users, chanCap[c], CHAN_PAD, gap, frame)
+        /*  a channel holding a bundle running through one merged port keeps
+            that run long enough for the labels of the bundle placed there  */
+        const reach  = users.reduce((max, u) =>
+            u.unit !== undefined ? Math.max(max, 2 * stubRoom(edges[u.edge], config)) : max, frame)
+        const tracks = assignTracks(users, chanCap[c], CHAN_PAD, gap, reach)
         for (const [ edge, off ] of tracks.offsets)
             chanOff.set(`${c}:${edge}`, off)
         if (tracks.need > 0)
             need.chan.set(c, tracks.need)
-        for (const edge of tracks.bundled.keys())
+        for (const [ edge, key ] of tracks.bundled) {
             bundled.add(edge)
+            keys.set(`${c}:${edge}`, key)
+        }
     }
     const chanX = (c: number, edge: number) => colCX[c] + colWidth[c] / 2 + chanW[c] / 2 +
         chanOff.get(`${c}:${edge}`)!
@@ -595,7 +612,7 @@ const assignTrackCoords = (
             bundled.add(edge)
     }
     const gutY = (g: number, edge: number) => gutBase(g) + gutOff.get(`${g}:${edge}`)!
-    return { chanX, gutY, need, bundled }
+    return { chanX, gutY, need, bundled, keys }
 }
 
 /*  route every edge as an orthogonal polyline through the channels
@@ -659,7 +676,8 @@ const routePolys = (
 /*  the routing of all edges: the attachment ports, the gutter track
     positions, the polylines, the needs of the crowded channels and
     gutters (and whether the grid fulfills them), the edges bundled
-    within them, and the number of crossings between them
+    within them (with the keys of their bundles in the channels, see
+    assignTrackCoords), and the number of crossings between them
     (determined on demand only, as merely the node nudging needs it)  */
 interface Routing {
     portPos: Map<string, { x: number, y: number }>
@@ -668,6 +686,7 @@ interface Routing {
     need:    Need
     fits:    boolean
     bundled: Set<number>
+    keys:    Map<string, string>
     hops:    () => number
 }
 
@@ -691,16 +710,17 @@ const routeEdges = (
     cy:      (id: string) => number,
     grid:    Grid,
     config:  Config,
-    level:   LevelContext
+    level:   LevelContext,
+    merged?: Merge
 ): Routing => {
-    const portGap  = portGapOf(edges, config)
+    const portGap  = portGapOf(edges, sides, config, merged)
     const portPre  = assignPorts(edges, sides, cx, cy, boxW, boxH, portGap,
-        undefined, level.fixedPort)
-    const trackPre = assignTrackCoords(edges, plans, portPre, grid, config)
+        undefined, level.fixedPort, merged)
+    const trackPre = assignTrackCoords(edges, plans, portPre, grid, config, merged)
     const portPos  = assignPorts(edges, sides, cx, cy, boxW, boxH, portGap,
         (edge) => plans[edge].guts.length > 0 ?
-            trackPre.gutY(plans[edge].guts[0], edge) : undefined, level.fixedPort)
-    const { chanX, gutY, need, bundled } = assignTrackCoords(edges, plans, portPos, grid, config)
+            trackPre.gutY(plans[edge].guts[0], edge) : undefined, level.fixedPort, merged)
+    const { chanX, gutY, need, bundled, keys } = assignTrackCoords(edges, plans, portPos, grid, config, merged)
     const polys = routePolys(edges, plans, portPos, boxH, cy, chanX, gutY)
     const fits  = Array.from(need.chan).every(([ c, w ]) => w <= grid.chanW[c])
         && Array.from(need.gut).every(([ g, h ]) => h <= grid.gutH[g])
@@ -710,7 +730,7 @@ const routeEdges = (
             sum + Array.from(segs.values()).reduce((n, xs) => n + xs.length, 0), 0)
         return count
     }
-    return { portPos, gutY, polys, need, fits, bundled, hops }
+    return { portPos, gutY, polys, need, fits, bundled, keys, hops }
 }
 
 /*  nudge nodes vertically off their row centers to straighten the
@@ -851,26 +871,48 @@ const attachSides = (
     node never pack tighter than configured, however small its content
     height is (the fixed-size boxes of a containment level are exempt)  */
 const growBoxes = (
-    nodes:  Node[],
-    edges:  Edge[],
-    sides:  { s: Side, t: Side }[],
-    boxH:   Map<string, number>,
-    config: Config,
-    level:  LevelContext
+    nodes:   Node[],
+    edges:   Edge[],
+    sides:   { s: Side, t: Side }[],
+    boxH:    Map<string, number>,
+    config:  Config,
+    level:   LevelContext,
+    merged?: Merge
 ): void => {
-    const portGap = portGapOf(edges, config)
+    const portGap = portGapOf(edges, sides, config, merged)
     const portCnt = new Map<string, number>()
     edges.forEach((edge, i) => {
         portCnt.set(`${sides[i].s}:${edge.source}`, (portCnt.get(`${sides[i].s}:${edge.source}`) ?? 0) + 1)
         portCnt.set(`${sides[i].t}:${edge.target}`, (portCnt.get(`${sides[i].t}:${edge.target}`) ?? 0) + 1)
     })
+
+    /*  count the edge ends merged into one port as one  */
+    if (merged !== undefined) {
+        const seen = new Set<string>()
+        edges.forEach((edge, i) => {
+            for (const [ role, id ] of [ [ "s", edge.source ], [ "t", edge.target ] ] as const) {
+                const m = merged(i, role)
+                if (m === undefined)
+                    continue
+                const key = `${sides[i][role]}:${id}`
+                if (seen.has(m))
+                    portCnt.set(key, portCnt.get(key)! - 1)
+                else
+                    seen.add(m)
+            }
+        })
+    }
     for (const node of nodes) {
         if (level.fixedSize?.has(node.id))
             continue
-        const cnt   = Math.max(portCnt.get(`w:${node.id}`) ?? 0, portCnt.get(`e:${node.id}`) ?? 0)
-        const extra = Math.max(0, cnt - config["graph-node-degree-max"])
-        boxH.set(node.id, Math.max(
-            boxH.get(node.id)! + extra * portGap, cnt * portGap + PORT_PAD))
+        let [ extra, full ] = [ 0, 0 ]
+        for (const side of [ "w", "e" ] as const) {
+            const cnt = portCnt.get(`${side}:${node.id}`) ?? 0
+            const gap = portGap(node.id, side)
+            extra = Math.max(extra, Math.max(0, cnt - config["graph-node-degree-max"]) * gap)
+            full  = Math.max(full,  cnt * gap)
+        }
+        boxH.set(node.id, Math.max(boxH.get(node.id)! + extra, full + PORT_PAD))
     }
 }
 
@@ -997,8 +1039,15 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     }
     const { plans, chanCnt, gutCnt, chanLbl, gutLbl, gutLoop } = routes
 
-    /*  grow the boxes by their edge attachment needs  */
-    growBoxes(nodes, edges, sides, boxH, config, level)
+    /*  grow the boxes by their edge attachment needs (anew from their
+        content sizes, once the edge ends merged into one port are known)  */
+    const sizedH = new Map(boxH)
+    const sizeBoxes = (merged?: Merge) => {
+        for (const [ id, h ] of sizedH)
+            boxH.set(id, h)
+        growBoxes(nodes, edges, sides, boxH, config, level, merged)
+    }
+    sizeBoxes()
 
     /*  determine grid cell sizes and node center positions (the nodes
         centered in their rows, before any vertical nudging)  */
@@ -1010,8 +1059,10 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const cx   = (id: string) => grid.colCX[col.get(id)!]
     const cy   = (id: string) => grid.rowCY[row.get(id)!] + (dy.get(id) ?? 0)
 
-    /*  route the edges for the current node positions  */
-    const route = () => routeEdges(edges, plans, sides, boxW, boxH, cx, cy, grid, config, level)
+    /*  route the edges for the current node positions (with the edge
+        ends merged into one port, once determined)  */
+    let   merged: Merge | undefined
+    const route = () => routeEdges(edges, plans, sides, boxW, boxH, cx, cy, grid, config, level, merged)
 
     /*  lay out the grid and route the edges, re-sizing the crowded
         channels and gutters by the needs of their bundled tracks until
@@ -1019,6 +1070,10 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         nudge nodes vertically off their row centers where this
         straightens edges and thereby simplifies the routing  */
     const layout = (): Routing => {
+        need.chan.clear()
+        need.gut.clear()
+        dy.clear()
+        grid = layoutGrid()
         let initial = route()
         for (let pass = 0; pass < GROW_PASSES; pass++) {
             let changed = false
@@ -1040,7 +1095,49 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         }
         return nudgeNodes(nodes, edges, plans, col, row, boxH, grid, nrows, dy, route, initial)
     }
-    const routing = layout()
+    let routing = layout()
+
+    /*  let the bundles (of edges of the same name) leading to the same
+        target node side with the same arity run into it as one, and the
+        bundles coming from the same source node side run out of it as
+        one: merge the edge ends of every such bundle (bound in the channel
+        beside the node, not attaching at a fixed port or a gate) into one
+        port, which frees the ports of the others, and lay out anew, but
+        keep this only if it does not enlarge the diagram  */
+    const ends  = new Map<string, string>()
+    const count = new Map<string, number>()
+    const bind  = (end: string, key: string) => {
+        ends.set(end, key)
+        count.set(key, (count.get(key) ?? 0) + 1)
+    }
+    edges.forEach((edge, i) => {
+        const { chans, gate } = plans[i]
+        if (edge.source === edge.target)
+            return
+        const tc = chans[chans.length - 1]
+        const sc = chans[0]
+        const tk = routing.keys.get(`${tc}:${i}`)
+        const sk = routing.keys.get(`${sc}:${i}`)
+        if (gate !== "t" && level.fixedPort?.(i, "t") === undefined && tk === targetKey(tc, edge))
+            bind(`${i}:t`, tk)
+        if (gate !== "s" && level.fixedPort?.(i, "s") === undefined && sk === sourceKey(sc, edge))
+            bind(`${i}:s`, sk)
+    })
+    for (const [ end, key ] of ends)
+        if (count.get(key)! < 2)
+            ends.delete(end)
+    if (ends.size > 0) {
+        const extent = () => extentOf({ nodes, cx, cy, boxW, boxH, polys: routing.polys })
+        const before = extent()
+        merged = (edge, role) => ends.get(`${edge}:${role}`)
+        sizeBoxes(merged)
+        routing = layout()
+        if (extent() > before) {
+            merged = undefined
+            sizeBoxes()
+            routing = layout()
+        }
+    }
 
     /*  hand over the laid out graph for SVG rendering  */
     return { nodes, edges, cx, cy, boxW, boxH, contentH, polys: routing.polys,

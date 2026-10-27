@@ -2,6 +2,16 @@
 ChangeLog
 =========
 
+1.4.5 (2026-10-27)
+------------------
+
+-   IMPROVEMENT [code]: bundle the edges of crowded channels and gutters (whose parallel tracks do
+    not fit at the full "size-edge-track-gap") instead of squeezing their tracks into one grey bar:
+    the edges of the same name leading to the same target node side with the same arity, or else
+    coming from the same source node side, share one common track, joined and left at junctions
+    marked by a dot, the remaining tracks stay at least 8 apart, a crowded "graph" channel or gutter
+    is sized by the need of its bundled tracks, and the name labels of a bundle line up in one column.
+
 -   IMPROVEMENT [code]: merge the edge ends of a bundle beside its node into one port, so the bundle
     enters its target (or leaves its source) through a single stub, with a single arrow head, arity
     and name label, and the freed ports let the box shrink, with the larger port separation for the
