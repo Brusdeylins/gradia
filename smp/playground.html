@@ -127,7 +127,7 @@
             </div>
         </div>
 
-        <!--  the embedded sample graph descriptions (verbatim copies of the smp/broadcast-*.txt files)  -->
+        <!--  the embedded sample graph descriptions (verbatim copies of the smp/*.txt files)  -->
         <script type="text/x-gradia" id="sample-broadcast-graph">
 #type graph
 
@@ -249,6 +249,29 @@ EventStatistic [ url: "#eventstatistic" ]
 ChannelStatistic [ url: "#channelstatistic" ]
 UserStatistic [ url: "#userstatistic" ]
         </script>
+        <script type="text/x-gradia" id="sample-sequence-sample">
+#type sequence
+
+client:  "Web Client"     [ type: ACTOR ]
+gateway: "API Gateway"    [ type: BOUNDARY ]
+service: "Order Service"  [ type: CONTROL ]
+order:   "Order"          [ type: ENTITY ]
+db:      "Order Database" [ type: ENTITY ]
+audit:   "Audit Log"
+
+client  --("POST /orders")--> gateway { time: "t=now" }
+gateway --("validate token")--> gateway
+gateway --("token valid")--> gateway { kind: return }
+gateway --(createOrder)--> service { duration: "{< 300ms}" }
+service --("new Order")--> order { kind: create }
+order   --(order)--> service { kind: return }
+service --("INSERT order")--> db
+db      --("order id")--> service { kind: return }
+service --(dispose)--> order { kind: destroy }
+service --("order created")--> audit { kind: async }
+service --("201 Created")--> gateway { kind: return }
+gateway --("201 Created")--> client { kind: return }
+        </script>
 
         <script>
             /*  access the Gradia API class from the "Gradia" namespace
@@ -267,7 +290,8 @@ UserStatistic [ url: "#userstatistic" ]
             const samples = {
                 "broadcast-graph.txt": sampleOf("sample-broadcast-graph"),
                 "broadcast-hub.txt":   sampleOf("sample-broadcast-hub"),
-                "broadcast-grid.txt":  sampleOf("sample-broadcast-grid")
+                "broadcast-grid.txt":  sampleOf("sample-broadcast-grid"),
+                "sequence-sample.txt": sampleOf("sample-sequence-sample")
             }
 
             const app = Vue.createApp({
