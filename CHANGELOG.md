@@ -2,6 +2,12 @@
 ChangeLog
 =========
 
+-   IMPROVEMENT [code]: merge the edge ends of a bundle beside its node into one port, so the bundle
+    enters its target (or leaves its source) through a single stub, with a single arrow head, arity
+    and name label, and the freed ports let the box shrink, with the larger port separation for the
+    name label applied only to the node sides holding such a merged port, and the merging kept only
+    if it does not enlarge the diagram.
+
 1.4.4 (2026-10-27)
 ------------------
 
