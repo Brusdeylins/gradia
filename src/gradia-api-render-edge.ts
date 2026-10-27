@@ -310,8 +310,8 @@ const minimizeCrossings = (seed: TrackUser[]): TrackUser[] => {
             to, so the cost change is accumulated while extending the
             run), until no such move remains (a single-user move is
             the block move of length one, while the longer blocks let
-            groups of users pass an obstacle which none of its users
-            could pass on its own); for large user sets the search is
+            a group of users pass an obstacle which none of its members
+            could pass on their own); for large user sets the search is
             bounded instead: per block, the best move over the runs
             behind and ahead of it is applied, and the search continues
             with the next block instead of restarting  */

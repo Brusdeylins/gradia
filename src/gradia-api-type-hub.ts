@@ -156,7 +156,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         every outer node is vertically centered onto a gap between two
         inner nodes, through which its edges reach the channel on their
         straight horizontal lanes (so the edge routing is unaffected).
-        The configured maximum decides for the larger stack alone, as the
+        The configured maximum only affects the larger stack, as the
         height of the diagram follows that one: the tallest (sub-)column
         it ends up with implicitly caps the smaller stack, which hence
         wraps exactly if that lowers the height of the diagram  */

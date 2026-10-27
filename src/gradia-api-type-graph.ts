@@ -64,7 +64,7 @@ const snapToGrid = (
         return best
     }
 
-    /*  assign every node to its nearest column and row  */
+    /*  assign every node to its nearest column  */
     const col = new Map<string, number>()
     const row = new Map<string, number>()
     for (const node of nodes)
