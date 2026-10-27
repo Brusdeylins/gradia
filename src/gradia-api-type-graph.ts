@@ -10,7 +10,7 @@ import { DagreLayout } from "@antv/layout"
 /*  internal dependencies  */
 import { Graph, Node, Edge }                 from "./gradia-api-model.js"
 import { Config }                            from "./gradia-api-config.js"
-import { Poly, ARITY_OFF, textWidth, Layout }
+import { Poly, ARITY_OFF, textWidth, arrowRoom, Layout }
     from "./gradia-api-render-base.js"
 import { measureNodes, orderOf }             from "./gradia-api-render-node.js"
 import { LevelContext, GateSide }            from "./gradia-api-render-container.js"
@@ -35,6 +35,9 @@ const LOOP_TOP = 52  /*  detour of a self-loop above its node box    */
 const NUDGE_GAP    = 24  /*  min port distance of a nudged node from its gutter tracks  */
 const NUDGE_PASSES = 3   /*  max number of node nudging passes                          */
 const NUDGE_EDGES  = 300 /*  max number of edges for which nodes are nudged at all      */
+
+/*  the maximum number of passes sizing the crowded channels and gutters  */
+const GROW_PASSES = 4
 
 /*  snap raw node positions onto a discrete grid by clustering the
     distinct X coordinates into columns and Y coordinates into rows  */
@@ -400,19 +403,31 @@ const planRoutes = (
 
 /*  the computed grid geometry: the sizes of the columns and rows, the
     widths of the inter-column channels, the heights of the inter-row
-    gutters, and the resulting column/row center positions  */
+    gutters (both as capped by their configured maximum, within which
+    their tracks are spread, and as finally sized), and the resulting
+    column/row center positions  */
 interface Grid {
     colWidth:  number[]
     rowHeight: number[]
+    chanCap:   number[]
+    gutCap:    number[]
     chanW:     number[]
     gutH:      number[]
     colCX:     number[]
     rowCY:     number[]
 }
 
+/*  the widths of the crowded channels and the heights of the crowded
+    gutters needed by their bundled tracks  */
+interface Need {
+    chan: Map<number, number>
+    gut:  Map<number, number>
+}
+
 /*  determine grid cell sizes and final node center positions, with
     channel widths and gutter heights sized by actual edge usage to
-    keep the overall layout compact  */
+    keep the overall layout compact, except the crowded ones, which are
+    sized by the needs of their bundled tracks  */
 const computeGrid = (
     nodes:   Node[],
     col:     Map<string, number>,
@@ -426,6 +441,7 @@ const computeGrid = (
     chanLbl: Map<number, number>,
     gutLbl:  Map<number, number>,
     gutLoop: Map<number, number>,
+    need:    Need,
     config:  Config
 ): Grid => {
     const colWidth  = Array.from({ length: ncols }, () => 0)
@@ -440,23 +456,31 @@ const computeGrid = (
         label demand, a gutter by one line per label) and the self-loop
         detours rising into a gutter from the row below, and floored by
         the configured minimum width/height  */
-    const chanW = Array.from({ length: ncols }, (_, c) => {
-        const cnt = chanCnt.get(c) ?? 0
-        return Math.min(config["graph-channel-width-max"],
-            Math.max(config["graph-channel-width-min"],
-                cnt === 0 ? CHAN_W0 : CHAN_W1 + (cnt - 1) * config["size-edge-track-gap"],
-                chanLbl.get(c) ?? 0))
-    })
-    const gutH = Array.from({ length: nrows }, (_, g) => {
-        const cnt  = gutCnt.get(g)  ?? 0
+    const chanOf  = (c: number, tracks: number) =>
+        Math.min(config["graph-channel-width-max"],
+            Math.max(config["graph-channel-width-min"], tracks, chanLbl.get(c) ?? 0))
+    const gutOf   = (g: number, tracks: number) => {
         const lbl  = gutLbl.get(g)  ?? 0
         const loop = gutLoop.get(g) ?? 0
         return Math.min(config["graph-gutter-height-max"],
-            Math.max(config["graph-gutter-height-min"],
-                cnt === 0 ? GUT_H0 : GUT_H1 + (cnt - 1) * config["size-edge-track-gap"],
+            Math.max(config["graph-gutter-height-min"], tracks,
                 lbl  > 0 ? GUT_H1 + lbl * GUT_LBL : 0,
                 loop > 0 ? LOOP_TOP + (loop - 1) * config["size-edge-track-gap"] + GUT_PAD : 0))
+    }
+    const chanCap = Array.from({ length: ncols }, (_, c) => {
+        const cnt = chanCnt.get(c) ?? 0
+        return chanOf(c, cnt === 0 ? CHAN_W0 : CHAN_W1 + (cnt - 1) * config["size-edge-track-gap"])
     })
+    const gutCap  = Array.from({ length: nrows }, (_, g) => {
+        const cnt = gutCnt.get(g) ?? 0
+        return gutOf(g, cnt === 0 ? GUT_H0 : GUT_H1 + (cnt - 1) * config["size-edge-track-gap"])
+    })
+
+    /*  size the crowded channels and gutters by the needs of their
+        bundled tracks instead of by their edge count, still holding
+        their labels and loops  */
+    const chanW = chanCap.map((w, c) => need.chan.has(c) ? Math.max(need.chan.get(c)!, chanOf(c, 0)) : w)
+    const gutH  = gutCap.map((h, g)  => need.gut.has(g)  ? Math.max(need.gut.get(g)!,  gutOf(g, 0))  : h)
 
     /*  derive the column and row center positions  */
     const colCX: number[] = []
@@ -471,28 +495,43 @@ const computeGrid = (
         rowCY.push(y + rowHeight[r] / 2)
         y += rowHeight[r] + gutH[r]
     }
-    return { colWidth, rowHeight, chanW, gutH, colCX, rowCY }
+    return { colWidth, rowHeight, chanCap, gutCap, chanW, gutH, colCX, rowCY }
 }
+
+/*  the bundle keys of an edge: the edges of the same name leading to
+    the same target node side with the same arity, or coming from the
+    same source node side (directly, or else through the given gutter)  */
+const targetKey = (c: number, edge: Edge, via?: number): string =>
+    `t:${c}:${via ?? ""}:${JSON.stringify([ edge.target, edge.arity ?? null, edge.name ?? null ])}`
+const sourceKey = (c: number, edge: Edge, via?: number): string =>
+    `s:${c}:${via ?? ""}:${JSON.stringify([ edge.source, edge.name ?? null ])}`
 
 /*  assign the parallel tracks within the channels and gutters and derive
     the resulting track coordinate functions (see assignTracks for the
     crossing-avoiding ordering scheme, with backward edges entering the
     channel mirrored from the right side; the gutters use the very same
     scheme, just transposed: edges dropping in from above enter from the
-    near side, edges rising from below are the mirrored users)  */
+    near side, edges rising from below are the mirrored users), together
+    with the needs of the crowded channels and gutters and the edges
+    bundled within them  */
 const assignTrackCoords = (
     edges:   Edge[],
     plans:   RoutePlan[],
     portPos: Map<string, { x: number, y: number }>,
     grid:    Grid,
     config:  Config
-): { chanX: (c: number, edge: number) => number, gutY: (g: number, edge: number) => number } => {
-    const { colWidth, rowHeight, chanW, gutH, colCX, rowCY } = grid
+): { chanX: (c: number, edge: number) => number, gutY: (g: number, edge: number) => number,
+    need: Need, bundled: Set<number> } => {
+    const { colWidth, rowHeight, chanCap, gutCap, chanW, gutH, colCX, rowCY } = grid
     const gutBase = (g: number) => rowCY[g] + rowHeight[g] / 2 + gutH[g] / 2
+    const gap     = config["size-edge-track-gap"]
+    const need: Need = { chan: new Map<number, number>(), gut: new Map<number, number>() }
+    const bundled    = new Set<number>()
 
     /*  assign the vertical tracks within the inter-column channels (the
         leg of a self-loop spans up to its detour above the box, and a
-        gutter-ending edge takes no track in its gate-side channel)  */
+        gutter-ending edge takes no track in its gate-side channel), with
+        the self-loops never bundled, as their detours would coincide  */
     const chanUsers = new Map<number, TrackUser[]>()
     edges.forEach((edge, i) => {
         const { chans, guts, flags, gate } = plans[i]
@@ -501,19 +540,29 @@ const assignTrackCoords = (
         if (edge.source === edge.target)
             pushTo(chanUsers, chans[0], { edge: i, posIn: sp.y, posOut: tp.y - LOOP_TOP, ...flags[0] })
         else if (chans.length === 1)
-            pushTo(chanUsers, chans[0], { edge: i, posIn: sp.y, posOut: tp.y, ...flags[0] })
+            pushTo(chanUsers, chans[0], { edge: i, posIn: sp.y, posOut: tp.y, ...flags[0],
+                bundles: [ targetKey(chans[0], edge), sourceKey(chans[0], edge) ] })
         else {
             const gy = gutBase(guts[0])
             if (gate !== "s")
-                pushTo(chanUsers, chans[0], { edge: i, posIn: sp.y, posOut: gy,   ...flags[0] })
+                pushTo(chanUsers, chans[0], { edge: i, posIn: sp.y, posOut: gy,   ...flags[0],
+                    bundles: [ targetKey(chans[1], edge, guts[0]), sourceKey(chans[0], edge) ] })
             if (gate !== "t")
-                pushTo(chanUsers, chans[1], { edge: i, posIn: gy,   posOut: tp.y, ...flags[1] })
+                pushTo(chanUsers, chans[1], { edge: i, posIn: gy,   posOut: tp.y, ...flags[1],
+                    bundles: [ targetKey(chans[1], edge), sourceKey(chans[0], edge, guts[0]) ] })
         }
     })
     const chanOff = new Map<string, number>()
-    for (const [ c, users ] of chanUsers)
-        for (const [ edge, off ] of assignTracks(users, chanW[c], CHAN_PAD, config["size-edge-track-gap"]))
+    const frame   = Math.max(CHAN_W1, 2 * arrowRoom(config))
+    for (const [ c, users ] of chanUsers) {
+        const tracks = assignTracks(users, chanCap[c], CHAN_PAD, gap, frame)
+        for (const [ edge, off ] of tracks.offsets)
             chanOff.set(`${c}:${edge}`, off)
+        if (tracks.need > 0)
+            need.chan.set(c, tracks.need)
+        for (const edge of tracks.bundled.keys())
+            bundled.add(edge)
+    }
     const chanX = (c: number, edge: number) => colCX[c] + colWidth[c] / 2 + chanW[c] / 2 +
         chanOff.get(`${c}:${edge}`)!
 
@@ -521,25 +570,32 @@ const assignTrackCoords = (
         run of a gutter-ending edge extends up to its gate, where its
         stub continues straight and hence crosses no other track)  */
     const gutUsers = new Map<number, TrackUser[]>()
-    edges.forEach((_, i) => {
+    edges.forEach((edge, i) => {
         const { chans, guts, gate } = plans[i]
         if (guts.length === 0)
             return
         const sp = portPos.get(`${i}:s`)!
         const tp = portPos.get(`${i}:t`)!
         pushTo(gutUsers, guts[0], {
-            edge:   i,
-            posIn:  gate === "s" ? sp.x : chanX(chans[0], i),
-            posOut: gate === "t" ? tp.x : chanX(chans[1], i),
-            mirror: sp.y > gutBase(guts[0])
+            edge:    i,
+            posIn:   gate === "s" ? sp.x : chanX(chans[0], i),
+            posOut:  gate === "t" ? tp.x : chanX(chans[1], i),
+            mirror:  sp.y > gutBase(guts[0]),
+            bundles: [ targetKey(chans[1], edge), sourceKey(chans[0], edge) ]
         })
     })
     const gutOff = new Map<string, number>()
-    for (const [ g, users ] of gutUsers)
-        for (const [ edge, off ] of assignTracks(users, gutH[g], GUT_PAD, config["size-edge-track-gap"]))
+    for (const [ g, users ] of gutUsers) {
+        const tracks = assignTracks(users, gutCap[g], GUT_PAD, gap, GUT_H1)
+        for (const [ edge, off ] of tracks.offsets)
             gutOff.set(`${g}:${edge}`, off)
+        if (tracks.need > 0)
+            need.gut.set(g, tracks.need)
+        for (const edge of tracks.bundled.keys())
+            bundled.add(edge)
+    }
     const gutY = (g: number, edge: number) => gutBase(g) + gutOff.get(`${g}:${edge}`)!
-    return { chanX, gutY }
+    return { chanX, gutY, need, bundled }
 }
 
 /*  route every edge as an orthogonal polyline through the channels
@@ -601,12 +657,17 @@ const routePolys = (
 }
 
 /*  the routing of all edges: the attachment ports, the gutter track
-    positions, the polylines, and the number of crossings between them
+    positions, the polylines, the needs of the crowded channels and
+    gutters (and whether the grid fulfills them), the edges bundled
+    within them, and the number of crossings between them
     (determined on demand only, as merely the node nudging needs it)  */
 interface Routing {
     portPos: Map<string, { x: number, y: number }>
     gutY:    (g: number, edge: number) => number
     polys:   Poly[]
+    need:    Need
+    fits:    boolean
+    bundled: Set<number>
     hops:    () => number
 }
 
@@ -639,15 +700,17 @@ const routeEdges = (
     const portPos  = assignPorts(edges, sides, cx, cy, boxW, boxH, portGap,
         (edge) => plans[edge].guts.length > 0 ?
             trackPre.gutY(plans[edge].guts[0], edge) : undefined, level.fixedPort)
-    const { chanX, gutY } = assignTrackCoords(edges, plans, portPos, grid, config)
+    const { chanX, gutY, need, bundled } = assignTrackCoords(edges, plans, portPos, grid, config)
     const polys = routePolys(edges, plans, portPos, boxH, cy, chanX, gutY)
+    const fits  = Array.from(need.chan).every(([ c, w ]) => w <= grid.chanW[c])
+        && Array.from(need.gut).every(([ g, h ]) => h <= grid.gutH[g])
     let   count: number | undefined
     const hops  = (): number => {
         count ??= computeHops(polys).reduce((sum, segs) =>
             sum + Array.from(segs.values()).reduce((n, xs) => n + xs.length, 0), 0)
         return count
     }
-    return { portPos, gutY, polys, hops }
+    return { portPos, gutY, polys, need, fits, bundled, hops }
 }
 
 /*  nudge nodes vertically off their row centers to straighten the
@@ -657,7 +720,8 @@ const routeEdges = (
     band into an adjacent gutter only as far as no gutter track runs
     across its column and no self-loop detours through it there (a loop
     rises above the box of its node), and only as long as its own
-    gutter-routed edges keep approaching it from their gutter side  */
+    gutter-routed edges keep approaching it from their gutter side and
+    the tracks of the crowded channels and gutters keep fitting in  */
 const nudgeNodes = (
     nodes:  Node[],
     edges:  Edge[],
@@ -668,7 +732,8 @@ const nudgeNodes = (
     grid:   Grid,
     nrows:  number,
     dy:     Map<string, number>,
-    route:  () => Routing
+    route:  () => Routing,
+    first:  Routing
 ): Routing => {
     /*  whether neither a gutter track nor a self-loop detour crosses a column within a gutter  */
     const gutterFree = (g: number, c: number): boolean =>
@@ -713,7 +778,7 @@ const nudgeNodes = (
         its direct edges, and keep the best of the shifts improving the
         routing (all shifts are relative to the current position, which
         already includes the shifts of the previous passes)  */
-    let current = route()
+    let current = first
 
     /*  skip the nudging on large graphs, as every tried shift re-routes
         all edges, so its effort grows with the node count times the
@@ -742,7 +807,8 @@ const nudgeNodes = (
                     continue
                 dy.set(node.id, base + shift)
                 const routing = route()
-                if (approachesSanely(node.id, routing) && better(routing, best?.routing ?? current))
+                if (approachesSanely(node.id, routing) && routing.fits
+                    && better(routing, best?.routing ?? current))
                     best = { shift: base + shift, routing }
             }
             dy.set(node.id, best?.shift ?? base)
@@ -936,8 +1002,10 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
 
     /*  determine grid cell sizes and node center positions (the nodes
         centered in their rows, before any vertical nudging)  */
-    const grid = computeGrid(nodes, col, row, boxW, boxH, ncols, nrows,
-        chanCnt, gutCnt, chanLbl, gutLbl, gutLoop, config)
+    const need: Need = { chan: new Map<number, number>(), gut: new Map<number, number>() }
+    const layoutGrid = () => computeGrid(nodes, col, row, boxW, boxH, ncols, nrows,
+        chanCnt, gutCnt, chanLbl, gutLbl, gutLoop, need, config)
+    let   grid = layoutGrid()
     const dy   = new Map<string, number>()
     const cx   = (id: string) => grid.colCX[col.get(id)!]
     const cy   = (id: string) => grid.rowCY[row.get(id)!] + (dy.get(id) ?? 0)
@@ -945,11 +1013,37 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     /*  route the edges for the current node positions  */
     const route = () => routeEdges(edges, plans, sides, boxW, boxH, cx, cy, grid, config, level)
 
-    /*  nudge nodes vertically off their row centers where this
+    /*  lay out the grid and route the edges, re-sizing the crowded
+        channels and gutters by the needs of their bundled tracks until
+        these settle (after the first pass they only grow), and finally
+        nudge nodes vertically off their row centers where this
         straightens edges and thereby simplifies the routing  */
-    const routing = nudgeNodes(nodes, edges, plans, col, row, boxH, grid, nrows, dy, route)
+    const layout = (): Routing => {
+        let initial = route()
+        for (let pass = 0; pass < GROW_PASSES; pass++) {
+            let changed = false
+            const settle = (to: Map<number, number>, from: Map<number, number>) => {
+                for (const [ k, v ] of from) {
+                    const size = pass === 0 ? v : Math.max(to.get(k) ?? 0, v)
+                    if (size !== to.get(k)) {
+                        to.set(k, size)
+                        changed = true
+                    }
+                }
+            }
+            settle(need.chan, initial.need.chan)
+            settle(need.gut,  initial.need.gut)
+            if (!changed)
+                break
+            grid    = layoutGrid()
+            initial = route()
+        }
+        return nudgeNodes(nodes, edges, plans, col, row, boxH, grid, nrows, dy, route, initial)
+    }
+    const routing = layout()
 
     /*  hand over the laid out graph for SVG rendering  */
-    return { nodes, edges, cx, cy, boxW, boxH, contentH, polys: routing.polys }
+    return { nodes, edges, cx, cy, boxW, boxH, contentH, polys: routing.polys,
+        bundled: edges.map((_, i) => routing.bundled.has(i)) }
 }
 

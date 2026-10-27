@@ -23,6 +23,12 @@ export const ARITY_OFF = 24
 export const ARITY_PAD = 4
 export const ARROW_H   = 17
 
+/*  the straight run an edge keeps between its arrow head (or start)
+    and a corner or hop, i.e., the room an arrow head claims  */
+export const ARROW_AIR = 8
+export const arrowRoom = (config: Config): number =>
+    ARROW_H + config["size-edge-corner-radius"] + ARROW_AIR
+
 /*  the height of the box an edge arity label occupies  */
 export const arityHeight = (config: Config): number =>
     Math.round(config["size-font-arity"] * 0.8)
@@ -93,7 +99,9 @@ export interface ContainerBox {
     h:    number
 }
 
-/*  the laid out graph handed over for SVG generation  */
+/*  the laid out graph handed over for SVG generation (the optional
+    "bundled" flags run parallel to the edges and mark the ones sharing
+    a track, composing by concatenation exactly like the edges)  */
 export interface Layout {
     nodes:       Node[]
     edges:       Edge[]
@@ -106,5 +114,6 @@ export interface Layout {
     styleOf?:    (node: Node) => NodeStyle
     groups?:     GroupBox[]
     containers?: ContainerBox[]
+    bundled?:    boolean[]
 }
 

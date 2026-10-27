@@ -7,7 +7,8 @@
 /*  internal dependencies  */
 import { Node, Edge, Graph }                       from "./gradia-api-model.js"
 import { Config }                                  from "./gradia-api-config.js"
-import { Poly, NodeStyle, Layout, ARITY_OFF, textWidth } from "./gradia-api-render-base.js"
+import { Poly, NodeStyle, Layout, ARITY_OFF, textWidth, arrowRoom }
+    from "./gradia-api-render-base.js"
 import { isPrimary, measureNodes, defaultStyleOf } from "./gradia-api-render-node.js"
 import { LevelContext }                            from "./gradia-api-render-container.js"
 import { Side, TrackUser, simplifyPoly, assignPorts, assignTracks, portGapOf, PORT_PAD }
@@ -238,11 +239,14 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
         Math.min(config["hub-channel-width-max"], Math.max(config["hub-channel-width-min"],
             CHAN_W1 + (cnt - 1) * config["size-edge-track-gap"])))
     const colLX: number[] = []
-    let x = margin
-    for (let c = 0; c < 3; c++) {
-        colLX.push(x)
-        x += colWidth[c] + (c < 2 ? chanW[c] : 0)
+    const placeColumns = () => {
+        let x = margin
+        for (let c = 0; c < 3; c++) {
+            colLX[c] = x
+            x += colWidth[c] + (c < 2 ? chanW[c] : 0)
+        }
     }
+    placeColumns()
 
     /*  place the nodes within their (sub-)column: input nodes
         right-aligned, output nodes left-aligned, and the center node
@@ -259,26 +263,49 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
     const cy = (id: string): number => nodeCY.get(id)!
 
     /*  distribute the edge attachment ports along each node side  */
-    const portPos = assignPorts(edges, sides, cx, cy, boxW, boxH, portGap,
+    let portPos = assignPorts(edges, sides, cx, cy, boxW, boxH, portGap,
         undefined, level.fixedPort)
 
     /*  assign the vertical tracks within each channel (see assignTracks
         for the crossing-avoiding ordering scheme; a hub graph has no backward
-        edges, hence no channel user is ever mirrored)  */
+        edges, hence no channel user is ever mirrored, and a crowded
+        channel bundles the edges of the same name sharing their target
+        with the same arity, or else their source)  */
     const chanUsers: TrackUser[][] = [ [], [] ]
     edges.forEach((edge, i) => {
         chanUsers[chanOf(edge)].push({
-            edge:   i,
-            posIn:  portPos.get(`${i}:s`)!.y,
-            posOut: portPos.get(`${i}:t`)!.y,
-            mirror: false
+            edge:    i,
+            posIn:   portPos.get(`${i}:s`)!.y,
+            posOut:  portPos.get(`${i}:t`)!.y,
+            mirror:  false,
+            bundles: [ `t:${JSON.stringify([ edge.target, edge.arity ?? null, edge.name ?? null ])}`,
+                `s:${JSON.stringify([ edge.source, edge.name ?? null ])}` ]
         })
     })
     const chanOff = new Map<string, number>()
+    const bundled = new Set<number>()
+    const frame   = Math.max(CHAN_W1, 2 * arrowRoom(config))
+    let   grown   = false
     chanUsers.forEach((users, c) => {
-        for (const [ edge, off ] of assignTracks(users, chanW[c], CHAN_PAD, config["size-edge-track-gap"]))
+        const tracks = assignTracks(users, chanW[c], CHAN_PAD, config["size-edge-track-gap"], frame)
+        for (const [ edge, off ] of tracks.offsets)
             chanOff.set(`${c}:${edge}`, off)
+        for (const edge of tracks.bundled.keys())
+            bundled.add(edge)
+        if (tracks.need > chanW[c]) {
+            chanW[c] = tracks.need
+            grown    = true
+        }
     })
+
+    /*  grow a crowded channel to the need of its bundled tracks (but never
+        shrink it, as the edge names on its stubs need the room), which
+        shifts the columns right of it and hence their ports  */
+    if (grown) {
+        placeColumns()
+        portPos = assignPorts(edges, sides, cx, cy, boxW, boxH, portGap,
+            undefined, level.fixedPort)
+    }
 
     /*  determine the X position of an edge's assigned track within a channel  */
     const chanX = (c: number, edge: number): number => colLX[c] + colWidth[c] + chanW[c] / 2 +
@@ -314,6 +341,7 @@ export const render = async (graph: Graph, config: Config, level: LevelContext =
             text:   "color-node-self-name",
             dash:   "10 6"
         } : defaultStyleOf(node)
-    return { nodes, edges, cx, cy, boxW, boxH, contentH, polys, styleOf }
+    return { nodes, edges, cx, cy, boxW, boxH, contentH, polys, styleOf,
+        bundled: edges.map((_, i) => bundled.has(i)) }
 }
 
