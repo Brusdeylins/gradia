@@ -5,6 +5,9 @@ ChangeLog
 1.4.5 (2026-10-27)
 ------------------
 
+-   FEATURE [infr, othr]: add a small Broadcast based regression test suite (the "smp/broadcast.d"
+    diagrams plus the "regression-before", "regression-after", and "regression-clean" targets).
+
 -   IMPROVEMENT [code]: bundle the edges of crowded channels and gutters (whose parallel tracks do
     not fit at the full "size-edge-track-gap") instead of squeezing their tracks into one grey bar:
     the edges of the same name leading to the same target node side with the same arity, or else
@@ -17,6 +20,10 @@ ChangeLog
     and name label, and the freed ports let the box shrink, with the larger port separation for the
     name label applied only to the node sides holding such a merged port, and the merging kept only
     if it does not enlarge the diagram.
+
+-   IMPROVEMENT [code]: in diagrams with crowded channels or gutters, bridge the closely spaced
+    crossings of a segment with one flat bridge instead of one wide arc (merging the hops whenever
+    the flat piece between them would be shorter than two hops), as they would turn into a wavy line.
 
 1.4.4 (2026-10-27)
 ------------------
