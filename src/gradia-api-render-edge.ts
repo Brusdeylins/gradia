@@ -715,9 +715,11 @@ const len = (a: [ number, number ], b: [ number, number ]): number =>
 /*  convert an edge polyline into an SVG path with rounded corners
     at the bends (except the bends at a junction of bundled edges,
     where the edge turns sharply at the junction mark) and
-    semi-circular hops at the crossing points  */
+    semi-circular hops at the crossing points (with "bridges", as for a
+    crowded diagram whose closely spaced tracks would make the hops wavy,
+    a merged run is spanned by one flat bridge)  */
 export const pathOf = (poly: Poly, hop: Map<number, number[]>, rounding: number, hopRadius: number,
-    junction?: (x: number, y: number) => boolean): string => {
+    junction?: (x: number, y: number) => boolean, bridges = false): string => {
     const radius = (k: number): number => {
         if (k <= 0 || k >= poly.length - 1 || junction?.(poly[k][0], poly[k][1]))
             return 0
@@ -751,11 +753,14 @@ export const pathOf = (poly: Poly, hop: Map<number, number[]>, rounding: number,
             /*  merge closely adjacent crossings into groups, each
                 rendered as one single wide "long hop" arc (crossings
                 are merged whenever the flat line piece left between
-                their individual hops would be shorter than 14px)  */
+                their individual hops would be shorter than 14px), or,
+                with bridges, as one flat bridge (merged whenever that
+                piece would be shorter than two hops)  */
+            const merge  = bridges ? hopRadius * 6 : hopRadius * 2 + 14
             const groups: number[][] = []
             for (const hx of xs) {
                 const g = groups.at(-1)
-                if (g !== undefined && Math.abs(hx - g.at(-1)!) <= hopRadius * 2 + 14)
+                if (g !== undefined && Math.abs(hx - g.at(-1)!) <= merge)
                     g.push(hx)
                 else
                     groups.push([ hx ])
@@ -771,7 +776,15 @@ export const pathOf = (poly: Poly, hop: Map<number, number[]>, rounding: number,
                 if ((p1[0] - x2) * dir < 0)
                     x2 = p1[0]
                 d.push(`L ${x1} ${a[1]}`)
-                d.push(`A ${Math.abs(x2 - x1) / 2} ${hopRadius} 0 0 ${dir > 0 ? 1 : 0} ${x2} ${a[1]}`)
+                const sweep = dir > 0 ? 1 : 0
+                const rise  = Math.min(hopRadius, Math.abs(x2 - x1) / 2)
+                if (bridges && g.length > 1) {
+                    d.push(`A ${rise} ${hopRadius} 0 0 ${sweep} ${x1 + dir * rise} ${a[1] - hopRadius}`)
+                    d.push(`L ${x2 - dir * rise} ${a[1] - hopRadius}`)
+                    d.push(`A ${rise} ${hopRadius} 0 0 ${sweep} ${x2} ${a[1]}`)
+                }
+                else
+                    d.push(`A ${Math.abs(x2 - x1) / 2} ${hopRadius} 0 0 ${sweep} ${x2} ${a[1]}`)
             }
         }
         d.push(`L ${p1[0]} ${p1[1]}`)

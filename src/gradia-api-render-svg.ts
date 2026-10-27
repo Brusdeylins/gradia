@@ -675,7 +675,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     const repeat  = new Set(Array.from(into.values()).flatMap((l) => l.slice(1)))
     const svgEdges = polys.map((poly, i) =>
         `<path d="${pathOf(poly, hops[i],
-            config["size-edge-corner-radius"], config["size-edge-hop-radius"], junction)}" ` +
+            config["size-edge-corner-radius"], config["size-edge-hop-radius"], junction, layout.crowded === true)}" ` +
         `class="${classEdge}"` +
         (repeat.has(i) ? "/>" : ` marker-end="url(#${idArrow})"/>`))
     const svgJunctions = junctions.map(([ x, y ]) =>

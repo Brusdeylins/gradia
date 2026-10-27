@@ -113,7 +113,8 @@ export interface ContainerBox {
 
 /*  the laid out graph handed over for SVG generation (the optional
     "bundled" flags run parallel to the edges and mark the ones sharing
-    a track, composing by concatenation exactly like the edges)  */
+    a track, composing by concatenation exactly like the edges, and the
+    optional "crowded" flag marks a layout with crowded channels/gutters)  */
 export interface Layout {
     nodes:       Node[]
     edges:       Edge[]
@@ -127,6 +128,7 @@ export interface Layout {
     groups?:     GroupBox[]
     containers?: ContainerBox[]
     bundled?:    boolean[]
+    crowded?:    boolean
 }
 
 /*  the area of the bounding box of the node boxes and edge lines of a
