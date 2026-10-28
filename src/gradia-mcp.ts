@@ -47,6 +47,10 @@ component relationships, data flows, dependency graphs, and similar structures.
   its row) and an optional fixed "value", drawn as a run of cells in rows of
   "layout-row-cells" cells. It rejects the input with an error if it contains
   an edge or a container.
+- "layer": a layered architecture: the layers (the "layer: <name>" attribute of
+  the nodes) stack top-down as bands, and an edge pointing upwards against the
+  layering is drawn dashed in the "color-mark-violation" color. It rejects the
+  input with an error if it contains a container.
 - "sequence": a sequence diagram: the nodes are the participants on top of
   their lifelines, left-to-right in declaration order or in ascending order of
   their "order" attributes (the nodes without one following), and the edges
@@ -129,7 +133,7 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
     <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                        | "#type" <whitespace> { <whitespace> } <type>
     <option>         ::= <letter> { <letter> | <digit> | "-" }
-    <type>           ::= "graph" | "hub" | "grid" | "layout" | "sequence"
+    <type>           ::= "graph" | "hub" | "grid" | "layout" | "layer" | "sequence"
     <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
     <newline>        ::= "\\n"
     <whitespace>     ::= " " | "\\t" | "\\r"

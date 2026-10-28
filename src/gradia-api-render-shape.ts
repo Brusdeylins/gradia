@@ -38,7 +38,7 @@ export interface ShapeText {
     anchor:   "start" | "middle" | "end"
     box:      Area
     fill:     ConfigEmbedded
-    size:     ConfigFontSize
+    size:     ConfigFontSize | number
     bold?:    boolean
     url?:     string
     halo?:    boolean
@@ -54,17 +54,21 @@ export const pathShape = (x: number, y: number, d: string, [ x1, y1, x2, y2 ]: A
 /*  create a text shape of the given width and font size, vertically
     centered on its origin  */
 export const textShape = (x: number, y: number, text: string, anchor: "start" | "middle" | "end", w: number,
-    fill: ConfigEmbedded, size: ConfigFontSize, fs: number,
+    fill: ConfigEmbedded, size: ConfigFontSize | number, fs: number,
     options: Pick<ShapeText, "bold" | "url" | "halo"> = {}): ShapeText => {
     const x1 = anchor === "start" ? x : anchor === "end" ? x - w : x - w / 2
     return { kind: "text", x, y: y + fs * 0.35, text, anchor,
         box: [ x1 - 2, y - fs * 0.6, x1 + w + 2, y + fs * 0.6 ], fill, size, ...options }
 }
 
-/*  create a rectangle shape, as a closed path (filled only if a fill is given)  */
+/*  create a rectangle shape, as a closed path (filled only if a fill is
+    given, and with corners rounded by the radius "r", if given)  */
 export const rectShape = (x: number, y: number, w: number, h: number,
-    stroke: ConfigEmbedded, width: number, dash?: string, fill?: ConfigEmbedded): ShapePath =>
-    pathShape(x, y, `h ${w} v ${h} h ${-w} z`, [ 0, 0, w, h ], stroke, width, dash, fill)
+    stroke: ConfigEmbedded, width: number, dash?: string, fill?: ConfigEmbedded, r = 0): ShapePath =>
+    pathShape(x, y, r > 0 ?
+        `m ${r} 0 h ${w - 2 * r} a ${r} ${r} 0 0 1 ${r} ${r} v ${h - 2 * r} a ${r} ${r} 0 0 1 ${-r} ${r} ` +
+        `h ${2 * r - w} a ${r} ${r} 0 0 1 ${-r} ${-r} v ${2 * r - h} a ${r} ${r} 0 0 1 ${r} ${-r} z` :
+        `h ${w} v ${h} h ${-w} z`, [ 0, 0, w, h ], stroke, width, dash, fill)
 
 /*  shift a shape by an offset (e.g. into its group box)  */
 export const shiftShape = (shape: Shape, dx: number, dy: number): Shape =>

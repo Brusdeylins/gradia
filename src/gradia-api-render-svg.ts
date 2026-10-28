@@ -508,13 +508,13 @@ const arityBoxes = (arity: string, poly: Poly, config: Config): Box[] => {
     which attaches it to its edge, so a line crossed beneath its halo
     weighs less than a drift away from that arrow  */
 const renderEdgeArity = (edge: Edge, candidates: Box[], claim: (candidates: Box[], dodge?: boolean,
-    own?: Box) => Box, styler: Styler): string[] => {
+    own?: Box) => Box, styler: Styler, alert: boolean): string[] => {
     if (edge.arity === undefined)
         return []
     const box = claim(candidates, false, candidates[0])
     return [ `<text x="${(box[0] + box[2]) / 2}" y="${box[3] - 3}" ` +
-        `class="${styler.text("color-edge-arity", "size-font-arity", { middle: true, halo: true })}">` +
-        `${escapeXML(edge.arity)}</text>` ]
+        `class="${styler.text(alert ? "color-mark-violation" : "color-edge-arity", "size-font-arity",
+            { middle: true, halo: true })}">${escapeXML(edge.arity)}</text>` ]
 }
 
 /*  the preferred positions of the name labels of the bundled edges: on
@@ -631,7 +631,7 @@ const portLabels = (edge: Edge, poly: Poly, into: boolean, config: Config): Box[
     position through the "claim" of the label placer), or, for a
     bundled edge, preferably at one of its given stub positions  */
 const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Box[], dodge?: boolean) => Box,
-    styler: Styler, config: Config, preferred: Box[] = []): string[] => {
+    styler: Styler, config: Config, alert: boolean, preferred: Box[] = []): string[] => {
     if (edge.name === undefined)
         return []
     const w = textWidth(edge.name, config["size-font-edge"])
@@ -678,16 +678,16 @@ const renderEdgeName = (edge: Edge, poly: Poly, claim: (candidates: Box[], dodge
     }
     candidates.sort((a, b) => near(a) - near(b))
     candidates.unshift(...preferred)
-    return nameText(edge, claim(candidates), styler)
+    return nameText(edge, claim(candidates), styler, alert)
 }
 
 /*  generate the SVG fragment for the name label of an edge at its claimed
     position, centered on it, or else aligned to its start or end (as the
     estimated text width may deviate, and an anchored label stays flush)  */
-const nameText = (edge: Edge, box: Box, styler: Styler,
+const nameText = (edge: Edge, box: Box, styler: Styler, alert: boolean,
     align: "middle" | "start" | "end" = "middle"): string[] =>
     [ `<text x="${align === "middle" ? (box[0] + box[2]) / 2 : align === "start" ? box[0] : box[2]}" ` +
-        `y="${box[3] - 3}" class="${styler.text("color-edge-name",
+        `y="${box[3] - 3}" class="${styler.text(alert ? "color-mark-violation" : "color-edge-name",
             "size-font-edge", { middle: align === "middle", end: align === "end", halo: true })}">` +
         `${escapeXML(edge.name ?? "")}</text>` ]
 
@@ -737,6 +737,15 @@ const renderShape = (shape: Shape, styler: Styler): string => {
         `<a href="${escapeXML(shape.url)}" xlink:href="${escapeXML(shape.url)}">${text}</a>`
 }
 
+/*  generate the SVG fragments of an arrow head marker  */
+const marker = (id: string, cls: string): string[] => [
+    `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" ` +
+        "markerWidth=\"21\" markerHeight=\"21\" markerUnits=\"userSpaceOnUse\" " +
+        "orient=\"auto-start-reverse\">",
+    `<path d="M 0 1 L 9 5 L 0 9 z" class="${cls}"/>`,
+    "</marker>"
+]
+
 /*  render a laid out graph into an SVG document (the seed determines the
     identifier prefix of the document, see "idPrefix" above)  */
 export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Config>,
@@ -756,6 +765,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     const prefix  = idPrefix(seed)
     const idArrow = `${prefix}-arrow`
     const idOpen  = `${prefix}-arrow-open`
+    const idAlert = `${prefix}-alert`
 
     /*  resolve the configured font into the rendered font family stack  */
     const { family, embed, weight } = resolveFont(config)
@@ -792,6 +802,14 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     }
     const classEdge  = classOf(`fill: none; stroke: ${color("color-edge-line")}; stroke-width: 3`)
     const classArrow = classOf(`fill: ${color("color-edge-line")}`)
+
+    /*  an edge marked as a violation is drawn dashed in the violation
+        color, its arrow head and labels alike  */
+    const violates   = (i: number): boolean => layout.marked?.[i] === true
+    const alerted    = edges.some((_, i) => violates(i))
+    const classAlert = alerted ? classOf(`fill: none; stroke: ${color("color-mark-violation")}; stroke-width: 3; ` +
+        "stroke-dasharray: 10 6") : ""
+    const classAlertArrow = alerted ? classOf(`fill: ${color("color-mark-violation")}`) : ""
 
     /*  detect the edge crossings requiring rendered hops  */
     const hops = computeHops(polys)
@@ -836,10 +854,19 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
     const svgEdges = piecesOf(polys, layout.bundled).flatMap((pieces, i) => pieces.map((piece) =>
         `<path d="${pathOf(polys[i], hops[i], config["size-edge-corner-radius"], config["size-edge-hop-radius"],
             junction, layout.crowded === true, piece)}" ` +
-        `class="${dashed(i) ? classDash : classEdge}"` +
-        (repeat.has(i) || !piece.end ? "/>" : ` marker-end="url(#${hollow(i) ? idOpen : idArrow})"/>`)))
-    const svgJunctions = junctions.map(([ x, y ]) =>
-        `<circle cx="${x}" cy="${y}" r="${JUNCTION_R}" class="${classArrow}"/>`)
+        `class="${violates(i) ? classAlert : dashed(i) ? classDash : classEdge}"` +
+        (repeat.has(i) || !piece.end ? "/>" :
+            ` marker-end="url(#${violates(i) ? idAlert : hollow(i) ? idOpen : idArrow})"/>`)))
+    const passes = (poly: Poly, x: number, y: number): boolean =>
+        poly.some((p, m) => m > 0
+            && Math.min(p[0], poly[m - 1][0]) <= x && x <= Math.max(p[0], poly[m - 1][0])
+            && Math.min(p[1], poly[m - 1][1]) <= y && y <= Math.max(p[1], poly[m - 1][1]))
+    const svgJunctions = junctions.map(([ x, y ]) => {
+        /*  a junction of a bundle of marked edges takes their color, as a
+            bundle never mixes marked and unmarked edges  */
+        const marked = alerted && polys.some((poly, i) => violates(i) && passes(poly, x, y))
+        return `<circle cx="${x}" cy="${y}" r="${JUNCTION_R}" class="${marked ? classAlertArrow : classArrow}"/>`
+    })
 
     /*  reserve the position every arity label prefers -- the one beside
         its own arrow head -- before any name label is placed, as an
@@ -866,7 +893,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         const anchor = arrivalLabels(edge, polys[i], config).find((box) => seize(box, i))
         if (anchor === undefined)
             return false
-        svgLabels.push(...nameText(edge, anchor, styler,
+        svgLabels.push(...nameText(edge, anchor, styler, violates(i),
             anchor[2] <= polys[i][polys[i].length - 1][0] ? "end" : "start"))
         return true
     })
@@ -876,7 +903,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         const name = (preferred?: Box[], mates?: number[]) =>
             svgLabels.push(...renderEdgeName(edge, polys[i],
                 (c, dodge) => claim(c, i, dodge, undefined, mates),
-                styler, config, preferred))
+                styler, config, violates(i), preferred))
         if (!grouped.has(i))
             name(stubAt.get(i))
         if (into.has(i))
@@ -888,7 +915,7 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         const candidates = arities[i]
         if (candidates !== undefined)
             svgLabels.push(...renderEdgeArity(edge, candidates,
-                (c, dodge, own) => claim(c, i, dodge, own), styler))
+                (c, dodge, own) => claim(c, i, dodge, own), styler, violates(i)))
     })
 
     /*  generate the SVG fragments for the node boxes  */
@@ -929,11 +956,8 @@ export const renderSVG = (layout: Layout, config: Config, explicit: Partial<Conf
         ] : []),
         ...Array.from(rules, ([ decls, name ]) => `.${name} { ${escapeXML(decls)} }`),
         "</style>",
-        `<marker id="${idArrow}" viewBox="0 0 10 10" refX="9" refY="5" ` +
-            "markerWidth=\"21\" markerHeight=\"21\" markerUnits=\"userSpaceOnUse\" " +
-            "orient=\"auto-start-reverse\">",
-        `<path d="M 0 1 L 9 5 L 0 9 z" class="${classArrow}"/>`,
-        "</marker>",
+        ...marker(idArrow, classArrow),
+        ...(alerted ? marker(idAlert, classAlertArrow) : []),
         ...(open ? [
             `<marker id="${idOpen}" viewBox="0 0 10 10" refX="9" refY="5" ` +
                 "markerWidth=\"21\" markerHeight=\"21\" markerUnits=\"userSpaceOnUse\" " +

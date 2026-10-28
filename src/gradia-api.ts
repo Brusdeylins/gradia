@@ -17,6 +17,7 @@ import { render as renderGraph }                   from "./gradia-api-type-graph
 import { render as renderHub }                     from "./gradia-api-type-hub.js"
 import { render as renderGrid }                    from "./gradia-api-type-grid.js"
 import { render as renderLayout }                  from "./gradia-api-type-layout.js"
+import { render as renderLayer }                   from "./gradia-api-type-layer.js"
 import { render as renderSequence }                from "./gradia-api-type-sequence.js"
 
 /*  re-export the graph model and configuration companion types  */
@@ -33,6 +34,7 @@ const renderers = {
     hub:      { render: renderHub,      nestable: true,  gated: false, kinds: false },
     grid:     { render: renderGrid,     nestable: true,  gated: false, kinds: false },
     layout:   { render: renderLayout,   nestable: false, gated: false, kinds: false },
+    layer:    { render: renderLayer,    nestable: false, gated: false, kinds: false },
     sequence: { render: renderSequence, nestable: false, gated: false, kinds: true  }
 } satisfies Record<string, DiagramTypeSpec>
 export type DiagramType = keyof typeof renderers
@@ -56,7 +58,7 @@ const parseTypeDirective = (input: string): DiagramType | undefined => {
 
 /*  the options entering the identifier seed only once deviating from
     their default, keeping the identifiers of all older diagrams stable  */
-const seedLate = new Set<string>([ "layout-row-cells", "layout-cell-bits" ])
+const seedLate = new Set<string>([ "layout-row-cells", "layout-cell-bits", "color-mark-violation" ])
 
 /*  the supported output formats  */
 export const diagramFormats = [ "svg:standalone", "svg:embedded", "url:xml", "url:base64" ] as const

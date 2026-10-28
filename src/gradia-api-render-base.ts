@@ -48,9 +48,10 @@ export const arityHeight = (config: Config): number =>
     Math.round(config["size-font-arity"] * 0.8)
 
 /*  estimate rendered text width (no canvas available under Node,
-    factor tuned for the average glyph advance of Source Sans 3)  */
-export const textWidth = (text: string, size: number): number =>
-    text.length * size * 0.52
+    factor tuned for the average glyph advance of Source Sans 3, a bold
+    text widened by the heavier advance of its glyphs)  */
+export const textWidth = (text: string, size: number, bold = false): number =>
+    text.length * size * 0.52 * (bold ? 1.1 : 1)
 
 /*  greedily wrap a text into the lines fitting a maximum rendered width
     (a word exceeding the width on its own is kept unbroken, as breaking
@@ -116,9 +117,11 @@ export interface ContainerBox {
 /*  the laid out graph handed over for SVG generation (the optional
     "bundled" flags run parallel to the edges and mark the ones sharing
     a track, composing by concatenation exactly like the edges, the
-    optional "crowded" flag marks a layout with crowded channels/gutters,
-    and the optional "centered" flag one keeping its edge names centered
-    on their routes instead of in front of their arrow heads)  */
+    optional "marked" flags likewise mark the edges violating their
+    diagram type (e.g. its layering), the optional "crowded" flag marks a
+    layout with crowded channels/gutters, and the optional "centered"
+    flag one keeping its edge names centered on their routes instead of
+    in front of their arrow heads)  */
 export interface Layout {
     nodes:       Node[]
     edges:       Edge[]
@@ -132,6 +135,7 @@ export interface Layout {
     groups?:     GroupBox[]
     containers?: ContainerBox[]
     shapes?:     Shape[]
+    marked?:     boolean[]
     bundled?:    boolean[]
     crowded?:    boolean
     centered?:   boolean
