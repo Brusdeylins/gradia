@@ -70,7 +70,9 @@ export const configDefaults = {
     "grid-gap-horizontal":       40,    /*  grid: horizontal gap between tiles     */
     "grid-gap-vertical":         20,    /*  grid: vertical gap between tiles       */
     "grid-node-width-equal":     true,  /*  grid: force equal width of node boxes  */
-    "grid-node-height-equal":    true   /*  grid: force equal height of node boxes */
+    "grid-node-height-equal":    true,  /*  grid: force equal height of node boxes */
+    "layout-row-cells":          8,     /*  layout: cells per row                  */
+    "layout-cell-bits":          8      /*  layout: bits per cell (1 or 8)         */
 }
 export type Config = typeof configDefaults
 

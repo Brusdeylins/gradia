@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="20 20 456 313" width="456" height="313">
+<defs>
+<style>
+.gradia-3167da4d { fill: none; stroke: var(--gradia-color-edge-line, #999999); stroke-width: 3 }
+.gradia-6c7500cd { fill: var(--gradia-color-edge-line, #999999) }
+.gradia-613ab0f0 { fill: var(--gradia-color-node-regular-box, #e0f0ff); stroke: var(--gradia-color-node-regular-border, #c0d0e0); stroke-width: 2 }
+.gradia-19eb515b { fill: none; stroke: var(--gradia-color-node-regular-border, #c0d0e0); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round }
+.gradia-d27516e0 { fill: none; stroke: var(--gradia-color-edge-line, #999999); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
+.gradia-5002220c { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); fill: var(--gradia-color-container-name, #666666); stroke: var(--gradia-color-edge-halo, #ffffff); stroke-width: 4.5; paint-order: stroke; stroke-linejoin: round }
+.gradia-c90a336e { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-prop, 22px); fill: var(--gradia-color-container-name, #666666); stroke: var(--gradia-color-edge-halo, #ffffff); stroke-width: 4.5; paint-order: stroke; stroke-linejoin: round }
+.gradia-0fd4ae8d { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-type, 16px); fill: var(--gradia-color-node-regular-name, #336699) }
+.gradia-79039e36 { font-family: var(--gradia-font-family, 'Helvetica'), ui-sans-serif, -apple-system, Helvetica, Arial, sans-serif; font-size: var(--gradia-size-font-prop, 22px); fill: var(--gradia-color-edge-name, #333333); stroke: var(--gradia-color-edge-halo, #ffffff); stroke-width: 4.5; paint-order: stroke; stroke-linejoin: round }
+</style>
+<marker id="gradia-7fb7f592acd5-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="21" markerHeight="21" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+<path d="M 0 1 L 9 5 L 0 9 z" class="gradia-6c7500cd"/>
+</marker>
+</defs>
+<path d="M 40 64 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 84 64 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 128 64 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 172 64 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 216 64 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 260 64 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 304 64 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 348 64 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 40 189 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 84 189 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 128 189 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 172 189 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 216 189 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 260 189 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 304 189 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 348 189 h 44 v 44 h -44 z" class="gradia-613ab0f0"/>
+<path d="M 40 64 h 352 v 44 h -352 z" class="gradia-19eb515b"/>
+<path d="M 44 114 q 0 8 8 8 h 156 q 8 0 8 8 q 0 -8 8 -8 h 156 q 8 0 8 -8" class="gradia-d27516e0"/>
+<path d="M 40 189 h 132 v 44 h -132 z" class="gradia-19eb515b"/>
+<path d="M 44 239 q 0 8 8 8 h 46 q 8 0 8 8 q 0 -8 8 -8 h 46 q 8 0 8 -8" class="gradia-d27516e0"/>
+<path d="M 172 189 h 44 v 44 h -44 z" class="gradia-19eb515b"/>
+<path d="M 194 239 v 16" class="gradia-d27516e0"/>
+<path d="M 216 189 h 44 v 44 h -44 z" class="gradia-19eb515b"/>
+<path d="M 238 239 v 16" class="gradia-d27516e0"/>
+<path d="M 238 255 v 29" class="gradia-d27516e0"/>
+<path d="M 260 189 h 132 v 44 h -132 z" class="gradia-19eb515b"/>
+<path d="M 264 239 q 0 8 8 8 h 46 q 8 0 8 8 q 0 -8 8 -8 h 46 q 8 0 8 -8" class="gradia-d27516e0"/>
+<text x="62" y="56" text-anchor="middle" class="gradia-5002220c">0</text>
+<text x="106" y="56" text-anchor="middle" class="gradia-5002220c">1</text>
+<text x="150" y="56" text-anchor="middle" class="gradia-5002220c">2</text>
+<text x="194" y="56" text-anchor="middle" class="gradia-5002220c">3</text>
+<text x="238" y="56" text-anchor="middle" class="gradia-5002220c">4</text>
+<text x="282" y="56" text-anchor="middle" class="gradia-5002220c">5</text>
+<text x="326" y="56" text-anchor="middle" class="gradia-5002220c">6</text>
+<text x="370" y="56" text-anchor="middle" class="gradia-5002220c">7</text>
+<text x="408" y="93.7" class="gradia-c90a336e">0x00</text>
+<text x="408" y="218.7" class="gradia-c90a336e">0x01</text>
+<text x="62" y="91.6" text-anchor="middle" class="gradia-0fd4ae8d">0</text>
+<text x="106" y="91.6" text-anchor="middle" class="gradia-0fd4ae8d">1</text>
+<text x="150" y="91.6" text-anchor="middle" class="gradia-0fd4ae8d">0</text>
+<text x="194" y="91.6" text-anchor="middle" class="gradia-0fd4ae8d">1</text>
+<text x="238" y="91.6" text-anchor="middle" class="gradia-0fd4ae8d">1</text>
+<text x="282" y="91.6" text-anchor="middle" class="gradia-0fd4ae8d">0</text>
+<text x="326" y="91.6" text-anchor="middle" class="gradia-0fd4ae8d">0</text>
+<text x="370" y="91.6" text-anchor="middle" class="gradia-0fd4ae8d">1</text>
+<text x="216" y="153.6" text-anchor="middle" class="gradia-79039e36">Start Marker</text>
+<text x="106" y="278.59999999999997" text-anchor="middle" class="gradia-79039e36">Client ID</text>
+<text x="194" y="278.59999999999997" text-anchor="middle" class="gradia-79039e36">Ack</text>
+<text x="238" y="307.59999999999997" text-anchor="middle" class="gradia-79039e36">Parity Bit</text>
+<text x="326" y="278.59999999999997" text-anchor="middle" class="gradia-79039e36">Command</text>
+</svg>

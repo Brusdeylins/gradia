@@ -604,13 +604,17 @@ const renderContainer = (c: ContainerBox, styler: Styler, config: Config): strin
 }
 
 /*  generate the SVG fragment for a single free-standing shape  */
-const renderShape = (shape: Shape, styler: Styler): string =>
-    shape.kind === "text" ?
-        `<text x="${shape.x}" y="${shape.y}"${shape.anchor === "end" ? " text-anchor=\"end\"" : ""} ` +
-        `class="${styler.text(shape.fill, shape.size, { halo: true })}">${escapeXML(shape.text)}</text>` :
-        `<path d="M ${shape.x} ${shape.y} ${shape.d}" class="${shape.fill !== undefined ?
+const renderShape = (shape: Shape, styler: Styler): string => {
+    if (shape.kind === "path")
+        return `<path d="M ${shape.x} ${shape.y} ${shape.d}" class="${shape.fill !== undefined ?
             styler.box(shape.fill, shape.stroke, shape.width) : styler.line(shape.stroke, shape.width)}"` +
-        `${shape.dash !== undefined ? ` stroke-dasharray="${escapeXML(shape.dash)}"` : ""}/>`
+            `${shape.dash !== undefined ? ` stroke-dasharray="${escapeXML(shape.dash)}"` : ""}/>`
+    const text = `<text x="${shape.x}" y="${shape.y}"${shape.anchor !== "start" ? ` text-anchor="${shape.anchor}"` : ""} ` +
+        `class="${styler.text(shape.fill, shape.size, { bold: shape.bold, halo: shape.halo !== false })}">` +
+        `${escapeXML(shape.text)}</text>`
+    return shape.url === undefined ? text :
+        `<a href="${escapeXML(shape.url)}" xlink:href="${escapeXML(shape.url)}">${text}</a>`
+}
 
 /*  render a laid out graph into an SVG document (the seed determines the
     identifier prefix of the document, see "idPrefix" above)  */

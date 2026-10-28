@@ -14,7 +14,7 @@ About
 -----
 
 **Gradia** is a small API and CLI for rendering directed graphs,
-described in a concise textual input language, as SVG diagrams. Four
+described in a concise textual input language, as SVG diagrams. Five
 diagram types are supported which fit the scenario of visualizing object
 graphs:
 
@@ -23,6 +23,9 @@ graphs:
 - `hub`: a hub graph, placing one primary hub node between its input and
   output nodes.
 - `grid`: a compact grid of tiles for an edge-less graph.
+- `layout`: the cell layout of a binary structure (e.g. a message frame,
+  a file header, or a memory slot), drawing every node as a field of
+  cells below a ruler and labeling it below the cells.
 - `sequence`: a sequence diagram of participants and their messages.
 
 Examples
@@ -46,6 +49,10 @@ Here are examples of the graph diagram renderings:
 
   ![container-sample](smp/container-sample.svg)
 
+- [layout-bits](smp/layout-bits.txt) (bit fields):
+
+  ![layout-bits](smp/layout-bits.svg)
+
 - [sequence-sample](smp/sequence-sample.txt) (sequence diagram):
 
   ![sequence-sample](smp/sequence-sample.svg)
@@ -68,7 +75,7 @@ Usage
 -----
 
 ```sh
-$ gradia [-t graph|hub|grid|sequence] [-f <format>] [-c <name>=<value>] -o <file>.svg <graph>.txt
+$ gradia [-t graph|hub|grid|layout|sequence] [-f <format>] [-c <name>=<value>] -o <file>.svg <graph>.txt
 ```
 
 The diagram type is selected with the `-t` command-line option or, when
@@ -85,7 +92,7 @@ MCP Service
 -----------
 
 ```sh
-$ gradia --mcp [-t graph|hub|grid|sequence] [-f <format>] [-c <name>=<value>]
+$ gradia --mcp [-t graph|hub|grid|layout|sequence] [-f <format>] [-c <name>=<value>]
 ```
 
 With the `-m`/`--mcp` option, **Gradia** instead runs as a [Model Context
@@ -153,7 +160,7 @@ separated by `|`.
 <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                    | "#type" <whitespace> { <whitespace> } <type>
 <option>         ::= <letter> { <letter> | <digit> | "-" }
-<type>           ::= "graph" | "hub" | "grid" | "sequence"
+<type>           ::= "graph" | "hub" | "grid" | "layout" | "sequence"
 <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
 <newline>        ::= "\n"
 <whitespace>     ::= " " | "\t" | "\r"
@@ -300,6 +307,25 @@ This second placement is rendered as a dashed "self" box, colored by the
 The diagram type `grid` rejects the input with an error as soon as the
 graph contains at least one edge.
 
+The diagram type `layout` rejects the input with an error as soon as the
+graph contains at least one edge or one container. Every node is a field
+of the binary structure and has to carry the attributes `offset` and
+`size` (non-negative and positive integers, decimal or `0x` hexadecimal)
+in cells, where a `size` of `*` runs to the end of its row, its label
+ending in `...`. The fields are drawn in rows of `layout-row-cells` cells
+below a ruler of the cell numbers, a field exceeding its row continues
+in the next one, overlapping fields are rejected, and the cells between
+the fields are drawn as dashed gaps. A layout spans at most 4096 cells
+and `layout-row-cells` is at most 256. Every field is labeled below its
+cells through a brace (or, for a single cell, a tick), where the labels
+of narrow neighboring fields stagger downwards, connected by a leader
+line. The optional attribute `value` shows a fixed value inside the
+cells: one character per cell if it has as many characters as cells,
+else once across the merged cells. The attribute `url` links the label,
+while all other attributes are ignored. The offset of every row is shown
+right beside it, in hexadecimal bytes (or in bits, where a row does not
+start on a byte boundary).
+
 The diagram type `sequence` rejects the input with an error as soon as
 the graph contains a container. Its participants (the nodes) are ordered
 by declaration or by their `order` attributes (left-to-right in ascending
@@ -356,11 +382,11 @@ group and every `hub` container needs its own primary node.
 
 ### Directives
 
-A `#type` directive sets the diagram type (`graph`, `hub`, `grid`, or
-`sequence`), which otherwise is settable through the `-t`/`--type`
-command-line option (which takes precedence). The last occurrence wins
-and an invalid type is silently ignored. Without both, the type defaults
-to `graph`.
+A `#type` directive sets the diagram type (`graph`, `hub`, `grid`,
+`layout`, or `sequence`), which otherwise is settable through the
+`-t`/`--type` command-line option (which takes precedence). The last
+occurrence wins and an invalid type is silently ignored. Without both,
+the type defaults to `graph`.
 
 A `#config` directive sets one of the rendering options, which otherwise
 are settable through the corresponding `--config <option>=<value>`
@@ -398,13 +424,15 @@ size-font-type             16           grid-gap-horizontal        40
 size-font-prop             22           grid-gap-vertical          20
 size-font-edge             16           grid-node-width-equal      true
 size-font-arity            16           grid-node-height-equal     true
+                                        layout-row-cells           8
+                                        layout-cell-bits           8
 ```
 
-The `size-*`, `group-*`, `container-*`, `graph-*`, `hub-*`, and
-`grid-*` options control the rendering geometry (text font sizes, canvas
-margin, node box sizing, edge routing, group and container box spacing,
-and the per-diagram-type layout) and take non-negative numbers, except
-the booleans `grid-node-width-equal` and `grid-node-height-equal`.
+The `size-*`, `group-*`, `container-*`, `graph-*`, `hub-*`, `grid-*`,
+and `layout-*` options control the rendering geometry (text font sizes,
+canvas margin, node box sizing, edge routing, group and container box
+spacing, and the per-diagram-type layout) and take non-negative numbers,
+except the booleans `grid-node-width-equal` and `grid-node-height-equal`.
 
 The `size-font-*` options control the font sizes of the node names
 (`size-font-node`), the node types (`size-font-type`), the node
@@ -480,6 +508,11 @@ count, so that a few nodes still share a single row instead of being
 stacked, while `grid-columns-max` caps it, so that larger diagrams grow
 in height only. The column count never exceeds the node count and the
 maximum always wins over the minimum.
+
+The `layout-row-cells` and `layout-cell-bits` options control a
+`layout` diagram: the number of cells per row and the number of bits a
+cell stands for (usually `1` for bit fields or `8` for byte fields,
+which decides the offset shown beside every row).
 
 The `grid-node-width-equal` and `grid-node-height-equal` options control
 the tile sizes of a `grid` diagram: the value `true` forces all node

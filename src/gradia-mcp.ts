@@ -41,6 +41,12 @@ component relationships, data flows, dependency graphs, and similar structures.
   described below.
 - "grid": a compact grid of tiles for an edge-less graph. The nodes are placed
   in declaration order onto a roughly square, row-major grid.
+- "layout": the cell layout of a binary structure (e.g. a message frame or a
+  file header): every node is a field with the attributes "offset" and "size"
+  (in cells of "layout-cell-bits" bits, a "size" of "*" running to the end of
+  its row) and an optional fixed "value", drawn as a run of cells in rows of
+  "layout-row-cells" cells. It rejects the input with an error if it contains
+  an edge or a container.
 - "sequence": a sequence diagram: the nodes are the participants on top of
   their lifelines, left-to-right in declaration order or in ascending order of
   their "order" attributes (the nodes without one following), and the edges
@@ -123,7 +129,7 @@ as <name>, terminals as "...", optional parts as [ ... ], repeatable parts as
     <directive>      ::= "#config" <whitespace> { <whitespace> } <option> <whitespace> { <whitespace> } ( <string> | <word> )
                        | "#type" <whitespace> { <whitespace> } <type>
     <option>         ::= <letter> { <letter> | <digit> | "-" }
-    <type>           ::= "graph" | "hub" | "grid" | "sequence"
+    <type>           ::= "graph" | "hub" | "grid" | "layout" | "sequence"
     <word>           ::= <char> - <whitespace> { <char> - <whitespace> }
     <newline>        ::= "\\n"
     <whitespace>     ::= " " | "\\t" | "\\r"
@@ -243,13 +249,14 @@ over them. The recognized options, with their types and built-in defaults, are:
 
 ${configOptions}
 
-The "size-*", "group-*", "container-*", "graph-*", "hub-*", and "grid-*" options
-control the rendering geometry (canvas margin, node box sizing, edge routing,
-group and container box spacing, and the per-diagram-type layout) and take
-non-negative numbers, except the booleans "grid-node-width-equal" and
-"grid-node-height-equal", which force all node boxes of a "grid" diagram to
-the width of the widest one and to the height of the tallest one (a nested
-container box taking part in the width unification only).
+The "size-*", "group-*", "container-*", "graph-*", "hub-*", "grid-*", and
+"layout-*" options control the rendering geometry (canvas margin, node box
+sizing, edge routing, group and container box spacing, and the
+per-diagram-type layout) and take non-negative numbers, except the booleans
+"grid-node-width-equal" and "grid-node-height-equal", which force all node
+boxes of a "grid" diagram to the width of the widest one and to the height of
+the tallest one (a nested container box taking part in the width unification
+only).
 
 The "size-node-width-max" option additionally enables the word-wrapping of the
 node box texts: given a positive value, the node name, its type, and its
